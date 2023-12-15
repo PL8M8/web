@@ -4,14 +4,14 @@ import Footer from '@components/Footer';
 
 export default function Home() {
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+    <div style={{ height: '100%', padding: "0 10% 0", maxWidth: '100%', margin: '0 auto', textAlign: 'center' }}>
       <Head>
         <title>PL8M8 Experiment - Shape the Future</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        <Header title="Welcome to the PL8M8 Experiment!" />
+        <Header title="PL8M8 CASE STUDY 001" />
 
         {/* Button to Open Google Forms */}
         <div style={{ marginTop: '16px' }}>
