@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div style={{ height: '100%', padding: "0 10% 0", maxWidth: '100%', margin: '0 auto', textAlign: 'center' }}>
       <Head>
-        <title>PL8M8 Experiment - Shape the Future</title>
+        <title>PL8M8 Experiment - Improving Car Ownership</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
