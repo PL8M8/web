@@ -214,7 +214,8 @@ const Hackathon = () => {
             </Section>
                 <SubHeading>Judging Panel</SubHeading>
                 <JudgeContainer>
-                    {judges.map((judge, index) => (
+                    <h1>TBD</h1>
+                    {/* {judges.map((judge, index) => (
                         <JudgeCard key={index}>
                             <JudgeImage 
                                 src={judge.avatar} 
@@ -223,7 +224,7 @@ const Hackathon = () => {
                             <JudgeName>{judge.name}</JudgeName>
                             <JudgeTitle>{judge.title}</JudgeTitle>
                         </JudgeCard>
-                    ))}
+                    ))} */}
                 </JudgeContainer>
         </Container>
     );
