@@ -111,6 +111,7 @@ const JudgeImage = styled.img`
     height: 100px;
     border-radius: 50%;
     margin-bottom: 8px;
+    object-fit: cover;
 `;
 
 const JudgeName = styled.p`
@@ -124,11 +125,13 @@ const JudgeTitle = styled.p`
 
 const Hackathon = () => {
     const judges = [
-        { name: 'Akanksha', title: 'Lead Organizer', avatar: '/path/to/avatar1.jpg' },
-        { name: 'John Doe', title: 'Tech Lead', avatar: '/path/to/avatar2.jpg' },
-        { name: 'Jane Smith', title: 'Product Manager', avatar: '/path/to/avatar3.jpg' },
-        { name: 'Sam Wilson', title: 'UX Designer', avatar: '/path/to/avatar4.jpg' },
+        { name: 'Akanksha Jhunjhunwala', title: 'Embedded & Electronics Engineer', avatar: '/aks.png' },
+        { name: 'Ben R.', title: 'Product Engineer', avatar: '/blank.jpg' }
     ];
+
+    const winners = [
+        { name: 'Mukesh A.', avatar: '/blank.jpg', title: 'Winning Project Demo:'}
+    ]
 
     return (
         <Container>
@@ -214,8 +217,7 @@ const Hackathon = () => {
             </Section>
                 <SubHeading>Judging Panel</SubHeading>
                 <JudgeContainer>
-                    <h1>TBD</h1>
-                    {/* {judges.map((judge, index) => (
+                    {judges.map((judge, index) => (
                         <JudgeCard key={index}>
                             <JudgeImage 
                                 src={judge.avatar} 
@@ -224,7 +226,39 @@ const Hackathon = () => {
                             <JudgeName>{judge.name}</JudgeName>
                             <JudgeTitle>{judge.title}</JudgeTitle>
                         </JudgeCard>
-                    ))} */}
+                    ))}
+                </JudgeContainer>
+                <SubHeading>Winner</SubHeading>
+                <JudgeContainer>
+                    {winners.map((judge, index) => (
+                        <JudgeCard key={index}>
+                            <JudgeImage 
+                                src={judge.avatar} 
+                                alt={`${judge.name}'s avatar`} 
+                            />
+                            <JudgeName>{judge.name}</JudgeName>
+                            <JudgeTitle>{judge.title}</JudgeTitle>
+                            <Link 
+                                href="https://www.youtube.com/watch?v=8nvJNLMSbOs" 
+                                target="_blank" rel="noopener noreferrer">
+                                Project Demo
+                            </Link>
+                            <br/>
+                            <br/>
+                            <Link 
+                                href="https://car-care-control.onrender.com/" 
+                                target="_blank" rel="noopener noreferrer">
+                                Try it out!
+                            </Link>
+                            <br/>
+                            <br/>
+                            <Link 
+                                href="https://github.com/MukeshAofficial/Car-Care-Control/" 
+                                target="_blank" rel="noopener noreferrer">
+                                Github Repo
+                            </Link>
+                        </JudgeCard>
+                    ))}
                 </JudgeContainer>
         </Container>
     );
