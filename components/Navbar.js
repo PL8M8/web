@@ -9,9 +9,9 @@ const Navbar = () => {
 
     // Define your links directly in the component
     const navLinks = [
-        { name: 'Home', path: '/' },
+        // { name: 'Home', path: '/' },
         // { name: 'Early Access', path: '/beta' },
-        { name: 'Support', path: '/contact' },
+        // { name: 'Support', path: '/contact' },
         // { name: 'Android Waitlist', path: '/waitlist' },
         // { name: 'About Us', path: '/about' },
     ];

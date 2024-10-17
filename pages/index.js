@@ -5,7 +5,7 @@ export default function Index() {
     return (
         <div className="page">
             <div className="background" />
-            <Navbar />
+            {/* <Navbar /> hid until more links available */}
             <main className="main-content">
                 <section>
                     <div className="intro">
