@@ -1,53 +1,41 @@
-import Head from 'next/head';
-import Header from '@components/Header';
-import Footer from '@components/Footer';
+import React from 'react';
+import Navbar from '../components/Navbar'; // Adjust the path as necessary
 
-export default function Home() {
-  return (
-    <div style={{ height: '100%', padding: "0 10% 0", maxWidth: '100%', margin: '0 auto', textAlign: 'center' }}>
-      <Head>
-        <title>PL8M8 Experiment - Improving Car Ownership</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main>
-        <Header title="PL8M8 CASE STUDY 001" />
-
-        {/* Button to Open Google Forms */}
-        <div style={{ marginTop: '16px' }}>
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSea4PmCTcMu_2B2kc_hjDZD6iEDgbybYMpzOjO-bPzp0YTliA/viewform?usp=sf_link"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              fontSize: '16px',
-              backgroundColor: '#ff8800',
-              color: '#fff',
-              textDecoration: 'none',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-            }}
-          >
-            Take the Survey
-          </a>
+export default function Index() {
+    return (
+        <div className="page">
+            <div className="background" />
+            <Navbar />
+            <main className="main-content">
+                <section>
+                    <div className="intro">
+                        <div>
+                            <img className="intro-logo" src="/logo.png" alt="pl8m8 Logo" />
+                        </div>
+                        <h1>Your Garage, Simplified.</h1>
+                    </div>
+                    <div className="description">
+                        <p>Keep all your car info in one spot! Easily track mileage, registration, and photos. Plus, enjoy:</p>
+                        <ul>
+                            <li>Friendly reminders to update your mileage</li>
+                            <li>Never forget your tag number or important details</li>
+                            <li>Quick access to all your vehicle info</li>
+                        </ul>
+                        <div className="survey-button">
+                            <a
+                                href="https://docs.google.com/forms/d/e/1FAIpQLSea4PmCTcMu_2B2kc_hjDZD6iEDgbybYMpzOjO-bPzp0YTliA/viewform?usp=sf_link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Take the Survey
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                <section>
+                    <img className="screenshot" src="/screenshot.png" alt="app screenshot" />
+                </section>
+            </main>
         </div>
-
-        {/* Card Style */}
-        <div style={{ marginTop: '16px', padding: '20px', backgroundColor: '#f8f8f8', borderRadius: '8px' }}>
-          <p style={{ color: '#333', fontWeight: 'bold' }}>
-            Join the PL8M8 Experience! Share your insights in our survey and contribute to positive change.
-          </p>
-
-          <p style={{ marginTop: '16px', color: '#666' }}>
-            Embark on a transformative journey with us by participating in our exclusive survey. Your valuable insights will serve as the foundation for crafting impactful solutions to address the challenges you face. By taking part, you actively influence the direction of our efforts, ensuring that your needs and concerns are not only heard but directly translated into actionable solutions. We're committed to leveraging the survey results to inform strategic decisions, implement user-centric improvements, and tackle issues head-on. Join us in this collaborative effort to shape the future, where your voice is not only acknowledged but serves as the catalyst for positive change. Thank you for being an essential part of our community; together, we'll build a better tomorrow based on the insights we gather today!
-          </p>
-        </div>
-      </main>
-
-      <Footer />
-    </div>
-  );
+    );
 }
