@@ -1,7 +1,7 @@
 import Head from 'next/head';
-import '@styles/globals.css'
 import '@styles/home.css'
 import '@styles/contact.css'
+import '@styles/globals.css'
 
 function Application({ Component, pageProps }) {
   return (
