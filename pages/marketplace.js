@@ -22,6 +22,7 @@ const Card = styled.div`
     flex-direction: column;
     justify-content: space-between;
     padding: 16px;
+    width: 500px;
 `;
 
 const Image = styled.img`
@@ -40,7 +41,7 @@ const Description = styled.p`
     font-size: 0.9em;
 `;
 
-const Button = styled.button`
+const Button = styled.a`
     background-color: #007bff;
     color: white;
     border: none;
@@ -74,8 +75,9 @@ const Marketplace = () => {
                     <Card key={car.id}>
                         <Image src={car.image} alt={car.description} />
                         <Price>{car.price}</Price>
-                        <Description>{car.description}</Description>
-                        <Button>Interested</Button>
+                        <Description>{car.title}</Description>
+                        <Description>{car.location}</Description>
+                        <Button href={car.link}>Go to Listing</Button>
                     </Card>
                 )) : undefined}
             </Mosaic>

@@ -10,12 +10,12 @@ const scrapeCars = async (req, res) => {
         await page.goto(url, { waitUntil: 'networkidle2' });
 
         // Wait for listings to load
-        await page.waitForSelector('.cl-search-result');
+        await page.waitForSelector('ol');
 
         // Scrape the data
         const listings = await page.evaluate(() => {
             const results = [];
-            const items = document.querySelectorAll('.cl-search-result'); // Updated selector
+            const items = document.querySelectorAll('ol'); // Updated selector
 
             items.forEach(item => {
                 const title = item.querySelector('.posting-title .label')?.innerText || ''; // Updated title selector
