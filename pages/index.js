@@ -1,11 +1,11 @@
 import React from 'react';
-import Navbar from '../components/Navbar'; // Adjust the path as necessary
+import Navbar from '@components/Navbar';
 
 export default function Index() {
     return (
         <div className="page">
             <div className="background" />
-            {/* <Navbar /> hid until more links available */}
+            <Navbar /> 
             <main className="main-content">
                 <section>
                     <div className="intro">
