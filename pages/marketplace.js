@@ -56,15 +56,15 @@ const Button = styled.a`
 const Marketplace = () => {
     const [cars, setCars] = useState([]);
 
-    useEffect(() => {
-        const fetchCars = async () => {
-            const response = await fetch('/api/cars');
-            const data = await response.json();
-            setCars(data);
-        };
+    // useEffect(() => {
+    //     const fetchCars = async () => {
+    //         const response = await fetch('/api/cars');
+    //         const data = await response.json();
+    //         setCars(data);
+    //     };
 
-        fetchCars();
-    }, []);
+    //     fetchCars();
+    // }, []);
 
     return (
         <div className="page">
