@@ -1,9 +1,14 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "./", // Base directory for resolving non-relative module names
     "paths": {
-      "@components/*": ["components/*"],
-      "@styles/*": ["styles/*"]
-    }
-  }
+      "@components/*": ["components/*"], // Alias for components directory
+      "@styles/*": ["styles/*"],         // Alias for styles directory
+      "@utils/*": ["utils/*"],           // Optional: Alias for a utils directory
+      "@hooks/*": ["hooks/*"]            // Optional: Alias for a hooks directory
+    },
+    "jsx": "preserve" // Recommended for Next.js projects
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules"]
 }
