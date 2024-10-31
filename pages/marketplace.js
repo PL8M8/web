@@ -1,5 +1,5 @@
 import Navbar from '@components/Navbar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 const Mosaic = styled.div`
@@ -7,6 +7,10 @@ const Mosaic = styled.div`
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 16px;
     padding: 20px;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: repeat(5, 1fr); // Limit to 5 columns on desktop
+    }
 `;
 
 const Card = styled.div`
@@ -49,46 +53,31 @@ const Button = styled.button`
 `;
 
 const Marketplace = () => {
-    const cars = [
-        {
-            id: 1,
-            image: 'https://via.placeholder.com/250x150?text=Car+1',
-            price: '$20,000',
-            description: '2019 Toyota Camry',
-        },
-        {
-            id: 2,
-            image: 'https://via.placeholder.com/250x150?text=Car+2',
-            price: '$25,000',
-            description: '2020 Honda Accord',
-        },
-        {
-            id: 3,
-            image: 'https://via.placeholder.com/250x150?text=Car+3',
-            price: '$30,000',
-            description: '2021 Tesla Model 3',
-        },
-        {
-            id: 4,
-            image: 'https://via.placeholder.com/250x150?text=Car+4',
-            price: '$22,500',
-            description: '2018 Ford Fusion',
-        },
-    ];
+    const [cars, setCars] = useState([]);
+
+    useEffect(() => {
+        const fetchCars = async () => {
+            const response = await fetch('/api/cars');
+            const data = await response.json();
+            setCars(data);
+        };
+
+        fetchCars();
+    }, []);
 
     return (
         <div className="page">
             <div className="background" />
             <Navbar />
             <Mosaic>
-                {cars.map(car => (
+                {cars.length  ?  cars.map(car => (
                     <Card key={car.id}>
                         <Image src={car.image} alt={car.description} />
                         <Price>{car.price}</Price>
                         <Description>{car.description}</Description>
                         <Button>Interested</Button>
                     </Card>
-                ))}
+                )) : undefined}
             </Mosaic>
         </div>
     );

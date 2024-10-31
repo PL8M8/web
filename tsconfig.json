@@ -15,12 +15,21 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "baseUrl": "./", // Base directory for resolving non-relative module names
+    "paths": {
+      "@components/*": ["components/*"], // Alias for components directory
+      "@styles/*": ["styles/*"],         // Alias for styles directory
+      "@utils/*": ["utils/*"],           // Optional: Alias for a utils directory
+      "@hooks/*": ["hooks/*"]            // Optional: Alias for a hooks directory
+    }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx"
   ],
   "exclude": [
     "node_modules"
