@@ -54,6 +54,11 @@ const Subtitle = styled.h3`
     margin-top: 5px;
 `;
 
+const Price = styled.h3`
+    font-size: 1em;
+    color: orange;
+`;
+
 const Detail = styled.p`
     font-size: 0.9em;
     margin: 5px 0;
@@ -99,6 +104,7 @@ const Marketplace = () => {
                         <Image src={vehicle.image_uri} alt={`${vehicle.make} ${vehicle.model}`} />
                         <div style={{ padding: '10px'}}>
                             <Subtitle>{vehicle.year} {vehicle.make} {vehicle.model}</Subtitle>
+                            <Price>${vehicle.listing_price.toLocaleString()}</Price>
                             <Detail><strong>Color:</strong> {vehicle.color}</Detail>
                             <Detail><strong>Condition:</strong> {vehicle.condition}</Detail>
                             <Detail><strong>Mileage:</strong> {vehicle.mileage} miles</Detail>
