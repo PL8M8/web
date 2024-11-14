@@ -13,6 +13,7 @@
     "cheerio": "^1.0.0",
     "cypress": "^13.4.0",
     "next": "^14.0.1",
+    "posthog-js": "^1.184.2",
     "puppeteer": "^23.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
