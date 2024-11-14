@@ -10,7 +10,7 @@ const Navbar = () => {
     // Define your links directly in the component
     const navLinks = [
         { name: 'Home', path: '/' },
-        { name: 'Showcase', path: '/marketplace'}, // Production: Buy & Sell
+        // { name: 'Showcase', path: '/marketplace'}, // Production: Buy & Sell
         // { name: 'Login', path: '/login'},
         
         // { name: 'Early Access', path: '/beta' },
