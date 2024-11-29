@@ -9,9 +9,14 @@ const Navbar = () => {
 
     // Define your links directly in the component
     const navLinks = [
+        { name: 'Buy & Sell', path: '/marketplace' },
         { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
-        { name: 'Sign In', path: '/signin' }
+        { name: 'Sign In', path: '/signin' },
+        // { name: 'Early Access', path: '/beta' },
+        // { name: 'Support', path: '/contact' },
+        // { name: 'Android Waitlist', path: '/waitlist' },
+        // { name: 'About Us', path: '/about' },
     ];
 
     useEffect(() => {
