@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "@components/Navbar";
+import VehicleListing from "@components/VehicleListing";
 
 export default function showcase() {
   const [sidebarVisible, setSidebarVisible] = useState(true);
@@ -14,7 +15,35 @@ export default function showcase() {
     setSidebarVisible(!sidebarVisible);
   }
 
-  // TODO: move sections into proper places
+  // image, title, description, price
+  const listings = [
+    {
+      title: "TEST CAR 1",
+      description: "THIS IS THE FIRST TEST LISTING",
+      price: "50k",
+    },
+    {
+      title: "Fast Car",
+      description: "Vroom Vroom",
+      price: "100k",
+    },
+    {
+      title: "Toyota Camry",
+      description: "It's a pretty normal car",
+      price: "30k",
+    },
+    {
+      title: "Used Car",
+      description: "Found it in the bottom of the lake",
+      price: "0k",
+    },
+    // {
+    //   title: "Cool Car",
+    //   description: "Hot Rod Red ",
+    //   price: "200k",
+    // },
+  ];
+
   return (
     <div className="page">
       <div className="background" />
@@ -37,13 +66,16 @@ export default function showcase() {
         </button>
         <main className="main-content">
           <section className="content-header">CONTENT HEADER RED</section>
-          <section className="listings">LISTINGS GREEN</section>
+          <section className="listings">
+            {listings.map((item, index) => {
+              return <VehicleListing item={item} index={index} />;
+            })}
+          </section>
         </main>
       </div>
     </div>
   );
 }
 
-// add placeholders into .listings section
 // .listing area sub header on desktop
 // mobile

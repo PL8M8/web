@@ -1,0 +1,49 @@
+.listing-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  width: 150px;
+  text-align: center;
+  margin: 10px;
+}
+
+.listing-image {
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #555;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.listing-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.listing-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.listing-description {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.listing-price {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}

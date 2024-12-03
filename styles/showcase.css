@@ -1,6 +1,7 @@
 .showcase {
   display: flex;
   flex: 1;
+  height: 100vh;
 }
 
 .sidebar {
@@ -9,13 +10,16 @@
   height: 100vh;
   /* background-color: #f4f4f4; */
   border-right: 1px solid #ccc;
-  transition: transform 0.3s ease-in-out;
+  /* transition: transform 0.3s ease-in-out; */
+  transition: width 0.3s ease-in-out;
   position: relative;
   z-index: 900;
 }
 
 .sidebar-hide {
-  transform: translateX(-250px);
+  /* transform: translateX(-250px); */
+  width: 0;
+  overflow: hidden;
 }
 
 .main-content {
@@ -23,17 +27,25 @@
   display: flex;
   flex-direction: column;
   padding: 10px;
+  /* transition: flex 0.3s ease-in-out; */
 }
 
 .content-header {
   background-color: red;
-  height: 40%;
+  height: 20%;
   color: white;
   margin-bottom: 10px;
+  width: 100%;
 }
-
 .listings {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  justify-content: start;
+  padding: 10px;
   background-color: green;
+  width: 100%;
   flex: 1;
-  color: white;
+  overflow-y: auto;
+  height: 100%;
 }
