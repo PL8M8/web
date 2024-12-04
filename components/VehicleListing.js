@@ -6,12 +6,7 @@ export default function VehicleListing(props) {
 
   return (
     <div key={props.index} className="listing-item">
-      <img
-        className="listing-image"
-        src={placeholderImageSrc}
-        height="500px"
-        width="500px"
-      />
+      <img className="listing-image" src={placeholderImageSrc} />
       <div className="listing-details">
         <h3 className="listing-title">
           {vehicle.title || "Title Placeholder"}

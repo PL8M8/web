@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "@components/Navbar";
 import VehicleListing from "@components/VehicleListing";
 
 export default function showcase() {
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const listingsToDisplayPerRow = 3;
 
-  useEffect(() => {
-    console.log("sidebarVisible is changing");
-  }, [sidebarVisible]);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [visibleListings, setVisibleListings] = useState(
+    listingsToDisplayPerRow
+  );
 
   function toggleSidebar() {
-    console.log("toggle sidebar ");
-
     setSidebarVisible(!sidebarVisible);
   }
 
-  // image, title, description, price
+  function loadMoreListings() {
+    setVisibleListings((prev) => prev + listingsToDisplayPerRow);
+  }
+
   const listings = [
     {
       title: "TEST CAR 1",
@@ -37,11 +39,11 @@ export default function showcase() {
       description: "Found it in the bottom of the lake",
       price: "0k",
     },
-    // {
-    //   title: "Cool Car",
-    //   description: "Hot Rod Red ",
-    //   price: "200k",
-    // },
+    {
+      title: "Cool Car",
+      description: "Hot Rod Red ",
+      price: "200k",
+    },
   ];
 
   return (
@@ -52,10 +54,9 @@ export default function showcase() {
         <section className={`sidebar${sidebarVisible ? "" : "-hide"}`}>
           SIDE BAR BLUE
         </section>
-        {/* <section className="sidebar">SIDE BAR BLUE</section> */}
         <button
           className="sidebar-button"
-          onClick={() => toggleSidebar()}
+          onClick={toggleSidebar}
           style={{
             position: "absolute",
             left: sidebarVisible ? "250px" : "10px",
@@ -67,9 +68,12 @@ export default function showcase() {
         <main className="main-content">
           <section className="content-header">CONTENT HEADER RED</section>
           <section className="listings">
-            {listings.map((item, index) => {
-              return <VehicleListing item={item} index={index} />;
-            })}
+            {listings.slice(0, visibleListings).map((item, index) => (
+              <VehicleListing key={index} item={item} index={index} />
+            ))}
+            {visibleListings < listings.length && (
+              <button onClick={loadMoreListings} className="load-more" />
+            )}
           </section>
         </main>
       </div>

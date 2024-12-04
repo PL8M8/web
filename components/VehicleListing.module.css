@@ -6,13 +6,14 @@
   padding: 10px;
   border-radius: 5px;
   background-color: #f9f9f9;
-  width: 150px;
   text-align: center;
   margin: 10px;
+  flex: 0 0 calc((100% - 30px) / 3);
+  max-width: calc((100% - 30px) / 3);
+  border: 1px solid #ddd;
 }
 
 .listing-image {
-  width: 100%;
   aspect-ratio: 1;
   background-color: #ccc;
   display: flex;
