@@ -2,11 +2,10 @@
   display: flex;
   flex: 1;
   height: 100vh;
-  position: relative; /* Allow the sidebar to overlap with this container */
+  position: relative;
 }
 
 .sidebar {
-  background-color: rgb(80, 205, 246);
   width: 250px !important;
   height: 100vh;
   border-right: 1px solid #ccc;
@@ -15,11 +14,18 @@
   left: 0;
   top: 0;
   z-index: 900;
+  background-color: white;
 }
 
 .sidebar-hide {
   width: 0;
   overflow: hidden;
+}
+
+.sidebar-button {
+  height: 50px;
+  width: 50px;
+  font-size: 40px;
 }
 
 .main-content {
@@ -29,8 +35,14 @@
   padding: 10px;
 }
 
+/* 768px recommended for Desktop and not Mobile */
+@media only screen and (max-width: 768px) {
+  .content-header {
+    display: none;
+  }
+}
+
 .content-header {
-  background-color: red;
   height: 20%;
   color: white;
   margin-bottom: 10px;
@@ -43,7 +55,6 @@
   gap: 15px;
   overflow-x: auto;
   padding: 10px;
-  background-color: green;
   max-height: calc(100vh - 200px);
   width: 100%;
   position: relative;

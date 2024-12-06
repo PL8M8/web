@@ -5,7 +5,7 @@ import VehicleListing from "@components/VehicleListing";
 export default function showcase() {
   const listingsToDisplayPerRow = 3;
 
-  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [visibleListings, setVisibleListings] = useState(
     listingsToDisplayPerRow
   );
@@ -20,28 +20,28 @@ export default function showcase() {
 
   const listings = [
     {
-      title: "TEST CAR 1",
-      description: "THIS IS THE FIRST TEST LISTING",
+      title: "Hyundai",
+      description: "A slick 2024 Hyundai",
       price: "50k",
     },
     {
-      title: "Fast Car",
-      description: "Vroom Vroom",
+      title: "Kia Sorrento",
+      description: "A white 2020 Kia Sorrento",
       price: "100k",
     },
     {
       title: "Toyota Camry",
-      description: "It's a pretty normal car",
+      description: "2019 Toyota Camry",
       price: "30k",
     },
     {
-      title: "Used Car",
-      description: "Found it in the bottom of the lake",
-      price: "0k",
+      title: "Model T",
+      description: "An original Model T Ford",
+      price: "500k",
     },
     {
-      title: "Cool Car",
-      description: "Hot Rod Red ",
+      title: "Tesla",
+      description: "The sleek electric Telsa",
       price: "200k",
     },
   ];
@@ -52,7 +52,7 @@ export default function showcase() {
       <Navbar />
       <div className="showcase">
         <section className={`sidebar${sidebarVisible ? "" : "-hide"}`}>
-          SIDE BAR BLUE
+          Side Bar Place Holder
         </section>
         <button
           className="sidebar-button"
@@ -66,7 +66,9 @@ export default function showcase() {
           ☰
         </button>
         <main className="main-content">
-          <section className="content-header">CONTENT HEADER RED</section>
+          <section className="content-header">
+            Content Header Placeholder (Only Visible on Desktop){" "}
+          </section>
           <section className="listings">
             {listings.slice(0, visibleListings).map((item, index) => (
               <VehicleListing key={index} item={item} index={index} />
@@ -80,6 +82,3 @@ export default function showcase() {
     </div>
   );
 }
-
-// .listing area sub header on desktop
-// mobile

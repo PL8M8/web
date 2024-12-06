@@ -14,15 +14,13 @@
 }
 
 .listing-image {
-  aspect-ratio: 1;
-  background-color: #ccc;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  color: #555;
   border-radius: 5px;
   overflow: hidden;
+  width: 100%;
+  object-fit: cover;
 }
 
 .listing-details {

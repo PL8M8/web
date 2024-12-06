@@ -14,7 +14,9 @@ export default function VehicleListing(props) {
         <p className="listing-description">
           {vehicle.description || "Description Placeholder"}
         </p>
-        <div className="listing-price">{vehicle.price || "$0k"}</div>
+        <div className="listing-price">
+          {vehicle.price || "Price Placeholder"}
+        </div>
       </div>
     </div>
   );
