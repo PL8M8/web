@@ -51,16 +51,7 @@ export default function SignInPage() {
             <div className="background" />
             <Navbar /> 
             <main className="main-content">
-            <ContentWrapper>
-                <FormWrapper>
-                    <h1 style={{ textAlign: 'center', width: '100%' }}>Sign In</h1>
-                    <form>
-                        <Input type="text" placeholder="Username" required />
-                        <Input type="password" placeholder="Password" required />
-                        <Button type="submit">Sign In</Button>
-                    </form>
-                </FormWrapper>
-            </ContentWrapper>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScR2wb6BAyRoNW_NwRiCc91-fOfMrBWDziltBiRzCZm_y1wsA/viewform?embedded=true" width="640" height="1518" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
             </main>
         </div>
     );
