@@ -6,8 +6,6 @@ import { useRouter } from 'next/router';
 const Navbar = () => {
     const router = useRouter();
     const [activeLink, setActiveLink] = useState('Home');
-
-    // Define your links directly in the component
     const navLinks = [
         { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign In', path: '/signin' }
