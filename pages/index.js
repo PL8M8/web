@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from '@components/Navbar';
+import Link from 'next/link';
 
 export default function Index() {
     return (
@@ -22,13 +23,9 @@ export default function Index() {
                             <li>Quick access to all your vehicle info</li>
                         </ul>
                         <div className="survey-button">
-                            <a
-                                href="https://docs.google.com/forms/d/e/1FAIpQLSea4PmCTcMu_2B2kc_hjDZD6iEDgbybYMpzOjO-bPzp0YTliA/viewform?usp=sf_link"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
+                            <Link href="/survey" passHref>
                                 Take the Survey
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </section>

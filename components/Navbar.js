@@ -7,6 +7,7 @@ const Navbar = () => {
     const router = useRouter();
     const [activeLink, setActiveLink] = useState('Home');
     const navLinks = [
+        { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign In', path: '/signin' }
     ];
