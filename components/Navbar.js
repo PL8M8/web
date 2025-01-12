@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Button from '@components/Button';
 
 const Navbar = () => {
     const router = useRouter();
@@ -44,6 +45,9 @@ const Navbar = () => {
                     </Link>
                 ))}
             </div>
+            <Button value="Add your service"/>
+            <Button value="Find your car"/>
+            <Button value="Sign In"/>
         </nav>
     );
 };
