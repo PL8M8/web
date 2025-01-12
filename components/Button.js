@@ -8,7 +8,7 @@ const StyledButton = styled.button`
     font-weight: bold;
     text-transform: uppercase;
     background: none;
-    cursor: pointer;git 
+    cursor: pointer;
     padding: 8px 16px;
     transition: background-color 0.3s, color 0.3s, transform 0.1s;
 
