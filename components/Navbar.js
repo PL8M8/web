@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import Button from '@components/Button';
 
 const Navbar = () => {
     const router = useRouter();
@@ -10,14 +9,7 @@ const Navbar = () => {
 
     // Define your links directly in the component
     const navLinks = [
-        { name: 'Home', path: '/' },
-        // { name: 'Showcase', path: '/marketplace'}, // Production: Buy & Sell
-        // { name: 'Login', path: '/login'},
-        
-        // { name: 'Early Access', path: '/beta' },
-        // { name: 'Support', path: '/contact' },
-        // { name: 'Android Waitlist', path: '/waitlist' },
-        // { name: 'About Us', path: '/about' },
+        { name: 'Sign In', path: '/signin' },
     ];
 
     useEffect(() => {
@@ -30,8 +22,15 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
+            {/* Logo navigates to Home */}
             <div className="brand">
-                <img src="/logo.png" alt="Netlify Logo" />
+                <Link href="/" passHref>
+                    <img
+                        src="/logo.png"
+                        alt="PL8M8 Logo"
+                        style={{ cursor: 'pointer' }}
+                    />
+                </Link>
             </div>
             <div className="nav-links">
                 {navLinks.map(({ name, path }) => (
@@ -45,9 +44,6 @@ const Navbar = () => {
                     </Link>
                 ))}
             </div>
-            <Button value="Add your service"/>
-            <Button value="Find your car"/>
-            <Button value="Sign In"/>
         </nav>
     );
 };
