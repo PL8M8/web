@@ -1,11 +1,11 @@
 import styles from "./VehicleListing.module.css";
 
-export default function VehicleListing(props) {
-  const vehicle = props.item;
-  const placeholderImageSrc = `/TestCar${props.index + 1}.jpg`;
+export default function VehicleListing({ item, index }) {
+  const vehicle = item;
+  const placeholderImageSrc = `/TestCar${index + 1}.jpg`;
 
   return (
-    <div key={props.index} className="listing-item">
+    <div key={index} className="listing-item">
       <img className="listing-image" src={placeholderImageSrc} />
       <div className="listing-details">
         <h3 className="listing-title">
