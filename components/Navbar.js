@@ -9,6 +9,7 @@ const Navbar = () => {
 
     // Define your links directly in the component
     const navLinks = [
+        { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign In', path: '/signin' }
     ];
