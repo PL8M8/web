@@ -98,6 +98,7 @@ const Marketplace = () => {
         <div className="page">
             <Navbar />
             <div className='background'/>
+            <div className="main-content">
             <Mosaic>
                 {vehicles.map(vehicle => (
                     <Card key={vehicle.id}>
@@ -114,6 +115,7 @@ const Marketplace = () => {
                     </Card>
                 ))}
             </Mosaic>
+            </div>
         </div>
     );
 };

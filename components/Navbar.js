@@ -9,7 +9,7 @@ const Navbar = () => {
     const [isSignedIn, setIsSignedIn] = useState(false);
 
     const navLinks = [
-        { name: 'Buy & Sell', path: '/showcase' },
+        { name: 'Buy & Sell', path: '/marketplace' },
         { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign In', path: '/signin' },
