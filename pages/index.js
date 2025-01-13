@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '@components/Navbar';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { supabase } from '@utils/supabase';
 
 export default function Index() {
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            // Redirect to /garage if the user is signed in
+            if (session) {
+                router.replace('/garage');
+            }
+        };
+
+        checkSession();
+
+        // Listen for auth state changes
+        const { data: subscription } = supabase.auth.onAuthStateChange(() => {
+            checkSession();
+        });
+
+        return () => {
+            // subscription
+            console.log('Subscript is', subscription)
+        };
+    }, [router]);
+
     return (
         <div className="page">
             <div className="background" />
-            <Navbar /> 
+            <Navbar />
             <main className="main-content">
                 <section>
                     <div className="intro">
@@ -16,7 +43,10 @@ export default function Index() {
                         <h1>Your Garage, Simplified.</h1>
                     </div>
                     <div className="description">
-                        <p>Keep all your car info in one spot! Easily track mileage, registration, and photos. Plus, enjoy:</p>
+                        <p>
+                            Keep all your car info in one spot! Easily track mileage, registration, and photos. Plus,
+                            enjoy:
+                        </p>
                         <ul>
                             <li>Friendly reminders to update your mileage</li>
                             <li>Never forget your tag number or important details</li>
