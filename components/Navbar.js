@@ -61,7 +61,7 @@ const Navbar = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const [isSigningUp, setIsSigningUp] = useState(false);
+    const [isSigningUp, setIsSigningUp] = useState(true);
 
     const navLinks = [
         { name: 'Buy & Sell', path: '/marketplace' },
@@ -200,7 +200,7 @@ const Navbar = () => {
                 <div className="modal-overlay" onClick={toggleModal}>
                     <div className="modal" onClick={(e) => e.stopPropagation()}>
                     <FormWrapper>
-                        <h1 style={{ textAlign: 'center', width: '100%' }}>
+                        <h1 style={{ textAlign: 'center', width: '100%', color: "orange" }}>
                         {isSigningUp ? 'Sign Up' : 'Sign In'}
                         </h1>
                         {message && <p>{message}</p>}
@@ -227,7 +227,7 @@ const Navbar = () => {
                             : "Don't have an account? Sign Up"}
                         </SwitchButton>
                     </FormWrapper>
-                        <button onClick={toggleModal}>Close</button>
+                        {/* <button onClick={toggleModal}>Close</button> */}
                     </div>
                 </div>
             )}

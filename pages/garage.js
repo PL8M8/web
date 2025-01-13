@@ -175,6 +175,7 @@ const Garage = () => {
         <div className="page">
             <Navbar />
             <div className="background" />
+            <div className="main-content">
             <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Your Garage</h1>
 
             <FormContainer>
@@ -271,6 +272,7 @@ const Garage = () => {
                     </Card>
                 ))}
             </Mosaic>
+            </div>
         </div>
     );
 };
