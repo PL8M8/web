@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@utils/supabase';
+import Navbar from '@components/Navbar';
 
 const Garage = () => {
     const router = useRouter();
@@ -19,9 +20,10 @@ const Garage = () => {
     }, [router]);
 
     return (
-        <div>
-            <h1>Welcome to Your Garage</h1>
-            <p>Manage your car details here!</p>
+        <div className="page">
+            <Navbar />
+            <div className='background'/>
+            <div>Your new garage</div>
         </div>
     );
 };
