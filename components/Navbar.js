@@ -64,10 +64,10 @@ const Navbar = () => {
     const [isSigningUp, setIsSigningUp] = useState(true);
 
     const navLinks = [
-        { name: 'Buy & Sell', path: '/marketplace' },
+        // { name: 'Buy & Sell', path: '/marketplace' },
         { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
-        { name: 'Sign Up', path: '#' },
+        // { name: 'Sign Up', path: '#' },
     ];
 
     const handleAuth = async (e) => {
