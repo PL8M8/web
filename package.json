@@ -12,12 +12,14 @@
     "axios": "^1.7.7",
     "cheerio": "^1.0.0",
     "cypress": "^13.4.0",
+    "formik": "^2.4.6",
     "next": "^14.0.1",
     "posthog-js": "^1.184.2",
     "puppeteer": "^23.6.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.14"
+    "styled-components": "^6.1.14",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@types/react": "18.3.12",

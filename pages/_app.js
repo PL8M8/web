@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 import '@styles/home.css';
 import '@styles/contact.css';
 import '@styles/globals.css';
+import '@styles/showcase.css';
+
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
