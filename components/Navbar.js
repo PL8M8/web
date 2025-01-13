@@ -1,23 +1,105 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import styled from 'styled-components';
 import { supabase } from '@utils/supabase';
+
+
+const FormWrapper = styled.div`
+  padding: 40px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+`;
+
+const Button = styled.button`
+  width: 100%;
+  padding: 10px;
+  background-color: orange;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: darkorange;
+  }
+`;
+
+const SwitchButton = styled.button`
+  margin-top: 20px;
+  background: none;
+  border: none;
+  color: blue;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+
+  &:hover {
+    color: darkblue;
+  }
+`;
 
 const Navbar = () => {
     const router = useRouter();
     const [activeLink, setActiveLink] = useState('Home');
     const [isSignedIn, setIsSignedIn] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const [isSigningUp, setIsSigningUp] = useState(false);
 
     const navLinks = [
         { name: 'Buy & Sell', path: '/marketplace' },
         { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
-        { name: 'Sign In', path: '/signin' },
-        // { name: 'Early Access', path: '/beta' },
-        // { name: 'Support', path: '/contact' },
-        // { name: 'Android Waitlist', path: '/waitlist' },
-        // { name: 'About Us', path: '/about' },
+        { name: 'Sign Up', path: '#' },
     ];
+
+    const handleAuth = async (e) => {
+        e.preventDefault();
+        setMessage(''); // Clear any previous messages
+    
+        if (isSigningUp) {
+          // Sign up logic
+          const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: `${window.location.origin}/welcome` },
+          });
+    
+          if (error) {
+            setMessage(`Error: ${error.message}`);
+          } else {
+            setMessage('Sign-up successful! Check your email for confirmation.');
+          }
+        } else {
+          // Sign in logic
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+          if (error) {
+            setMessage(`Error: ${error.message}`);
+          } else {
+            setMessage('Sign-in successful! Redirecting...');
+            // Redirect or perform further actions here
+          }
+        }
+      };
+    
 
     useEffect(() => {
         // Check authentication state
@@ -60,42 +142,138 @@ const Navbar = () => {
         router.push('/'); // Redirect to home after sign out
     };
 
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen); // Toggle the modal open/close state
+    };
+
     return (
-        <nav className="navbar">
-            {/* Logo navigates to Home */}
-            <div className="brand">
-                <Link href="/" passHref>
-                    <img
-                        src="/logo.png"
-                        alt="PL8M8 Logo"
-                        style={{ cursor: 'pointer' }}
-                    />
-                </Link>
-            </div>
-            <div className="nav-links">
-                {isSignedIn ? (
-                    <a
-                        href="#"
-                        onClick={handleSignOut}
-                        className={activeLink === 'Sign Out' ? 'active' : ''}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        Sign Out
-                    </a>
-                ) : (
-                    navLinks.map(({ name, path }) => (
-                        <Link key={name} href={path} passHref>
-                            <span
-                                className={activeLink === name ? 'active' : ''}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                {name}
-                            </span>
-                        </Link>
-                    ))
-                )}
-            </div>
-        </nav>
+        <>
+            <nav className="navbar">
+                {/* Logo navigates to Home */}
+                <div className="brand">
+                    <Link href="/" passHref>
+                        <img
+                            src="/logo.png"
+                            alt="PL8M8 Logo"
+                            style={{ cursor: 'pointer' }}
+                        />
+                    </Link>
+                </div>
+                <div className="nav-links">
+                    {isSignedIn ? (
+                        <a
+                            href="#"
+                            onClick={handleSignOut}
+                            className={activeLink === 'Sign Out' ? 'active' : ''}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            Sign Out
+                        </a>
+                    ) : (
+                        navLinks.map(({ name, path }) => (
+                            name === 'Sign Up' ? (
+                                <span
+                                    key={name}
+                                    onClick={toggleModal}
+                                    className={activeLink === name ? 'active' : ''}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    {name}
+                                </span>
+                            ) : (
+                                <Link key={name} href={path} passHref>
+                                    <span
+                                        className={activeLink === name ? 'active' : ''}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {name}
+                                    </span>
+                                </Link>
+                            )
+                        ))
+                    )}
+                </div>
+            </nav>
+
+            {/* Modal for Sign Up */}
+            {isModalOpen && (
+                <div className="modal-overlay" onClick={toggleModal}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                    <FormWrapper>
+                        <h1 style={{ textAlign: 'center', width: '100%' }}>
+                        {isSigningUp ? 'Sign Up' : 'Sign In'}
+                        </h1>
+                        {message && <p>{message}</p>}
+                        <form onSubmit={handleAuth}>
+                        <Input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        <Input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                        <Button type="submit">{isSigningUp ? 'Sign Up' : 'Sign In'}</Button>
+                        </form>
+                        <SwitchButton onClick={() => setIsSigningUp(!isSigningUp)}>
+                        {isSigningUp
+                            ? 'Already have an account? Sign In'
+                            : "Don't have an account? Sign Up"}
+                        </SwitchButton>
+                    </FormWrapper>
+                        <button onClick={toggleModal}>Close</button>
+                    </div>
+                </div>
+            )}
+
+            <style jsx>{`
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                }
+
+                .modal {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    max-width: 400px;
+                    width: 100%;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+
+                .modal h2 {
+                    margin-top: 0;
+                }
+
+                .modal button {
+                    margin-top: 10px;
+                    padding: 10px 15px;
+                    background: #0070f3;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+
+                .modal button:hover {
+                    background: #005bb5;
+                }
+            `}</style>
+        </>
     );
 };
 
