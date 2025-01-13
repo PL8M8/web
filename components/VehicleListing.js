@@ -2,7 +2,7 @@ import styles from "./VehicleListing.module.css";
 
 export default function VehicleListing({ item, index }) {
   const vehicle = item;
-  const placeholderImageSrc = `/TestCar${index + 1}.jpg`;
+  const placeholderImageSrc = `/blank.jpg`;
 
   return (
     <div key={index} className="listing-item">
