@@ -37,9 +37,6 @@ export default function Index() {
             <main className="main-content">
                 <section>
                     <div className="intro">
-                        <div>
-                            <img className="intro-logo" src="/logo.png" alt="pl8m8 Logo" />
-                        </div>
                         <h1>Your Garage, Simplified.</h1>
                     </div>
                     <div className="description">
