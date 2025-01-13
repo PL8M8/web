@@ -22,4 +22,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
-    "@types/react"
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3"
+  }
+}
