@@ -96,9 +96,26 @@ const Button = styled.button`
     }
 `;
 
+const ToggleButton = styled.button`
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    margin: 20px 0;
+
+    &:hover {
+        background-color: #0056b3;
+    }
+`;
+
 const Garage = () => {
     const [vehicles, setVehicles] = useState([]);
     const [userId, setUserId] = useState(null);
+    const [isFormVisible, setIsFormVisible] = useState(false);
     const [formData, setFormData] = useState({
         make: '',
         model: '',
@@ -112,37 +129,55 @@ const Garage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { session }, error } = await supabase.auth.getSession();
-
-            if (error) {
-                console.error('Error fetching session:', error);
-                return;
-            }
-
-            if (session) {
-                setUserId(session.user.id);
-            }
-        };
-
-        const fetchVehicles = async () => {
+        const fetchUserAndVehicles = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('vehicles')
-                    .select();
-
-                if (error) {
-                    console.error('Error fetching vehicles:', error);
-                } else {
-                    setVehicles(data || []);
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) {
+                    console.error('Error fetching session:', sessionError);
+                    return;
                 }
+                if (!session || !session.user) {
+                    console.warn('No active session found.');
+                    return;
+                }
+
+                const userId = session.user.id;
+                setUserId(userId);
+
+                const { data: userVehicles, error: userVehiclesError } = await supabase
+                    .from('users_vehicles')
+                    .select('vehicle_id')
+                    .eq('user_id', userId);
+
+                if (userVehiclesError) {
+                    console.error('Error fetching user vehicle mappings:', userVehiclesError);
+                    return;
+                }
+
+                const vehicleIds = userVehicles.map((entry) => entry.vehicle_id);
+                if (vehicleIds.length === 0) {
+                    console.log('No vehicles found for the user.');
+                    setVehicles([]);
+                    return;
+                }
+
+                const { data: vehiclesData, error: vehiclesError } = await supabase
+                    .from('vehicles')
+                    .select('*')
+                    .in('id', vehicleIds);
+
+                if (vehiclesError) {
+                    console.error('Error fetching vehicles:', vehiclesError);
+                    return;
+                }
+
+                setVehicles(vehiclesData || []);
             } catch (err) {
                 console.error('Unexpected error fetching vehicles:', err);
             }
         };
 
-        fetchUser();
-        fetchVehicles();
+        fetchUserAndVehicles();
     }, []);
 
     const handleInputChange = (e) => {
@@ -197,6 +232,7 @@ const Garage = () => {
                     nickname: '',
                     condition: 'excellent',
                 });
+                setIsFormVisible(false); // Hide the form after adding
             }
         } catch (err) {
             setError('An unexpected error occurred.');
@@ -211,72 +247,78 @@ const Garage = () => {
             <div className="main-content">
                 <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Your Garage</h1>
 
-                <FormContainer>
-                    <h2>Add a New Vehicle</h2>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <form onSubmit={handleAddVehicle}>
-                        <Input
-                            type="text"
-                            name="make"
-                            placeholder="Make"
-                            value={formData.make}
-                            onChange={handleInputChange}
-                        />
-                        <Input
-                            type="text"
-                            name="model"
-                            placeholder="Model"
-                            value={formData.model}
-                            onChange={handleInputChange}
-                        />
-                        <Input
-                            type="number"
-                            name="year"
-                            placeholder="Year"
-                            value={formData.year}
-                            onChange={handleInputChange}
-                        />
-                        <Input
-                            type="number"
-                            name="mileage"
-                            placeholder="Mileage"
-                            value={formData.mileage}
-                            onChange={handleInputChange}
-                        />
-                        <Input
-                            type="text"
-                            name="color"
-                            placeholder="Color"
-                            value={formData.color}
-                            onChange={handleInputChange}
-                        />
-                        <Input
-                            type="text"
-                            name="vin"
-                            placeholder="VIN"
-                            value={formData.vin}
-                            onChange={handleInputChange}
-                        />
-                        <Input
-                            type="text"
-                            name="nickname"
-                            placeholder="Nickname"
-                            value={formData.nickname}
-                            onChange={handleInputChange}
-                        />
-                        <Select
-                            name="condition"
-                            value={formData.condition}
-                            onChange={handleInputChange}
-                        >
-                            <option value="excellent">Excellent</option>
-                            <option value="good">Good</option>
-                            <option value="fair">Fair</option>
-                            <option value="poor">Poor</option>
-                        </Select>
-                        <Button type="submit">Add Vehicle</Button>
-                    </form>
-                </FormContainer>
+                <ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
+                    {isFormVisible ? 'Hide Form' : 'Add New Vehicle'}
+                </ToggleButton>
+
+                {isFormVisible && (
+                    <FormContainer>
+                        <h2>Add a New Vehicle</h2>
+                        {error && <p style={{ color: 'red' }}>{error}</p>}
+                        <form onSubmit={handleAddVehicle}>
+                            <Input
+                                type="text"
+                                name="make"
+                                placeholder="Make"
+                                value={formData.make}
+                                onChange={handleInputChange}
+                            />
+                            <Input
+                                type="text"
+                                name="model"
+                                placeholder="Model"
+                                value={formData.model}
+                                onChange={handleInputChange}
+                            />
+                            <Input
+                                type="number"
+                                name="year"
+                                placeholder="Year"
+                                value={formData.year}
+                                onChange={handleInputChange}
+                            />
+                            <Input
+                                type="number"
+                                name="mileage"
+                                placeholder="Mileage"
+                                value={formData.mileage}
+                                onChange={handleInputChange}
+                            />
+                            <Input
+                                type="text"
+                                name="color"
+                                placeholder="Color"
+                                value={formData.color}
+                                onChange={handleInputChange}
+                            />
+                            <Input
+                                type="text"
+                                name="vin"
+                                placeholder="VIN"
+                                value={formData.vin}
+                                onChange={handleInputChange}
+                            />
+                            <Input
+                                type="text"
+                                name="nickname"
+                                placeholder="Nickname"
+                                value={formData.nickname}
+                                onChange={handleInputChange}
+                            />
+                            <Select
+                                name="condition"
+                                value={formData.condition}
+                                onChange={handleInputChange}
+                            >
+                                <option value="excellent">Excellent</option>
+                                <option value="good">Good</option>
+                                <option value="fair">Fair</option>
+                                <option value="poor">Poor</option>
+                            </Select>
+                            <Button type="submit">Add Vehicle</Button>
+                        </form>
+                    </FormContainer>
+                )}
 
                 <Mosaic>
                     {vehicles.map((vehicle) => (
