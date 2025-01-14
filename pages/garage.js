@@ -14,6 +14,28 @@ const Mosaic = styled.div`
     }
 `;
 
+const ModalOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
 const Card = styled.div`
     background: white;
     border-radius: 10px;
@@ -252,6 +274,8 @@ const Garage = () => {
                 </ToggleButton>
 
                 {isFormVisible && (
+                            <ModalOverlay onClick={() => setIsFormVisible((prev) => !prev)}>
+            <ModalContent onClick={(e) => e.stopPropagation()}>
                     <FormContainer>
                         <h2>Add a New Vehicle</h2>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -318,6 +342,8 @@ const Garage = () => {
                             <Button type="submit">Add Vehicle</Button>
                         </form>
                     </FormContainer>
+                    </ModalContent>
+                    </ModalOverlay>
                 )}
 
                 <Mosaic>
