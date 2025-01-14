@@ -10,7 +10,7 @@ const Mosaic = styled.div`
     padding: 20px;
 
     @media (min-width: 1024px) {
-        grid-template-columns: repeat(5, 1fr); // Limit to 5 columns on desktop
+        grid-template-columns: repeat(5, 1fr);
     }
 `;
 
@@ -98,6 +98,7 @@ const Button = styled.button`
 
 const Garage = () => {
     const [vehicles, setVehicles] = useState([]);
+    const [userId, setUserId] = useState(null);
     const [formData, setFormData] = useState({
         make: '',
         model: '',
@@ -111,6 +112,19 @@ const Garage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
+
+            if (error) {
+                console.error('Error fetching session:', error);
+                return;
+            }
+
+            if (session) {
+                setUserId(session.user.id);
+            }
+        };
+
         const fetchVehicles = async () => {
             try {
                 const { data, error } = await supabase
@@ -127,6 +141,7 @@ const Garage = () => {
             }
         };
 
+        fetchUser();
         fetchVehicles();
     }, []);
 
@@ -138,140 +153,158 @@ const Garage = () => {
     const handleAddVehicle = async (e) => {
         e.preventDefault();
         setError(null);
-    
+
+        if (!userId) {
+            setError('User not authenticated. Please log in.');
+            return;
+        }
+
         try {
-            // Insert vehicle data and return the inserted row
-            const { data, error } = await supabase
+            const { data: vehicleData, error: vehicleError } = await supabase
                 .from('vehicles')
                 .insert([formData])
-                .select('*'); // Ensure the inserted rows are returned
-    
-            if (error) {
-                setError('Error adding vehicle: ' + error.message);
+                .select('*');
+
+            if (vehicleError) {
+                setError('Error adding vehicle: ' + vehicleError.message);
                 return;
             }
-    
-            // Update the vehicles state with the new data
-            setVehicles((prev) => [...prev, ...data]);
-            alert('Vehicle succesfully added!')
-            setFormData({
-                make: '',
-                model: '',
-                year: '',
-                mileage: '',
-                color: '',
-                vin: '',
-                nickname: '',
-                condition: 'excellent',
-            });
+
+            if (vehicleData.length > 0) {
+                const vehicle = vehicleData[0];
+
+                const { error: userVehicleError } = await supabase
+                    .from('users_vehicles')
+                    .insert({
+                        user_id: userId,
+                        vehicle_id: vehicle.id,
+                    });
+
+                if (userVehicleError) {
+                    setError('Error linking vehicle to user: ' + userVehicleError.message);
+                    return;
+                }
+
+                setVehicles((prev) => [...prev, vehicle]);
+                alert('Vehicle successfully added!');
+                setFormData({
+                    make: '',
+                    model: '',
+                    year: '',
+                    mileage: '',
+                    color: '',
+                    vin: '',
+                    nickname: '',
+                    condition: 'excellent',
+                });
+            }
         } catch (err) {
             setError('An unexpected error occurred.');
             console.error(err);
         }
     };
-    
 
     return (
         <div className="page">
             <Navbar />
             <div className="background" />
             <div className="main-content">
-            <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Your Garage</h1>
+                <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Your Garage</h1>
 
-            <FormContainer>
-                <h2>Add a New Vehicle</h2>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <form onSubmit={handleAddVehicle}>
-                    <Input
-                        type="text"
-                        name="make"
-                        placeholder="Make"
-                        value={formData.make}
-                        onChange={handleInputChange}
-                    />
-                    <Input
-                        type="text"
-                        name="model"
-                        placeholder="Model"
-                        value={formData.model}
-                        onChange={handleInputChange}
-                    />
-                    <Input
-                        type="number"
-                        name="year"
-                        placeholder="Year"
-                        value={formData.year}
-                        onChange={handleInputChange}
-                    />
-                    <Input
-                        type="number"
-                        name="mileage"
-                        placeholder="Mileage"
-                        value={formData.mileage}
-                        onChange={handleInputChange}
-                    />
-                    <Input
-                        type="text"
-                        name="color"
-                        placeholder="Color"
-                        value={formData.color}
-                        onChange={handleInputChange}
-                    />
-                    <Input
-                        type="text"
-                        name="vin"
-                        placeholder="VIN"
-                        value={formData.vin}
-                        onChange={handleInputChange}
-                    />
-                    <Input
-                        type="text"
-                        name="nickname"
-                        placeholder="Nickname"
-                        value={formData.nickname}
-                        onChange={handleInputChange}
-                    />
-                    <Select
-                        name="condition"
-                        value={formData.condition}
-                        onChange={handleInputChange}
-                    >
-                        <option value="excellent">Excellent</option>
-                        <option value="good">Good</option>
-                        <option value="fair">Fair</option>
-                        <option value="poor">Poor</option>
-                    </Select>
-                    <Button type="submit">Add Vehicle</Button>
-                </form>
-            </FormContainer>
-
-            <Mosaic>
-                {vehicles.map((vehicle) => (
-                    <Card key={vehicle.id}>
-                        <Image
-                            src={vehicle.image_uri || '/default-car.jpg'}
-                            alt={`${vehicle.make} ${vehicle.model}`}
+                <FormContainer>
+                    <h2>Add a New Vehicle</h2>
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
+                    <form onSubmit={handleAddVehicle}>
+                        <Input
+                            type="text"
+                            name="make"
+                            placeholder="Make"
+                            value={formData.make}
+                            onChange={handleInputChange}
                         />
-                        <CardContent>
-                            <Subtitle>
-                                {vehicle.year} {vehicle.make} {vehicle.model}
-                            </Subtitle>
-                            <Detail>
-                                <strong>Nickname:</strong> {vehicle.nickname || 'N/A'}
-                            </Detail>
-                            <Detail>
-                                <strong>Color:</strong> {vehicle.color || 'Unknown'}
-                            </Detail>
-                            <Detail>
-                                <strong>Mileage:</strong> {vehicle.mileage || 'Unknown'} miles
-                            </Detail>
-                            <Detail>
-                                <strong>Condition:</strong> {vehicle.condition || 'Unknown'}
-                            </Detail>
-                        </CardContent>
-                    </Card>
-                ))}
-            </Mosaic>
+                        <Input
+                            type="text"
+                            name="model"
+                            placeholder="Model"
+                            value={formData.model}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="number"
+                            name="year"
+                            placeholder="Year"
+                            value={formData.year}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="number"
+                            name="mileage"
+                            placeholder="Mileage"
+                            value={formData.mileage}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="text"
+                            name="color"
+                            placeholder="Color"
+                            value={formData.color}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="text"
+                            name="vin"
+                            placeholder="VIN"
+                            value={formData.vin}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="text"
+                            name="nickname"
+                            placeholder="Nickname"
+                            value={formData.nickname}
+                            onChange={handleInputChange}
+                        />
+                        <Select
+                            name="condition"
+                            value={formData.condition}
+                            onChange={handleInputChange}
+                        >
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </Select>
+                        <Button type="submit">Add Vehicle</Button>
+                    </form>
+                </FormContainer>
+
+                <Mosaic>
+                    {vehicles.map((vehicle) => (
+                        <Card key={vehicle.id}>
+                            <Image
+                                src={vehicle.image_uri || '/default-car.jpg'}
+                                alt={`${vehicle.make} ${vehicle.model}`}
+                            />
+                            <CardContent>
+                                <Subtitle>
+                                    {vehicle.year} {vehicle.make} {vehicle.model}
+                                </Subtitle>
+                                <Detail>
+                                    <strong>Nickname:</strong> {vehicle.nickname || 'N/A'}
+                                </Detail>
+                                <Detail>
+                                    <strong>Color:</strong> {vehicle.color || 'Unknown'}
+                                </Detail>
+                                <Detail>
+                                    <strong>Mileage:</strong> {vehicle.mileage || 'Unknown'} miles
+                                </Detail>
+                                <Detail>
+                                    <strong>Condition:</strong> {vehicle.condition || 'Unknown'}
+                                </Detail>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Mosaic>
             </div>
         </div>
     );

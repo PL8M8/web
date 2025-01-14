@@ -75,7 +75,6 @@ const Navbar = () => {
         setMessage(''); // Clear any previous messages
     
         if (isSigningUp) {
-          // Sign up logic
           const { error } = await supabase.auth.signUp({
             email,
             password,
