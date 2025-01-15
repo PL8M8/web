@@ -3,7 +3,6 @@ import Navbar from '@components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { supabase } from '@utils/supabase';
-import ImageUploader from '@components/ImageUploader';
 
 export default function Index() {
     const router = useRouter();

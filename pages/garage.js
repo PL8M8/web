@@ -189,7 +189,7 @@ const Garage = () => {
         }
     }
 
-    const handleImageUploadBtn = () => {
+    const handleImageUpload = () => {
         // console.log('image upload button clicked')
         startTransition(async () => {
             let urls = []
@@ -274,6 +274,7 @@ const Garage = () => {
     };
 
     const handleAddVehicle = async (e) => {
+        // TODO: integrate handleImageUpload()
         e.preventDefault();
         setError(null);
 
@@ -361,7 +362,7 @@ const Garage = () => {
                                 onClick={() => imageInputRef.current?.click()}> Add Vehicle Image</button>
                             )}
                             <input type="file" hidden ref={imageInputRef} multiple onChange={handleImageOnChange}/>
-                            {/* <button onClick={handleImageUploadBtn}>upload images</button> */}
+                            <button onClick={handleImageUpload}>upload images - FOR DEV ( triggers when form saves )</button>
                             <div>
                                 { imageUrls.map((url, index)=> {
                                     return <img
