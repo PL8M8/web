@@ -8,8 +8,6 @@ type UploadProps = {
     folder?: string;
 };
 
-const {storage} = supabase
-
 export async function uploadImage({ file, bucket, folder }: UploadProps) {
     const fileName = file.name
     const fileExtension = fileName.slice(fileName.lastIndexOf(".") + 1)
@@ -27,7 +25,7 @@ export async function uploadImage({ file, bucket, folder }: UploadProps) {
 
     console.log(' file after compression ', file)
 
-    const { data, error } = await storage.from(bucket).upload(path, file)
+    const { data, error } = await supabase.storage.from(bucket).upload(path, file)
 
     if (error) {
         return { imageUrl: "", error: "Image upload failed"}
