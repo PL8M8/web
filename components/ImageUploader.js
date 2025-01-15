@@ -29,29 +29,30 @@ export default function ImageUploader() {
 
     const fetchTemporaryBlobAndConvertToFileForUpload = async temporaryBlobUrl => {
         const response = await fetch(temporaryBlobUrl)
-        console.log("Response of fetching blob is ", response)
+        // console.log("Response of fetching blob is ", response)
         const blob = await response.blob()
-        console.log("Blob after fetch is ", blob)
+        // console.log("Blob after fetch is ", blob)
         const fileName = Math.random().toString(36).slice(2,9)
-        console.log('File name before interpolation:', fileName)
+        // console.log('File name before interpolation:', fileName)
         const mimeType = blob.type || "application/octet-stream"
-        console.log('mime type is', mimeType)
+        // console.log('mime type is', mimeType)
         const file = new File([blob], `${fileName}.${mimeType.split("/")[1]}`,{ type: mimeType })
-        console.log('final file is', file)
+        // console.log('final file is', file)
         return file
     }
 
     const handleImageUploadBtn = () => {
-        console.log('image upload button clicked')
+        // console.log('image upload button clicked')
         startTransition(async () => {
             let urls = []
             for (const url of imageUrls) {
                 const imageFile = await fetchTemporaryBlobAndConvertToFileForUpload(url)
-                console.log('imageFile for upload is', imageFile)
-                const { imageUrl, error } = uploadImage({
+                // console.log('imageFile for upload is', imageFile)
+                const { imageUrl, error } = await uploadImage({
                     file: imageFile,
                     bucket: "listing_images"
                 })
+                console.log('image url is', imageUrl)
 
                 if (error) {
                     console.error(error)
@@ -67,14 +68,14 @@ export default function ImageUploader() {
 
 
 
-    console.log('image URLS are', imageUrls)
+    // console.log('image URLS are', imageUrls)
 
-    if (imageUrls.length) {
-        // Testing Conversion then going home
-        (async () => {
-            console.log(await fetchTemporaryBlobAndConvertToFileForUpload(imageUrls[0]))
-        })()
-    }
+    // if (imageUrls.length) {
+    //     // Testing Conversion then going home
+    //     (async () => {
+    //         console.log(await fetchTemporaryBlobAndConvertToFileForUpload(imageUrls[0]))
+    //     })()
+    // }
 
     return (
         <div>
