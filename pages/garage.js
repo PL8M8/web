@@ -165,6 +165,8 @@ const Garage = () => {
     const [vehicles, setVehicles] = useState([]);
     const [userId, setUserId] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
+    const [currentFormStep, setCurrentFormStep] = useState(1);
+    const maxSteps = 3
     const [imageUrls, setImageUrls] = React.useState([])
     const [isPending, startTransition] = React.useTransition()
     const [formData, setFormData] = useState({
@@ -321,7 +323,7 @@ const Garage = () => {
                     nickname: '',
                     condition: 'excellent',
                 });
-                setIsFormVisible(false); // Hide the form after adding
+                setIsFormVisible(false);
             }
         } catch (err) {
             setError('An unexpected error occurred.');
@@ -341,110 +343,156 @@ const Garage = () => {
                 </ToggleButton>
 
                 {isFormVisible && (
-                            <ModalOverlay onClick={() => setIsFormVisible((prev) => !prev)}>
-            <ModalContent onClick={(e) => e.stopPropagation()}>
-                    <FormContainer>
-                        <h2>Add a New Vehicle</h2>
-                        {/* image uploader */}
-                        <div>
-                            <h2>Images Bruh</h2>
-                            <h3>JPG or PNG only!!!</h3>
-                            { !imageUrls.length && (
-                                <button 
+    <ModalOverlay onClick={() => setIsFormVisible(false)}>
+        <ModalContent onClick={(e) => e.stopPropagation()}>
+            <FormContainer>
+                <h2>Add a New Vehicle</h2>
+
+                {/* Step 2: Image Uploader */}
+                {currentFormStep === 2 && (
+                    <div>
+                        <h2>Upload Vehicle Images</h2>
+                        <h3>JPG or PNG only!</h3>
+                        {!imageUrls.length && (
+                            <button
                                 style={{
                                     border: "2px dashed #dddddd",
-                                    borderRadius: '5px',
-                                    height: '150px', 
-                                    width: '100%', 
-                                    marginBottom: '2%',
-                                    cursor: 'pointer'
-                                }} 
-                                onClick={() => imageInputRef.current?.click()}> Add Vehicle Image</button>
-                            )}
-                            <input type="file" hidden ref={imageInputRef} multiple onChange={handleImageOnChange}/>
-                            <button onClick={handleImageUpload}>upload images - FOR DEV ( triggers when form saves )</button>
-                            <div>
-                                { imageUrls.map((url, index)=> {
-                                    return <img
-                                        src={url}
-                                        height={150}
-                                        width={300}
-                                        key={url}
-                                        style={{
-                                            objectFit: 'contain',
-                                        }}
-                                        alt={`image-${index}`}
-                                    />
-                                })}
-                            </div>
-                        </div>
-                        {error && <p style={{ color: 'red' }}>{error}</p>}
-                        <form onSubmit={handleAddVehicle}>
-                            <Input
-                                type="text"
-                                name="make"
-                                placeholder="Make"
-                                value={formData.make}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="model"
-                                placeholder="Model"
-                                value={formData.model}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="number"
-                                name="year"
-                                placeholder="Year"
-                                value={formData.year}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="number"
-                                name="mileage"
-                                placeholder="Mileage"
-                                value={formData.mileage}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="color"
-                                placeholder="Color"
-                                value={formData.color}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="vin"
-                                placeholder="VIN"
-                                value={formData.vin}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="nickname"
-                                placeholder="Nickname"
-                                value={formData.nickname}
-                                onChange={handleInputChange}
-                            />
-                            <Select
-                                name="condition"
-                                value={formData.condition}
-                                onChange={handleInputChange}
+                                    borderRadius: "5px",
+                                    height: "150px",
+                                    width: "100%",
+                                    marginBottom: "2%",
+                                    cursor: "pointer",
+                                }}
+                                onClick={() => imageInputRef.current?.click()}
                             >
-                                <option value="excellent">Excellent</option>
-                                <option value="good">Good</option>
-                                <option value="fair">Fair</option>
-                                <option value="poor">Poor</option>
-                            </Select>
-                            <Button type="submit">Add Vehicle</Button>
-                        </form>
-                    </FormContainer>
-                    </ModalContent>
-                    </ModalOverlay>
+                                Add Vehicle Image
+                            </button>
+                        )}
+                        <input
+                            type="file"
+                            hidden
+                            ref={imageInputRef}
+                            onChange={handleImageOnChange}
+                        />
+                        <button onClick={handleImageUpload}>
+                            Upload Images - DEV (Triggers on Form Save)
+                        </button>
+                        <div>
+                            {imageUrls.map((url, index) => (
+                                <img
+                                    src={url}
+                                    height={150}
+                                    width={300}
+                                    key={url}
+                                    style={{
+                                        objectFit: "contain",
+                                    }}
+                                    alt={`image-${index}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 )}
+
+                {/* Step 1: Vehicle Information */}
+                {currentFormStep === 1 && (
+                    <>
+                        <Input
+                            type="text"
+                            name="make"
+                            placeholder="Make"
+                            value={formData.make}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="text"
+                            name="model"
+                            placeholder="Model"
+                            value={formData.model}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="number"
+                            name="year"
+                            placeholder="Year"
+                            value={formData.year}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="number"
+                            name="mileage"
+                            placeholder="Mileage"
+                            value={formData.mileage}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="text"
+                            name="color"
+                            placeholder="Color"
+                            value={formData.color}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="text"
+                            name="vin"
+                            placeholder="VIN"
+                            value={formData.vin}
+                            onChange={handleInputChange}
+                        />
+                        <Input
+                            type="text"
+                            name="nickname"
+                            placeholder="Nickname"
+                            value={formData.nickname}
+                            onChange={handleInputChange}
+                        />
+                        <Select
+                            name="condition"
+                            value={formData.condition}
+                            onChange={handleInputChange}
+                        >
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </Select>
+                    </>
+                )}
+
+                {/* Step 3: Finalize */}
+                {currentFormStep === 3 && (
+                    <>
+                        <h3>Review & Submit</h3>
+                        <Button type="submit">Add Vehicle</Button>
+                    </>
+                )}
+
+                {/* Error Message */}
+                {error && <p style={{ color: "red" }}>{error}</p>}
+            </FormContainer>
+
+            {/* Navigation Buttons */}
+            {currentFormStep !== 3 && (
+                <Button
+                    onClick={() => {
+                        if (currentFormStep < maxSteps) setCurrentFormStep((prev) => prev + 1);
+                    }}
+                >
+                    Next
+                </Button>
+            )}
+            {currentFormStep > 1 && (
+                <Button
+                    style={{ marginRight: "10px" }}
+                    onClick={() => setCurrentFormStep((prev) => prev - 1)}
+                >
+                    Back
+                </Button>
+            )}
+        </ModalContent>
+    </ModalOverlay>
+)}
+
 
                 <Mosaic>
                     {vehicles.map((vehicle) => (
