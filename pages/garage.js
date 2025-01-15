@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition, useRef } from 'react';
 import styled from 'styled-components';
 import Navbar from '@components/Navbar';
-import { supabase } from '../utils/supabase';
+import { uploadImage } from '@utils/uploadImage'
+import { supabase } from '@utils/supabase';
 
 const Mosaic = styled.div`
     display: grid;
@@ -134,10 +135,38 @@ const ToggleButton = styled.button`
     }
 `;
 
+const convertLocalFilesToTemporaryBlobs = files => {
+    // console.log('we have files', files)
+    const filesArray = Array.from(files)
+    // console.log('Files Array Bruh', filesArray)
+    const convertedImageUrls = filesArray.map(file => URL.createObjectURL(file))
+    // console.log('We have URLs Bruh', newImageUrls)
+    return convertedImageUrls
+}
+
+const fetchTemporaryBlobAndConvertToFileForUpload = async temporaryBlobUrl => {
+    const response = await fetch(temporaryBlobUrl)
+    // console.log("Response of fetching blob is ", response)
+    const blob = await response.blob()
+    // console.log("Blob after fetch is ", blob)
+    const fileName = Math.random().toString(36).slice(2,9)
+    // console.log('File name before interpolation:', fileName)
+    const mimeType = blob.type || "application/octet-stream"
+    // console.log('mime type is', mimeType)
+    const file = new File([blob], `${fileName}.${mimeType.split("/")[1]}`,{ type: mimeType })
+    // console.log('final file is', file)
+    return file
+}
+
+
+
+
 const Garage = () => {
     const [vehicles, setVehicles] = useState([]);
     const [userId, setUserId] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
+    const [imageUrls, setImageUrls] = React.useState([])
+    const [isPending, startTransition] = React.useTransition()
     const [formData, setFormData] = useState({
         make: '',
         model: '',
@@ -149,6 +178,43 @@ const Garage = () => {
         condition: 'excellent',
     });
     const [error, setError] = useState(null);
+    const imageInputRef = React.useRef(null)
+
+    const handleImageOnChange = e => {
+        const files = e.target?.files
+        if (files) {
+            console.log('files before url conversion is', files)
+            const newImageUrls = convertLocalFilesToTemporaryBlobs(files)
+            setImageUrls([...imageUrls, ...newImageUrls])
+        }
+    }
+
+    const handleImageUploadBtn = () => {
+        // console.log('image upload button clicked')
+        startTransition(async () => {
+            let urls = []
+            for (const url of imageUrls) {
+                const imageFile = await fetchTemporaryBlobAndConvertToFileForUpload(url)
+                // console.log('imageFile for upload is', imageFile)
+                const { imageUrl, error } = await uploadImage({
+                    file: imageFile,
+                    bucket: "listing_images",
+                    folder: userId
+                })
+                console.log('image url is', imageUrl)
+
+                if (error) {
+                    console.error(error)
+                    return
+                }
+
+                urls.push(imageUrl)
+            }
+
+            console.log("image urls are", urls)
+        })
+    }
+
 
     useEffect(() => {
         const fetchUserAndVehicles = async () => {
@@ -278,6 +344,39 @@ const Garage = () => {
             <ModalContent onClick={(e) => e.stopPropagation()}>
                     <FormContainer>
                         <h2>Add a New Vehicle</h2>
+                        {/* image uploader */}
+                        <div>
+                            <h2>Images Bruh</h2>
+                            <h3>JPG or PNG only!!!</h3>
+                            { !imageUrls.length && (
+                                <button 
+                                style={{
+                                    border: "2px dashed #dddddd",
+                                    borderRadius: '5px',
+                                    height: '150px', 
+                                    width: '100%', 
+                                    marginBottom: '2%',
+                                    cursor: 'pointer'
+                                }} 
+                                onClick={() => imageInputRef.current?.click()}> Add Vehicle Image</button>
+                            )}
+                            <input type="file" hidden ref={imageInputRef} multiple onChange={handleImageOnChange}/>
+                            {/* <button onClick={handleImageUploadBtn}>upload images</button> */}
+                            <div>
+                                { imageUrls.map((url, index)=> {
+                                    return <img
+                                        src={url}
+                                        height={150}
+                                        width={300}
+                                        key={url}
+                                        style={{
+                                            objectFit: 'contain',
+                                        }}
+                                        alt={`image-${index}`}
+                                    />
+                                })}
+                            </div>
+                        </div>
                         {error && <p style={{ color: 'red' }}>{error}</p>}
                         <form onSubmit={handleAddVehicle}>
                             <Input

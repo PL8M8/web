@@ -31,8 +31,6 @@ export default function Index() {
         };
     }, [router]);
 
-    return <ImageUploader/>
-
     return (
         <div className="page">
             <div className="background" />
