@@ -1,7 +1,12 @@
 import React from 'react'
+import { uploadImage } from '@utils/uploadImage'
+
+// finish
+// https://www.youtube.com/watch?v=87JAdYPC2n0&t=439s
 
 export default function ImageUploader() {
     const [imageUrls, setImageUrls] = React.useState([])
+    const [isPending, startTransition] = React.useTransition()
 
     const convertLocalFilesToTemporaryBlobs = files => {
         // console.log('we have files', files)
@@ -12,12 +17,13 @@ export default function ImageUploader() {
         return convertedImageUrls
     }
 
+
     const handleImageOnChange = e => {
         const files = e.target?.files
         if (files) {
             console.log('files before url conversion is', files)
             const newImageUrls = convertLocalFilesToTemporaryBlobs(files)
-            setImageUrls([...imageUrls, newImageUrls])
+            setImageUrls([...imageUrls, ...newImageUrls])
         }
     }
 
@@ -35,6 +41,32 @@ export default function ImageUploader() {
         return file
     }
 
+    const handleImageUploadBtn = () => {
+        console.log('image upload button clicked')
+        startTransition(async () => {
+            let urls = []
+            for (const url of imageUrls) {
+                const imageFile = await fetchTemporaryBlobAndConvertToFileForUpload(url)
+                console.log('imageFile for upload is', imageFile)
+                const { imageUrl, error } = uploadImage({
+                    file: imageFile,
+                    bucket: "listing_images"
+                })
+
+                if (error) {
+                    console.error(error)
+                    return
+                }
+
+                urls.push(imageUrl)
+            }
+
+            console.log("image urls are", urls)
+        })
+    }
+
+
+
     console.log('image URLS are', imageUrls)
 
     if (imageUrls.length) {
@@ -49,7 +81,7 @@ export default function ImageUploader() {
             <h2>Images Bruh</h2>
             <h3>JPG or PNG only!!!</h3>
             <input type="file" multiple onChange={handleImageOnChange}/>
-            {/* <button>upload images</button> */}
+            <button onClick={handleImageUploadBtn}>upload images</button>
             <div>
                 { imageUrls.map((url, index)=> {
                     return <img

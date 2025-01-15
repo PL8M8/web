@@ -10,6 +10,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.46.1",
     "axios": "^1.7.7",
+    "browser-image-compression": "^2.0.2",
     "cheerio": "^1.0.0",
     "cypress": "^13.4.0",
     "formik": "^2.4.6",
@@ -19,6 +20,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^6.1.14",
+    "uuidv4": "^6.2.13",
     "yup": "^1.6.1"
   },
   "devDependencies": {
