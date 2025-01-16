@@ -26,7 +26,7 @@ export default function Index() {
 
         return () => {
             // subscription
-            console.log('Subscript is', subscription)
+            // console.log('Subscript is', subscription)
         };
     }, [router]);
 

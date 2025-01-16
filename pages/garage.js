@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition, useRef } from 'react';
 import styled from 'styled-components';
 import Navbar from '@components/Navbar';
-import { supabase } from '../utils/supabase';
+import { uploadImage } from '@utils/uploadImage'
+import { supabase } from '@utils/supabase';
 
 const Mosaic = styled.div`
     display: grid;
@@ -13,6 +14,11 @@ const Mosaic = styled.div`
         grid-template-columns: repeat(5, 1fr);
     }
 `;
+
+const NavigationButtonContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+`
 
 const ModalOverlay = styled.div`
     position: fixed;
@@ -31,8 +37,10 @@ const ModalContent = styled.div`
     background: white;
     border-radius: 10px;
     padding: 20px;
-    max-width: 400px;
-    width: 100%;
+    min-width: 650px;
+    min-height: 650px;
+    max-width: 650px;
+    border: 1px solid #ccc;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
@@ -43,6 +51,7 @@ const Card = styled.div`
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: flex;
+    wdith: 350px;
     flex-direction: column;
     transition: transform 0.2s, box-shadow 0.2s;
 
@@ -80,11 +89,10 @@ const Detail = styled.p`
 `;
 
 const FormContainer = styled.div`
-    background: #f7f7f7;
     border-radius: 10px;
     padding: 20px;
     margin: 20px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 600px;
 `;
 
 const Input = styled.input`
@@ -119,7 +127,7 @@ const Button = styled.button`
 `;
 
 const ToggleButton = styled.button`
-    background-color: #007bff;
+    background-color: orange;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -127,17 +135,48 @@ const ToggleButton = styled.button`
     cursor: pointer;
     font-size: 1em;
     font-weight: bold;
-    margin: 20px 0;
-
+    border: 2px solid orange;
     &:hover {
-        background-color: #0056b3;
+        background-color: white;
+        border: 2px solid orange;
+        color: orange;
     }
 `;
+
+const convertLocalFilesToTemporaryBlobs = files => {
+    // console.log('we have files', files)
+    const filesArray = Array.from(files)
+    // console.log('Files Array Bruh', filesArray)
+    const convertedImageUrls = filesArray.map(file => URL.createObjectURL(file))
+    // console.log('We have URLs Bruh', newImageUrls)
+    return convertedImageUrls
+}
+
+const fetchTemporaryBlobAndConvertToFileForUpload = async temporaryBlobUrl => {
+    const response = await fetch(temporaryBlobUrl)
+    // console.log("Response of fetching blob is ", response)
+    const blob = await response.blob()
+    // console.log("Blob after fetch is ", blob)
+    const fileName = Math.random().toString(36).slice(2,9)
+    // console.log('File name before interpolation:', fileName)
+    const mimeType = blob.type || "application/octet-stream"
+    // console.log('mime type is', mimeType)
+    const file = new File([blob], `${fileName}.${mimeType.split("/")[1]}`,{ type: mimeType })
+    // console.log('final file is', file)
+    return file
+}
+
+
+
 
 const Garage = () => {
     const [vehicles, setVehicles] = useState([]);
     const [userId, setUserId] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
+    const [currentFormStep, setCurrentFormStep] = useState(1);
+    const maxSteps = 3
+    const [imageUrls, setImageUrls] = React.useState([])
+    const [isPending, startTransition] = React.useTransition()
     const [formData, setFormData] = useState({
         make: '',
         model: '',
@@ -147,8 +186,51 @@ const Garage = () => {
         vin: '',
         nickname: '',
         condition: 'excellent',
+        listing_price: 1000,
+        is_sellable: true,
+        is_tradeable: true
     });
     const [error, setError] = useState(null);
+    const imageInputRef = React.useRef(null)
+
+    const handleImageOnChange = e => {
+        const files = e.target?.files
+        if (files) {
+            console.log('files before url conversion is', files)
+            const newImageUrls = convertLocalFilesToTemporaryBlobs(files)
+            setImageUrls([...imageUrls, ...newImageUrls])
+        }
+    }
+
+    const handleImageUpload = async () => {
+        const urls = [];
+    
+        try {
+            for (const url of imageUrls) {
+                const imageFile = await fetchTemporaryBlobAndConvertToFileForUpload(url);
+    
+                const { imageUrl, error } = await uploadImage({
+                    file: imageFile,
+                    bucket: "listing_images",
+                    folder: userId,
+                });
+    
+                if (error) {
+                    console.error("Error uploading image:", error);
+                    continue; // Skip this iteration and move to the next URL
+                }
+    
+                console.log("Image URL is:", imageUrl);
+                urls.push(imageUrl);
+            }
+        } catch (err) {
+            console.error("Error during image upload process:", err);
+        }
+    
+        return urls;
+    };
+    
+
 
     useEffect(() => {
         const fetchUserAndVehicles = async () => {
@@ -208,6 +290,9 @@ const Garage = () => {
     };
 
     const handleAddVehicle = async (e) => {
+        const returnedImageUrls = await handleImageUpload()
+        formData.image_uri = returnedImageUrls[0]
+
         e.preventDefault();
         setError(null);
 
@@ -253,8 +338,11 @@ const Garage = () => {
                     vin: '',
                     nickname: '',
                     condition: 'excellent',
+                    listing_price: 1000
                 });
-                setIsFormVisible(false); // Hide the form after adding
+                setIsFormVisible(false);
+                setCurrentFormStep(1)
+                setImageUrls([])
             }
         } catch (err) {
             setError('An unexpected error occurred.');
@@ -264,87 +352,204 @@ const Garage = () => {
 
     return (
         <div className="page">
-            <Navbar />
+            <Navbar extraComponents={<ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
+                    {isFormVisible ? 'Hide Form' : 'Add New Vehicle'}
+                </ToggleButton>}/>
             <div className="background" />
             <div className="main-content">
                 <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Your Garage</h1>
-
-                <ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
-                    {isFormVisible ? 'Hide Form' : 'Add New Vehicle'}
-                </ToggleButton>
-
                 {isFormVisible && (
-                            <ModalOverlay onClick={() => setIsFormVisible((prev) => !prev)}>
-            <ModalContent onClick={(e) => e.stopPropagation()}>
-                    <FormContainer>
-                        <h2>Add a New Vehicle</h2>
-                        {error && <p style={{ color: 'red' }}>{error}</p>}
-                        <form onSubmit={handleAddVehicle}>
-                            <Input
-                                type="text"
-                                name="make"
-                                placeholder="Make"
-                                value={formData.make}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="model"
-                                placeholder="Model"
-                                value={formData.model}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="number"
-                                name="year"
-                                placeholder="Year"
-                                value={formData.year}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="number"
-                                name="mileage"
-                                placeholder="Mileage"
-                                value={formData.mileage}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="color"
-                                placeholder="Color"
-                                value={formData.color}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="vin"
-                                placeholder="VIN"
-                                value={formData.vin}
-                                onChange={handleInputChange}
-                            />
-                            <Input
-                                type="text"
-                                name="nickname"
-                                placeholder="Nickname"
-                                value={formData.nickname}
-                                onChange={handleInputChange}
-                            />
-                            <Select
-                                name="condition"
-                                value={formData.condition}
-                                onChange={handleInputChange}
+    <ModalOverlay onClick={() => setIsFormVisible(false)}>
+        <ModalContent onClick={(e) => e.stopPropagation()}>
+            {/* Error Message */}
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            <FormContainer>
+                {/* Step 2: Image Uploader */}
+                {currentFormStep === 2 && (
+                    <div>
+                        <h2>Upload Vehicle Images</h2>
+                        <p style={{ color: 'red', textTransform: 'uppercase', fontSize: '10px', fontWeight: 'bold', textAlign: 'center'}}>***JPG or PNG only***</p>
+                        {!imageUrls.length && (
+                            <button
+                                style={{
+                                    border: "2px dashed #dddddd",
+                                    borderRadius: "5px",
+                                    height: "150px",
+                                    width: "100%",
+                                    marginBottom: "2%",
+                                    cursor: "pointer",
+                                }}
+                                onClick={() => imageInputRef.current?.click()}
                             >
-                                <option value="excellent">Excellent</option>
-                                <option value="good">Good</option>
-                                <option value="fair">Fair</option>
-                                <option value="poor">Poor</option>
-                            </Select>
-                            <Button type="submit">Add Vehicle</Button>
-                        </form>
-                    </FormContainer>
-                    </ModalContent>
-                    </ModalOverlay>
+                                Add Vehicle Image
+                            </button>
+                        )}
+                        <input
+                            type="file"
+                            hidden
+                            ref={imageInputRef}
+                            onChange={handleImageOnChange}
+                        />
+                        {/* <button onClick={handleImageUpload}>
+                            Upload Images - DEV (Triggers on Form Save)
+                        </button> */}
+                        <div>
+                            {imageUrls.map((url, index) => (
+                                <img
+                                    src={url}
+                                    height={300}
+                                    width={"100%"}
+                                    key={url}
+                                    style={{
+                                        objectFit: "cover",
+                                        borderRadius: '10px',
+                                        border: "1px solid orange"
+                                    }}
+                                    alt={`image-${index}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 )}
+
+                {/* Step 1: Vehicle Information */}
+                {currentFormStep === 1 && (
+                    <>
+                        <h2>Enter Vehicle Details</h2>
+                        <h3 style={{fontWeight: 'bold', color: "orange"}}>{`${formData.year} ${formData.make} ${formData.model}`}</h3>
+                        
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="year">Year</label>
+                        <Input
+                            id="year"
+                            type="number"
+                            name="year"
+                            placeholder="Year"
+                            value={formData.year}
+                            onChange={handleInputChange}
+                        />
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="make">Make</label>
+                        <Input
+                            id="make"
+                            type="text"
+                            name="make"
+                            placeholder="Make"
+                            value={formData.make}
+                            onChange={handleInputChange}
+                        />
+
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="model">Model</label>
+                        <Input
+                            id="model"
+                            type="text"
+                            name="model"
+                            placeholder="Model"
+                            value={formData.model}
+                            onChange={handleInputChange}
+                        />
+
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="mileage">Mileage</label>
+                        <Input
+                            id="mileage"
+                            type="number"
+                            name="mileage"
+                            placeholder="Mileage"
+                            value={formData.mileage}
+                            onChange={handleInputChange}
+                        />
+
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="color">Color</label>
+                        <Input
+                            id="color"
+                            type="text"
+                            name="color"
+                            placeholder="Color"
+                            value={formData.color}
+                            onChange={handleInputChange}
+                        />
+
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="vin">VIN</label>
+                        <Input
+                            id="vin"
+                            type="text"
+                            name="vin"
+                            placeholder="VIN"
+                            value={formData.vin}
+                            onChange={handleInputChange}
+                        />
+
+                        {/* <label style={{color: "orange", fontWeight: "bold"}} htmlFor="nickname">Nickname</label>
+                        <Input
+                            id="nickname"
+                            type="text"
+                            name="nickname"
+                            placeholder="Nickname"
+                            value={formData.nickname}
+                            onChange={handleInputChange}
+                        /> */}
+
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="condition">Condition</label>
+                        <Select
+                            id="condition"
+                            name="condition"
+                            value={formData.condition}
+                            onChange={handleInputChange}
+                        >
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </Select>
+                    </>
+                )}
+
+
+                {/* Step 3: Finalize */}
+                {currentFormStep === 3 && (
+                    <>
+                        <h2>Set Sale Price</h2>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="listing_price">Sale Price</label>
+                        <div style={{display: "flex", alignItems: 'center'}}>
+                            <h3 style={{color: 'orange', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>$</h3>
+                            <Input
+                            id="listing_price"
+                            type="number"
+                            name="listing_price"
+                            placeholder="Set Listing Price"
+                            value={formData.listing_price}
+                            onChange={handleInputChange}
+                        />
+                        </div>
+                    </>
+                )}
+            </FormContainer>
+
+            <NavigationButtonContainer>
+                {/* Navigation Buttons */}
+                {currentFormStep > 1 ? (
+                    <Button
+                        style={{ marginRight: "10px", border: "2px solid orange", backgroundColor: "#fff", color: "orange"}}
+                        onClick={() => setCurrentFormStep((prev) => prev - 1)}
+                    >
+                        Back
+                    </Button>
+                ): <div></div>}
+                {currentFormStep !== 3 && (
+                    <Button
+                        style={{border: "2px solid orange", backgroundColor: "#fff", color: "orange"}}
+                        onClick={() => {
+                            if (currentFormStep < maxSteps) setCurrentFormStep((prev) => prev + 1);
+                        }}
+                    >
+                        Next
+                    </Button>
+                )}
+                
+                {currentFormStep === 3 && <Button onClick={handleAddVehicle}>Add Vehicle</Button> }
+            </NavigationButtonContainer>
+        </ModalContent>
+    </ModalOverlay>
+)}
+
 
                 <Mosaic>
                     {vehicles.map((vehicle) => (
