@@ -23,8 +23,6 @@ export async function uploadImage({ file, bucket, folder }: UploadProps) {
         return { imageUrl: "", error: "Image compression failed"}
     }
 
-    console.log(' file after compression ', file)
-
     const { data, error } = await supabase.storage.from(bucket).upload(path, file)
 
     if (error) {

@@ -34,7 +34,7 @@ const Card = styled.div`
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    width: 250px;
+    width: 350px;
 `;
 
 const Image = styled.img`

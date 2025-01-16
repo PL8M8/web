@@ -51,6 +51,7 @@ const Card = styled.div`
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: flex;
+    wdith: 350px;
     flex-direction: column;
     transition: transform 0.2s, box-shadow 0.2s;
 
@@ -185,6 +186,9 @@ const Garage = () => {
         vin: '',
         nickname: '',
         condition: 'excellent',
+        listing_price: 1000,
+        is_sellable: true,
+        is_tradeable: true
     });
     const [error, setError] = useState(null);
     const imageInputRef = React.useRef(null)
@@ -198,31 +202,34 @@ const Garage = () => {
         }
     }
 
-    const handleImageUpload = () => {
-        // console.log('image upload button clicked')
-        startTransition(async () => {
-            let urls = []
+    const handleImageUpload = async () => {
+        const urls = [];
+    
+        try {
             for (const url of imageUrls) {
-                const imageFile = await fetchTemporaryBlobAndConvertToFileForUpload(url)
-                // console.log('imageFile for upload is', imageFile)
+                const imageFile = await fetchTemporaryBlobAndConvertToFileForUpload(url);
+    
                 const { imageUrl, error } = await uploadImage({
                     file: imageFile,
                     bucket: "listing_images",
-                    folder: userId
-                })
-                console.log('image url is', imageUrl)
-
+                    folder: userId,
+                });
+    
                 if (error) {
-                    console.error(error)
-                    return
+                    console.error("Error uploading image:", error);
+                    continue; // Skip this iteration and move to the next URL
                 }
-
-                urls.push(imageUrl)
+    
+                console.log("Image URL is:", imageUrl);
+                urls.push(imageUrl);
             }
-
-            console.log("image urls are", urls)
-        })
-    }
+        } catch (err) {
+            console.error("Error during image upload process:", err);
+        }
+    
+        return urls;
+    };
+    
 
 
     useEffect(() => {
@@ -283,7 +290,9 @@ const Garage = () => {
     };
 
     const handleAddVehicle = async (e) => {
-        // TODO: integrate handleImageUpload()
+        const returnedImageUrls = await handleImageUpload()
+        formData.image_uri = returnedImageUrls[0]
+
         e.preventDefault();
         setError(null);
 
@@ -329,8 +338,11 @@ const Garage = () => {
                     vin: '',
                     nickname: '',
                     condition: 'excellent',
+                    listing_price: 1000
                 });
                 setIsFormVisible(false);
+                setCurrentFormStep(1)
+                setImageUrls([])
             }
         } catch (err) {
             setError('An unexpected error occurred.');
@@ -494,8 +506,19 @@ const Garage = () => {
                 {/* Step 3: Finalize */}
                 {currentFormStep === 3 && (
                     <>
-                        <h2>Review & Submit</h2>
-                        <p>Price</p>
+                        <h2>Set Sale Price</h2>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="listing_price">Sale Price</label>
+                        <div style={{display: "flex", alignItems: 'center'}}>
+                            <h3 style={{color: 'orange', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>$</h3>
+                            <Input
+                            id="listing_price"
+                            type="number"
+                            name="listing_price"
+                            placeholder="Set Listing Price"
+                            value={formData.listing_price}
+                            onChange={handleInputChange}
+                        />
+                        </div>
                     </>
                 )}
             </FormContainer>
@@ -521,7 +544,7 @@ const Garage = () => {
                     </Button>
                 )}
                 
-                {currentFormStep === 3 && <Button type="submit">Add Vehicle</Button> }
+                {currentFormStep === 3 && <Button onClick={handleAddVehicle}>Add Vehicle</Button> }
             </NavigationButtonContainer>
         </ModalContent>
     </ModalOverlay>
