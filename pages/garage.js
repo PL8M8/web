@@ -15,6 +15,11 @@ const Mosaic = styled.div`
     }
 `;
 
+const NavigationButtonContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+`
+
 const ModalOverlay = styled.div`
     position: fixed;
     top: 0;
@@ -32,8 +37,10 @@ const ModalContent = styled.div`
     background: white;
     border-radius: 10px;
     padding: 20px;
-    max-width: 400px;
-    width: 100%;
+    min-width: 650px;
+    min-height: 650px;
+    max-width: 650px;
+    border: 1px solid #ccc;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
@@ -85,6 +92,7 @@ const FormContainer = styled.div`
     border-radius: 10px;
     padding: 20px;
     margin: 20px 0;
+    height: 600px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
@@ -346,13 +354,11 @@ const Garage = () => {
     <ModalOverlay onClick={() => setIsFormVisible(false)}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
             <FormContainer>
-                <h2>Add a New Vehicle</h2>
-
                 {/* Step 2: Image Uploader */}
                 {currentFormStep === 2 && (
                     <div>
                         <h2>Upload Vehicle Images</h2>
-                        <h3>JPG or PNG only!</h3>
+                        <p>JPG or PNG only</p>
                         {!imageUrls.length && (
                             <button
                                 style={{
@@ -374,15 +380,15 @@ const Garage = () => {
                             ref={imageInputRef}
                             onChange={handleImageOnChange}
                         />
-                        <button onClick={handleImageUpload}>
+                        {/* <button onClick={handleImageUpload}>
                             Upload Images - DEV (Triggers on Form Save)
-                        </button>
+                        </button> */}
                         <div>
                             {imageUrls.map((url, index) => (
                                 <img
                                     src={url}
-                                    height={150}
-                                    width={300}
+                                    height={300}
+                                    width={"100%"}
                                     key={url}
                                     style={{
                                         objectFit: "contain",
@@ -397,56 +403,80 @@ const Garage = () => {
                 {/* Step 1: Vehicle Information */}
                 {currentFormStep === 1 && (
                     <>
+                        <h2>Enter Vehicle Details</h2>
+                        <label htmlFor="make">Make</label>
                         <Input
+                            id="make"
                             type="text"
                             name="make"
                             placeholder="Make"
                             value={formData.make}
                             onChange={handleInputChange}
                         />
+
+                        <label htmlFor="model">Model</label>
                         <Input
+                            id="model"
                             type="text"
                             name="model"
                             placeholder="Model"
                             value={formData.model}
                             onChange={handleInputChange}
                         />
+
+                        <label htmlFor="year">Year</label>
                         <Input
+                            id="year"
                             type="number"
                             name="year"
                             placeholder="Year"
                             value={formData.year}
                             onChange={handleInputChange}
                         />
+
+                        <label htmlFor="mileage">Mileage</label>
                         <Input
+                            id="mileage"
                             type="number"
                             name="mileage"
                             placeholder="Mileage"
                             value={formData.mileage}
                             onChange={handleInputChange}
                         />
+
+                        <label htmlFor="color">Color</label>
                         <Input
+                            id="color"
                             type="text"
                             name="color"
                             placeholder="Color"
                             value={formData.color}
                             onChange={handleInputChange}
                         />
+
+                        <label htmlFor="vin">VIN</label>
                         <Input
+                            id="vin"
                             type="text"
                             name="vin"
                             placeholder="VIN"
                             value={formData.vin}
                             onChange={handleInputChange}
                         />
+
+                        {/* <label htmlFor="nickname">Nickname</label>
                         <Input
+                            id="nickname"
                             type="text"
                             name="nickname"
                             placeholder="Nickname"
                             value={formData.nickname}
                             onChange={handleInputChange}
-                        />
+                        /> */}
+
+                        <label htmlFor="condition">Condition</label>
                         <Select
+                            id="condition"
                             name="condition"
                             value={formData.condition}
                             onChange={handleInputChange}
@@ -459,10 +489,11 @@ const Garage = () => {
                     </>
                 )}
 
+
                 {/* Step 3: Finalize */}
                 {currentFormStep === 3 && (
                     <>
-                        <h3>Review & Submit</h3>
+                        <h2>Review & Submit</h2>
                         <Button type="submit">Add Vehicle</Button>
                     </>
                 )}
@@ -471,24 +502,26 @@ const Garage = () => {
                 {error && <p style={{ color: "red" }}>{error}</p>}
             </FormContainer>
 
-            {/* Navigation Buttons */}
-            {currentFormStep !== 3 && (
-                <Button
-                    onClick={() => {
-                        if (currentFormStep < maxSteps) setCurrentFormStep((prev) => prev + 1);
-                    }}
-                >
-                    Next
-                </Button>
-            )}
-            {currentFormStep > 1 && (
-                <Button
-                    style={{ marginRight: "10px" }}
-                    onClick={() => setCurrentFormStep((prev) => prev - 1)}
-                >
-                    Back
-                </Button>
-            )}
+            <NavigationButtonContainer>
+                {/* Navigation Buttons */}
+                {currentFormStep > 1 ? (
+                    <Button
+                        style={{ marginRight: "10px" }}
+                        onClick={() => setCurrentFormStep((prev) => prev - 1)}
+                    >
+                        Back
+                    </Button>
+                ): <div></div>}
+                {currentFormStep !== 3 && (
+                    <Button
+                        onClick={() => {
+                            if (currentFormStep < maxSteps) setCurrentFormStep((prev) => prev + 1);
+                        }}
+                    >
+                        Next
+                    </Button>
+                )}
+            </NavigationButtonContainer>
         </ModalContent>
     </ModalOverlay>
 )}
