@@ -53,7 +53,7 @@ const SwitchButton = styled.button`
   }
 `;
 
-const Navbar = () => {
+const Navbar = ({ extraComponents }) => {
     const router = useRouter();
     const [activeLink, setActiveLink] = useState('Home');
     const [isSignedIn, setIsSignedIn] = useState(false);
@@ -160,14 +160,17 @@ const Navbar = () => {
                 </div>
                 <div className="nav-links">
                     {isSignedIn ? (
-                        <a
-                            href="#"
-                            onClick={handleSignOut}
-                            className={activeLink === 'Sign Out' ? 'active' : ''}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            Sign Out
-                        </a>
+                        <>
+                            {extraComponents}
+                            <a
+                                href="#"
+                                onClick={handleSignOut}
+                                className={activeLink === 'Sign Out' ? 'active' : ''}
+                                style={{ backgroundColor: 'red', cursor: 'pointer', border: "2px solid red", borderRadius: '5px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: "#fff", padding: '5px 20px' }}
+                            >
+                                Sign Out
+                            </a>
+                        </>
                     ) : (
                         navLinks.map(({ name, path }) => (
                             name === 'Sign Up' ? (

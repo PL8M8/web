@@ -126,7 +126,7 @@ const Button = styled.button`
 `;
 
 const ToggleButton = styled.button`
-    background-color: #007bff;
+    background-color: orange;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -134,10 +134,11 @@ const ToggleButton = styled.button`
     cursor: pointer;
     font-size: 1em;
     font-weight: bold;
-    margin: 20px 0;
-
+    border: 2px solid orange;
     &:hover {
-        background-color: #0056b3;
+        background-color: white;
+        border: 2px solid orange;
+        color: orange;
     }
 `;
 
@@ -339,15 +340,12 @@ const Garage = () => {
 
     return (
         <div className="page">
-            <Navbar />
+            <Navbar extraComponents={<ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
+                    {isFormVisible ? 'Hide Form' : 'Add New Vehicle'}
+                </ToggleButton>}/>
             <div className="background" />
             <div className="main-content">
                 <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Your Garage</h1>
-
-                <ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
-                    {isFormVisible ? 'Hide Form' : 'Add New Vehicle'}
-                </ToggleButton>
-                style={{color: "orange", fontWeight: "bold"}}
                 {isFormVisible && (
     <ModalOverlay onClick={() => setIsFormVisible(false)}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -406,6 +404,17 @@ const Garage = () => {
                 {currentFormStep === 1 && (
                     <>
                         <h2>Enter Vehicle Details</h2>
+                        <h3 style={{fontWeight: 'bold', color: "orange"}}>{`${formData.year} ${formData.make} ${formData.model}`}</h3>
+                        
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="year">Year</label>
+                        <Input
+                            id="year"
+                            type="number"
+                            name="year"
+                            placeholder="Year"
+                            value={formData.year}
+                            onChange={handleInputChange}
+                        />
                         <label style={{color: "orange", fontWeight: "bold"}} htmlFor="make">Make</label>
                         <Input
                             id="make"
@@ -423,16 +432,6 @@ const Garage = () => {
                             name="model"
                             placeholder="Model"
                             value={formData.model}
-                            onChange={handleInputChange}
-                        />
-
-                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="year">Year</label>
-                        <Input
-                            id="year"
-                            type="number"
-                            name="year"
-                            placeholder="Year"
-                            value={formData.year}
                             onChange={handleInputChange}
                         />
 
