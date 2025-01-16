@@ -88,12 +88,10 @@ const Detail = styled.p`
 `;
 
 const FormContainer = styled.div`
-    background: #f7f7f7;
     border-radius: 10px;
     padding: 20px;
     margin: 20px 0;
     height: 600px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const Input = styled.input`
@@ -349,16 +347,18 @@ const Garage = () => {
                 <ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
                     {isFormVisible ? 'Hide Form' : 'Add New Vehicle'}
                 </ToggleButton>
-
+                style={{color: "orange", fontWeight: "bold"}}
                 {isFormVisible && (
     <ModalOverlay onClick={() => setIsFormVisible(false)}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
+            {/* Error Message */}
+            {error && <p style={{ color: "red" }}>{error}</p>}
             <FormContainer>
                 {/* Step 2: Image Uploader */}
                 {currentFormStep === 2 && (
                     <div>
                         <h2>Upload Vehicle Images</h2>
-                        <p>JPG or PNG only</p>
+                        <p style={{ color: 'red', textTransform: 'uppercase', fontSize: '10px', fontWeight: 'bold', textAlign: 'center'}}>***JPG or PNG only***</p>
                         {!imageUrls.length && (
                             <button
                                 style={{
@@ -391,7 +391,9 @@ const Garage = () => {
                                     width={"100%"}
                                     key={url}
                                     style={{
-                                        objectFit: "contain",
+                                        objectFit: "cover",
+                                        borderRadius: '10px',
+                                        border: "1px solid orange"
                                     }}
                                     alt={`image-${index}`}
                                 />
@@ -404,7 +406,7 @@ const Garage = () => {
                 {currentFormStep === 1 && (
                     <>
                         <h2>Enter Vehicle Details</h2>
-                        <label htmlFor="make">Make</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="make">Make</label>
                         <Input
                             id="make"
                             type="text"
@@ -414,7 +416,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         />
 
-                        <label htmlFor="model">Model</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="model">Model</label>
                         <Input
                             id="model"
                             type="text"
@@ -424,7 +426,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         />
 
-                        <label htmlFor="year">Year</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="year">Year</label>
                         <Input
                             id="year"
                             type="number"
@@ -434,7 +436,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         />
 
-                        <label htmlFor="mileage">Mileage</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="mileage">Mileage</label>
                         <Input
                             id="mileage"
                             type="number"
@@ -444,7 +446,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         />
 
-                        <label htmlFor="color">Color</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="color">Color</label>
                         <Input
                             id="color"
                             type="text"
@@ -454,7 +456,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         />
 
-                        <label htmlFor="vin">VIN</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="vin">VIN</label>
                         <Input
                             id="vin"
                             type="text"
@@ -464,7 +466,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         />
 
-                        {/* <label htmlFor="nickname">Nickname</label>
+                        {/* <label style={{color: "orange", fontWeight: "bold"}} htmlFor="nickname">Nickname</label>
                         <Input
                             id="nickname"
                             type="text"
@@ -474,7 +476,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         /> */}
 
-                        <label htmlFor="condition">Condition</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="condition">Condition</label>
                         <Select
                             id="condition"
                             name="condition"
@@ -494,19 +496,16 @@ const Garage = () => {
                 {currentFormStep === 3 && (
                     <>
                         <h2>Review & Submit</h2>
-                        <Button type="submit">Add Vehicle</Button>
+                        <p>Price</p>
                     </>
                 )}
-
-                {/* Error Message */}
-                {error && <p style={{ color: "red" }}>{error}</p>}
             </FormContainer>
 
             <NavigationButtonContainer>
                 {/* Navigation Buttons */}
                 {currentFormStep > 1 ? (
                     <Button
-                        style={{ marginRight: "10px" }}
+                        style={{ marginRight: "10px", border: "2px solid orange", backgroundColor: "#fff", color: "orange"}}
                         onClick={() => setCurrentFormStep((prev) => prev - 1)}
                     >
                         Back
@@ -514,6 +513,7 @@ const Garage = () => {
                 ): <div></div>}
                 {currentFormStep !== 3 && (
                     <Button
+                        style={{border: "2px solid orange", backgroundColor: "#fff", color: "orange"}}
                         onClick={() => {
                             if (currentFormStep < maxSteps) setCurrentFormStep((prev) => prev + 1);
                         }}
@@ -521,6 +521,8 @@ const Garage = () => {
                         Next
                     </Button>
                 )}
+                
+                {currentFormStep === 3 && <Button type="submit">Add Vehicle</Button> }
             </NavigationButtonContainer>
         </ModalContent>
     </ModalOverlay>
