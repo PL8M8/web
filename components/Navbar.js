@@ -148,13 +148,13 @@ const Navbar = ({ extraComponents }) => {
     return (
         <>
             <nav className="navbar">
-                {/* Logo navigates to Home */}
                 <div className="brand">
                     <Link href="/" passHref>
                         <img
                             src="/logo.png"
                             alt="PL8M8 Logo"
-                            style={{ cursor: 'pointer' }}
+                            draggable={false}
+                            style={{ cursor: 'pointer', userSelect: "none" }}
                         />
                     </Link>
                 </div>
