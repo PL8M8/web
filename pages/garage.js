@@ -20,6 +20,29 @@ const NavigationButtonContainer = styled.div`
     grid-template-columns: 1fr 1fr;
 `
 
+const DeleteButton = styled.button`
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    visibility: hidden;
+    transition: opacity 1s ease, visibility 0.3s ease;
+    width: 100%;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+
+    &:hover {
+        background-color: darkred;
+    }
+`;
+
+
 const ModalOverlay = styled.div`
     position: fixed;
     top: 0;
@@ -51,13 +74,19 @@ const Card = styled.div`
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: flex;
-    wdith: 350px;
+    width: 300px;
     flex-direction: column;
     transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
 
     &:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    &:hover ${DeleteButton} {
+        opacity: 1;
+        visibility: visible;
     }
 `;
 
@@ -287,6 +316,27 @@ const Garage = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleDeleteVehicle = async (vehicleId) => {
+        try {
+            // Delete from database
+            const { error } = await supabase
+                .from('vehicles')
+                .delete()
+                .eq('id', vehicleId);
+
+            if (error) {
+                console.error('Error deleting vehicle:', error);
+                return;
+            }
+
+            // Update state
+            setVehicles((prevVehicles) => prevVehicles.filter((v) => v.id !== vehicleId));
+            setFlippedCardId(null); // Reset flipped state
+        } catch (err) {
+            console.error('Unexpected error deleting vehicle:', err);
+        }
     };
 
     const handleAddVehicle = async (e) => {
@@ -557,6 +607,8 @@ const Garage = () => {
                             <Image
                                 src={vehicle.image_uri || '/default-car.jpg'}
                                 alt={`${vehicle.make} ${vehicle.model}`}
+                                draggable="false"
+                                style={{userSelect: "none"}}
                             />
                             <CardContent>
                                 <Subtitle>
@@ -574,6 +626,7 @@ const Garage = () => {
                                 <Detail>
                                     <strong>Condition:</strong> {vehicle.condition || 'Unknown'}
                                 </Detail>
+                                <DeleteButton onClick={() => handleDeleteVehicle(vehicle.id)}>Remove Vehicle</DeleteButton>
                             </CardContent>
                         </Card>
                     ))}
