@@ -1,10 +1,5 @@
-import React from 'react'
-import fetchImages from 'lib/fetchImages'
-import type { ImagesResults } from 'models/Images'
+import Gallery from "@components/Gallery";
 
 export default function GalleryPage() {
-    const url = 'https://api.pexels.com/vi/curated'
-    return <div>Gallery Page</div>
+    return <Gallery/>
 }
-
-// process.env.NEXT_PUBLIC_PEXELS_KEY
