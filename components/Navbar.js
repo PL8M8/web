@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
-import { supabase } from '@utils/supabase';
+import { supabase } from 'config/supabase';
 
 
 const FormWrapper = styled.div`

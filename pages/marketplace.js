@@ -13,7 +13,7 @@
 import Navbar from '@components/Navbar';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { supabase } from '../utils/supabase'
+import { supabase } from '../config/supabase'
 
 const Mosaic = styled.div`
     display: grid;
