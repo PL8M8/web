@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import fetchImages from 'lib/fetchImages';
 import type { ImagesResults } from 'models/Images';
 import styled from 'styled-components';
+import Image from 'next/image';
 
 const Section = styled.section`
     padding: 0 0.5rem;
@@ -51,7 +52,14 @@ export default function Gallery() {
     return (
         <Section>
             { images.photos.map(photo => (
-                <PhotoCard key={photo.id}></PhotoCard>
+                <PhotoCard key={photo.id}>
+                    <Image
+                        src={photo.src.large}
+                        alt={photo.alt}
+                        width={250}
+                        height={250}
+                    />
+                </PhotoCard>
             ))}
         </Section>
     );
