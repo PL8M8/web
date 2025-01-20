@@ -10,12 +10,15 @@ const Section = styled.section`
     display: grid;
     gap: 0.5rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    overflow: hidden;
 `;
 
 const PhotoCard = styled.div`
-  height: 16rem; /* Equivalent to h-64 */
-  background-color: #e5e7eb; /* Equivalent to bg-gray-200 */
-  border-radius: 0.75rem; /* Equivalent to rounded-xl */
+    position: relative;
+  height: 16rem; 
+  background-color: #e5e7eb; 
+  border-radius: 0.75rem; 
+  overflow: hidden;
 `;
 
 
@@ -56,8 +59,8 @@ export default function Gallery() {
                     <Image
                         src={photo.src.large}
                         alt={photo.alt}
-                        width={250}
-                        height={250}
+                        fill={true}
+                        style={{objectFit: 'cover'}}
                     />
                 </PhotoCard>
             ))}
