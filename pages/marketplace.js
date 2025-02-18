@@ -4,13 +4,14 @@ import styled from 'styled-components';
 import { supabase } from '../config/supabase'
 
 const Mosaic = styled.div`
+    display: grid;
     padding: 0 0.5rem;
     margin: 0.75rem 0; 
-    display: grid;
-    gap: 0.5rem;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
     overflow: hidden;
 `;
+
 
 const Card = styled.div`
     position: relative;
