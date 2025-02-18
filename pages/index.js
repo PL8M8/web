@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Navbar from '@components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { supabase } from '@utils/supabase';
+import { supabase } from 'config/supabase';
 
 export default function Index() {
     const router = useRouter();

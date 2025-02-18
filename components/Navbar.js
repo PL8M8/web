@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
-import { supabase } from '@utils/supabase';
+import { supabase } from 'config/supabase';
 
 
 const FormWrapper = styled.div`
@@ -64,7 +64,7 @@ const Navbar = ({ extraComponents }) => {
     const [isSigningUp, setIsSigningUp] = useState(true);
 
     const navLinks = [
-        { name: 'Buy & Sell', path: '/marketplace' },
+        // { name: 'Buy & Sell', path: '/marketplace' },
         { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign Up', path: '#' },

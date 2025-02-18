@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from './supabase'; // Assuming Supabase is initialized here
+import { supabase } from '../config/supabase'; // Assuming Supabase is initialized here
 import imageCompression from 'browser-image-compression'
 
 type UploadProps = {

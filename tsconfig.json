@@ -30,7 +30,7 @@
     "**/*.tsx",
     "**/*.js",
     "**/*.jsx"
-  ],
+, "components/Gallery.tsx"  ],
   "exclude": [
     "node_modules"
   ]

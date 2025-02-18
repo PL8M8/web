@@ -1,40 +1,24 @@
-
-    // useEffect(() => {
-    //     const fetchCars = async () => {
-    //         const response = await fetch('/api/cars');
-    //         const data = await response.json();
-    //         setCars(data);
-    //     };
-
-    //     fetchCars();
-    // }, []);
-
-
 import Navbar from '@components/Navbar';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { supabase } from '../utils/supabase'
+import { supabase } from '../config/supabase'
 
 const Mosaic = styled.div`
+    padding: 0 0.5rem;
+    margin: 0.75rem 0; 
     display: grid;
+    gap: 0.5rem;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-    padding: 20px;
-
-    @media (min-width: 1024px) {
-        grid-template-columns: repeat(5, 1fr); // Limit to 5 columns on desktop
-    }
+    overflow: hidden;
 `;
 
 const Card = styled.div`
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #ffffff20;
+    position: relative;
+    border-radius: 0.75rem; 
     overflow: hidden;
+    background-color: #fff;
+    border: 1px solid #ffffff20;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    width: 350px;
 `;
 
 const Image = styled.img`
@@ -70,6 +54,7 @@ const Button = styled.a`
     text-align: center;
     border-radius: 5px;
     padding: 10px;
+    margin: 0.5rem;
     cursor: pointer;
     text-decoration: none;
     &:hover {
@@ -95,10 +80,9 @@ const Marketplace = () => {
     }, []);
 
     return (
-        <div className="page">
+        <>
             <Navbar />
             <div className='background'/>
-            <div className="main-content">
             <Mosaic>
                 {vehicles.map(vehicle => (
                     <Card key={vehicle.id}>
@@ -109,15 +93,14 @@ const Marketplace = () => {
                             <Detail><strong>Color:</strong> {vehicle.color}</Detail>
                             <Detail><strong>Condition:</strong> {vehicle.condition}</Detail>
                             <Detail><strong>Mileage:</strong> {vehicle.mileage} miles</Detail>
-                            {/* <Detail><strong>Tag Number:</strong> {vehicle.tag_number || "Unregistered"}</Detail> */}
+                            <Detail><strong>Tag Number:</strong> {vehicle.tag_number || "Unregistered"}</Detail>
                             {/* <Button href="#">Contact Seller</Button> */}
                         </div>
                     </Card>
                 ))}
             </Mosaic>
-            </div>
-        </div>
-    );
+        </>
+    )
 };
 
 export default Marketplace;
