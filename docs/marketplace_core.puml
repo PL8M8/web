@@ -1,0 +1,17 @@
+@startuml
+actor User
+actor Admin
+
+rectangle "PL8M8 Marketplace" {
+  User -- (Register / Login)
+  User -- (Create Vehicle Listing)
+  User -- (Browse Vehicles)
+  User -- (Search and Filter Listings)
+  User -- (Contact Seller)
+  User -- (Manage Own Listings)
+  
+  Admin -- (Moderate Listings)
+  Admin -- (User Management)
+  Admin -- (View Analytics)
+}
+@enduml
