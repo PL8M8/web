@@ -53,7 +53,7 @@ const SwitchButton = styled.button`
   }
 `;
 
-const Navbar = ({ extraComponents }) => {
+const Navbar = ({ extraComponents, hideNavbar }) => {
     const router = useRouter();
     const [activeLink, setActiveLink] = useState('Home');
     const [isSignedIn, setIsSignedIn] = useState(false);
@@ -147,7 +147,7 @@ const Navbar = ({ extraComponents }) => {
 
     return (
         <>
-            <nav className="navbar">
+            <nav className={`navbar ${!hideNavbar ? "" : "hidden"}`}>
                 <div className="brand">
                     <Link href="/" passHref>
                         <img

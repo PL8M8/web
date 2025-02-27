@@ -65,6 +65,8 @@ const Button = styled.a`
 
 const Marketplace = () => {
     const [vehicles, setVehicles] = useState([])
+    const [lastScrollY, setLastScrollY] = useState(0);
+    const [hideNavbar, setHideNavbar] = useState(false)
 
     useEffect(() => {
         async function getVehicles() {
@@ -80,9 +82,23 @@ const Marketplace = () => {
         getVehicles();
     }, []);
 
+    useEffect(() => {
+      const handleScroll = () => {
+        if (window.scrollY > lastScrollY) {
+            setHideNavbar(true); // Hide navbar when scrolling down
+        } else {
+            setHideNavbar(false); // Show navbar when scrolling up
+        }
+        setLastScrollY(window.scrollY);
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, [lastScrollY]);
+
     return (
         <>
-            <Navbar />
+            <Navbar hideNavbar={hideNavbar}/>
             <div className='background'/>
             <Mosaic>
                 {vehicles.map(vehicle => (

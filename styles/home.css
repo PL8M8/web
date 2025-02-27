@@ -28,8 +28,12 @@ body {
     left: 0; /* Ensure it starts at the left edge */
     z-index: 1000; /* Ensure it stays above other content */
     border-bottom: 1px solid #ddd; /* Optional: Add a bottom border for better visual separation */
+    transition: transform 0.3s ease-in-out; /* Smooth transition to hide Navbar */
 }
 
+.navbar.hidden {
+    transform: translateY(-100%); /* Hides Navbar */
+}
 
 .brand img {
     height: 40px;
