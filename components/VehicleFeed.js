@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { supabase } from '../config/supabase'
+import Link from 'next/link';
+import { supabase } from '../config/supabase';
 
 const Mosaic = styled.div`
     display: grid;
     padding: 0 0.5rem;
-    margin: 0.75rem 0; 
+    margin: 0.75rem 0;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
     overflow: hidden;
@@ -13,7 +14,7 @@ const Mosaic = styled.div`
 
 const Card = styled.div`
     position: relative;
-    border-radius: 0.75rem; 
+    border-radius: 0.75rem;
     overflow: hidden;
     background-color: #fff;
     border: 1px solid #ffffff20;
@@ -62,38 +63,47 @@ const Button = styled.a`
 `;
 
 export default function VehicleFeed() {
-    const [vehicles, setVehicles] = useState([])
+    const [vehicles, setVehicles] = useState([]);
 
     useEffect(() => {
         async function getVehicles() {
-            const { data: vehicles } = await supabase
-                .from('vehicles')
-                .select()
-                .eq('is_sellable', true);
+            try {
+                const { data, error } = await supabase
+                    .from('vehicles')
+                    .select()
+                    .eq('is_sellable', true);
 
-            if (vehicles && vehicles.length > 0) {
-                setVehicles(vehicles);
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    setVehicles(data);
+                }
+            } catch (error) {
+                console.error("Error fetching vehicles:", error);
             }
         }
+
         getVehicles();
     }, []);
 
     return (
         <Mosaic>
-            {vehicles.map(vehicle => (
-                <Card key={vehicle.id}>
-                    <Image src={vehicle.image_uri} alt={`${vehicle.make} ${vehicle.model}`} />
-                    <div style={{ padding: '10px'}}>
-                        <Subtitle>{vehicle.year} {vehicle.make} {vehicle.model}</Subtitle>
-                        <Price>${vehicle.listing_price.toLocaleString()}</Price>
-                        <Detail><strong>Color:</strong> {vehicle.color}</Detail>
-                        <Detail><strong>Condition:</strong> {vehicle.condition}</Detail>
-                        <Detail><strong>Mileage:</strong> {vehicle.mileage} miles</Detail>
-                        <Detail><strong>Tag Number:</strong> {vehicle.tag_number || "Unregistered"}</Detail>
-                        {/* <Button href="#">Contact Seller</Button> */}
-                    </div>
-                </Card>
+            {vehicles.map(({ id, image_uri, make, model, year, listing_price, color, condition, mileage, tag_number }) => (
+                <Link key={id} href={`/vehicle/${id}`}>
+                    <Card>
+                        <Image src={image_uri} alt={`${make} ${model}`} />
+                        <div style={{ padding: '10px' }}>
+                            <Subtitle>{year} {make} {model}</Subtitle>
+                            <Price>${listing_price.toLocaleString()}</Price>
+                            <Detail><strong>Color:</strong> {color}</Detail>
+                            <Detail><strong>Condition:</strong> {condition}</Detail>
+                            <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
+                            <Detail><strong>Tag Number:</strong> {tag_number || "Unregistered"}</Detail>
+                            {/* <Button href="#">Contact Seller</Button> */}
+                        </div>
+                    </Card>
+                </Link>
             ))}
         </Mosaic>
-    )
+    );
 }
