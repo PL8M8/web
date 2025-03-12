@@ -6,51 +6,51 @@ import { supabase } from 'config/supabase';
 
 
 const FormWrapper = styled.div`
-  padding: 40px;
-  border-radius: 10px;
-  text-align: center;
-  width: 100%;
-  max-width: 400px;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
 `;
 
 const Button = styled.button`
-  width: 100%;
-  padding: 10px;
-  background-color: orange;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
+    width: 100%;
+    padding: 10px;
+    background-color: orange;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
 
-  &:hover {
-    background-color: darkorange;
-  }
+    &:hover {
+        background-color: darkorange;
+    }
 `;
 
 const SwitchButton = styled.button`
-  margin-top: 20px;
-  background: none;
-  border: none;
-  color: blue;
-  cursor: pointer;
-  font-size: 14px;
-  text-decoration: underline;
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: blue;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
 
-  &:hover {
-    color: darkblue;
-  }
+    &:hover {
+        color: darkblue;
+    }
 `;
 
 const Navbar = ({ extraComponents }) => {
