@@ -4,12 +4,18 @@ import Link from 'next/link';
 import { supabase } from '../config/supabase';
 
 const Mosaic = styled.div`
-    display: grid;
-    padding: 0 0.5rem;
-    margin: 0.75rem 0;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    overflow: hidden;
+    --gap: clamp(1rem, 5vmin, 1rem);
+    column-gap: var(--gap);
+    width: 96%;
+    columns: 275px;
+    margin: 5rem auto;
+
+    & > * {
+        break-inside: avoid; /* Prevents items from breaking between columns */
+        margin-bottom: var(--gap);
+        width: 100%; /* Ensures the items respect the column width */
+        display: inline-block; /* Ensures items behave correctly inside columns */
+    }
 `;
 
 const Card = styled.div`
