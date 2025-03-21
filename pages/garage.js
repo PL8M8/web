@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useTransition, useRef } from 'react';
 import styled from 'styled-components';
-import Navbar from '@components/Navbar';
 import { uploadImage } from 'lib/uploadImage'
 import { supabase } from 'config/supabase';
 

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Navbar from "@components/Navbar";
 import VehicleListing from "@components/VehicleListing";
 
 export default function showcase() {
@@ -49,7 +48,6 @@ export default function showcase() {
   return (
     <div className="page">
       <div className="background" />
-      <Navbar />
       <div className="showcase">
         <section className={`sidebar${sidebarVisible ? "" : "-hide"}`}>
           Side Bar Place Holder

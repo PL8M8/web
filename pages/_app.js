@@ -6,6 +6,7 @@ import '@styles/home.css';
 import '@styles/contact.css';
 import '@styles/globals.css';
 import '@styles/showcase.css';
+import Navbar from "@components/Navbar";
 
 
 if (typeof window !== 'undefined') {
@@ -41,6 +42,8 @@ function Application({ Component, pageProps }) {
         <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet" />
       </Head>
       <PostHogProvider client={posthog}>
+        <Navbar/>
+        <div className="background" />
         <Component {...pageProps} />
       </PostHogProvider>
     </>
