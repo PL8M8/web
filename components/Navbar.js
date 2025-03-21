@@ -64,40 +64,40 @@ const Navbar = ({ extraComponents }) => {
     const [isSigningUp, setIsSigningUp] = useState(true);
 
     const navLinks = [
-        // { name: 'Buy & Sell', path: '/marketplace' },
-        { name: 'Case Study 001', path: '/survey'},
-        { name: 'Add Your Service', path: '/add-service'},
+        { name: 'Buy & Sell', path: '/marketplace' },
+        // { name: 'Case Study 001', path: '/survey'},
+        // { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign Up', path: '#' },
     ];
 
     const handleAuth = async (e) => {
         e.preventDefault();
-        setMessage(''); // Clear any previous messages
-    
+        setMessage('');
+
         if (isSigningUp) {
-          const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: { emailRedirectTo: `${window.location.origin}/welcome` },
-          });
-    
-          if (error) {
-            setMessage(`Error: ${error.message}`);
-          } else {
-            setMessage('Sign-up successful! Check your email for confirmation.');
-          }
-        } else {
-          // Sign in logic
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-    
-          if (error) {
-            setMessage(`Error: ${error.message}`);
-          } else {
-            setMessage('Sign-in successful! Redirecting...');
-            // Redirect or perform further actions here
-          }
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { emailRedirectTo: `${window.location.origin}/welcome` },
+            });
+        
+            if (error) {
+                setMessage(`Error: ${error.message}`);
+            } else {
+                setMessage('Sign-up successful! Check your email for confirmation.');
+            }
+            } else {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+        
+            if (error) {
+                setMessage(`Error: ${error.message}`);
+            } else {
+                setMessage('Sign-in successful! Redirecting...');
+                setIsModalOpen(false);
+                await router.replace('/garage')
+            }
         }
-      };
+        };
     
 
     useEffect(() => {
@@ -108,7 +108,7 @@ const Navbar = ({ extraComponents }) => {
 
             // Redirect signed-out users to '/'
             if (!session && router.pathname === '/garage') {
-                router.push('/');
+                router.push('/marketplace');
             }
         };
 
@@ -138,11 +138,11 @@ const Navbar = ({ extraComponents }) => {
         e.preventDefault();
         await supabase.auth.signOut();
         setIsSignedIn(false);
-        router.push('/'); // Redirect to home after sign out
+        router.push('/marketplace'); 
     };
 
     const toggleModal = () => {
-        setIsModalOpen(!isModalOpen); // Toggle the modal open/close state
+        setIsModalOpen(!isModalOpen); 
     };
 
     return (

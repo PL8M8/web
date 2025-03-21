@@ -401,9 +401,9 @@ const Garage = () => {
 
     return (
         <div className="page">
-            <Navbar extraComponents={<ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
+            {/* <Navbar extraComponents={<ToggleButton onClick={() => setIsFormVisible((prev) => !prev)}>
                     {isFormVisible ? 'Hide Form' : 'Add New Vehicle'}
-                </ToggleButton>}/>
+                </ToggleButton>}/> */}
             <div className="background" />
             <div className="main-content">
                 <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Your Garage</h1>

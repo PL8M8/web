@@ -41,9 +41,6 @@ const VehicleDetail = () => {
 
     return (
         <div>
-            <button onClick={() => router.back()} style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '5px' }}>
-                Back
-            </button>
             <h1>{vehicle.year} {vehicle.make} {vehicle.model}</h1>
             <img src={vehicle.image_uri} alt={`${vehicle.make} ${vehicle.model}`} />
             <p><strong>Price:</strong> ${vehicle.listing_price.toLocaleString()}</p>
@@ -56,6 +53,9 @@ const VehicleDetail = () => {
             <p><strong>Created At:</strong> {new Date(vehicle.created_at).toLocaleString()}</p>
             <p><strong>Tradeable:</strong> <Badge isTrue={vehicle.is_tradeable}>Yes</Badge></p>
             <p><strong>Sellable:</strong> <Badge isTrue={vehicle.is_sellable}>Yes</Badge></p>
+            <button onClick={() => router.back()} style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '5px' }}>
+                Back
+            </button>
         </div>
     );
 };
