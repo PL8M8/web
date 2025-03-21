@@ -14,6 +14,7 @@
     "cheerio": "^1.0.0",
     "cypress": "^13.4.0",
     "formik": "^2.4.6",
+    "framer-motion": "^12.5.0",
     "next": "^14.0.1",
     "posthog-js": "^1.184.2",
     "puppeteer": "^23.6.1",

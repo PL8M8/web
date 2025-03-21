@@ -2,12 +2,13 @@ import posthog from "posthog-js";
 import { PostHogProvider } from 'posthog-js/react';
 import Head from 'next/head';
 import { useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/router';
 import '@styles/home.css';
 import '@styles/contact.css';
 import '@styles/globals.css';
 import '@styles/showcase.css';
 import Navbar from "@components/Navbar";
-
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
@@ -20,8 +21,10 @@ if (typeof window !== 'undefined') {
 }
 
 function Application({ Component, pageProps }) {
+  const router = useRouter();
+
   useEffect(() => {
-    posthog.capture('my event', { property: 'pl8m8 test value' })
+    posthog.capture('my event', { property: 'pl8m8 test value' });
 
     if (process.env.NEXT_PUBLIC_HOTJAR_ID) {
       (function (h, o, t, j, a, r) {
@@ -42,9 +45,19 @@ function Application({ Component, pageProps }) {
         <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet" />
       </Head>
       <PostHogProvider client={posthog}>
-        <Navbar/>
+        <Navbar />
         <div className="background" />
-        <Component {...pageProps} />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={router.route}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Component {...pageProps} />
+          </motion.div>
+        </AnimatePresence>
       </PostHogProvider>
     </>
   );
