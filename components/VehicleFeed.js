@@ -7,14 +7,27 @@ const Mosaic = styled.div`
     --gap: clamp(1rem, 5vmin, 1rem);
     column-gap: var(--gap);
     width: 96%;
-    columns: 275px;
     margin: 5rem auto;
 
+    columns: 1;
+
+    @media (min-width: 500px) {
+        columns: 2;
+    }
+
+    @media (min-width: 768px) {
+        columns: 3;
+    }
+
+    @media (min-width: 1024px) {
+        columns: 4;
+    }
+
     & > * {
-        break-inside: avoid; /* Prevents items from breaking between columns */
+        break-inside: avoid;
         margin-bottom: var(--gap);
-        width: 100%; /* Ensures the items respect the column width */
-        display: inline-block; /* Ensures items behave correctly inside columns */
+        width: 100%;
+        display: inline-block;
     }
 `;
 
@@ -27,7 +40,9 @@ const Card = styled.div`
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
-const Image = styled.img`
+const Image = styled.img.attrs(() => ({
+    loading: "lazy"
+}))`
     width: 100%;
     height: auto;
     border-bottom: 3px solid orange;
@@ -70,8 +85,11 @@ const Button = styled.a`
 
 export default function VehicleFeed() {
     const [vehicles, setVehicles] = useState([]);
+    const [hasMounted, setHasMounted] = useState(false);
 
     useEffect(() => {
+        setHasMounted(true);
+
         async function getVehicles() {
             try {
                 const { data, error } = await supabase
@@ -92,12 +110,18 @@ export default function VehicleFeed() {
         getVehicles();
     }, []);
 
+    if (!hasMounted) return null;
+
     return (
         <Mosaic>
             {vehicles.map(({ id, image_uri, make, model, year, listing_price, color, condition, mileage, tag_number }) => (
                 <Link key={id} href={`/vehicle/${id}`}>
                     <Card>
-                        <Image src={image_uri} alt={`${make} ${model}`} />
+                        <Image
+                            src={image_uri || '/fallback.jpg'}
+                            alt={`${make} ${model}`}
+                            onError={(e) => { e.currentTarget.src = '/fallback.jpg'; }}
+                        />
                         <div style={{ padding: '10px' }}>
                             <Subtitle>{year} {make} {model}</Subtitle>
                             <Price>${listing_price.toLocaleString()}</Price>
@@ -105,7 +129,6 @@ export default function VehicleFeed() {
                             <Detail><strong>Condition:</strong> {condition}</Detail>
                             <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
                             <Detail><strong>Tag Number:</strong> {tag_number || "Unregistered"}</Detail>
-                            {/* <Button href="#">Contact Seller</Button> */}
                         </div>
                     </Card>
                 </Link>
