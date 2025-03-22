@@ -64,7 +64,7 @@ const Navbar = ({ extraComponents }) => {
     const [isSigningUp, setIsSigningUp] = useState(true);
 
     const navLinks = [
-        { name: 'Buy & Sell', path: '/marketplace' },
+        { name: 'Buy & Sell', path: '/' },
         // { name: 'Case Study 001', path: '/survey'},
         // { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign Up', path: '#' },
@@ -108,7 +108,7 @@ const Navbar = ({ extraComponents }) => {
 
             // Redirect signed-out users to '/'
             if (!session && router.pathname === '/garage') {
-                router.push('/marketplace');
+                router.push('/');
             }
         };
 
@@ -138,7 +138,7 @@ const Navbar = ({ extraComponents }) => {
         e.preventDefault();
         await supabase.auth.signOut();
         setIsSignedIn(false);
-        router.push('/marketplace'); 
+        router.push('/'); 
     };
 
     const toggleModal = () => {

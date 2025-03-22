@@ -7,20 +7,20 @@ const Mosaic = styled.div`
     --gap: clamp(1rem, 5vmin, 1rem);
     column-gap: var(--gap);
     width: 96%;
-    margin: 5rem auto;
+    margin: 5.5rem auto;
 
     columns: 1;
 
     @media (min-width: 500px) {
-        columns: 2;
+        columns: 1;
     }
 
     @media (min-width: 768px) {
-        columns: 3;
+        columns: 2;
     }
 
     @media (min-width: 1024px) {
-        columns: 4;
+        columns: 3;
     }
 
     & > * {
@@ -33,7 +33,7 @@ const Mosaic = styled.div`
 
 const Card = styled.div`
     position: relative;
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     overflow: hidden;
     background-color: #fff;
     border: 1px solid #ffffff20;

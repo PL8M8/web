@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import colors from 'constants/colors';
 
 const StyledButton = styled.button`
-    border: 2px solid ${colors.primary} ;
+    border: 2px solid ${colors.primary};
+    border-radius: 5px;
     color: ${colors.primary};
     font-weight: bold;
     text-transform: uppercase;
