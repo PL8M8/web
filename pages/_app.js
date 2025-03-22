@@ -9,6 +9,7 @@ import '@styles/contact.css';
 import '@styles/globals.css';
 import '@styles/showcase.css';
 import Navbar from "@components/Navbar";
+import Sidebar from "@components/Sidebar";
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {

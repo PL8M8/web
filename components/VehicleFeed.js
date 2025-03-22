@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Link from 'next/link';
 import { supabase } from '../config/supabase';
+import colors from "constants/colors";
 
 const Mosaic = styled.div`
     --gap: clamp(1rem, 5vmin, 1rem);
     column-gap: var(--gap);
     width: 96%;
-    margin: 5.5rem auto;
+    padding: 0.5%;
 
     columns: 1;
 
@@ -36,7 +37,7 @@ const Card = styled.div`
     border-radius: 0.5rem;
     overflow: hidden;
     background-color: #fff;
-    border: 1px solid #ffffff20;
+    border: 1px solid #44444450;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
@@ -55,13 +56,18 @@ const Title = styled.h2`
 
 const Subtitle = styled.h3`
     font-size: 1em;
-    color: #555;
-    margin-top: 5px;
+    color: ${colors.primary};
+    margin: 0;
 `;
 
 const Price = styled.h3`
     font-size: 1em;
-    color: orange;
+    color: green;
+    position: absolute;
+    background: #fff;
+    margin: 2%;
+    border-radius: 5px;
+    padding: 1% 4%;
 `;
 
 const Detail = styled.p`
@@ -117,6 +123,7 @@ export default function VehicleFeed() {
             {vehicles.map(({ id, image_uri, make, model, year, listing_price, color, condition, mileage, tag_number }) => (
                 <Link key={id} href={`/vehicle/${id}`}>
                     <Card>
+                        <Price>${listing_price.toLocaleString()}</Price>
                         <Image
                             src={image_uri || '/fallback.jpg'}
                             alt={`${make} ${model}`}
@@ -124,11 +131,8 @@ export default function VehicleFeed() {
                         />
                         <div style={{ padding: '10px' }}>
                             <Subtitle>{year} {make} {model}</Subtitle>
-                            <Price>${listing_price.toLocaleString()}</Price>
-                            <Detail><strong>Color:</strong> {color}</Detail>
                             <Detail><strong>Condition:</strong> {condition}</Detail>
                             <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
-                            <Detail><strong>Tag Number:</strong> {tag_number || "Unregistered"}</Detail>
                         </div>
                     </Card>
                 </Link>
