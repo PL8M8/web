@@ -6,9 +6,9 @@ import VehicleFeed from '@components/VehicleFeed';
 // Fix: Remove conflicting display property
 const Container = styled.div`
     display: grid;
-    grid-template-columns: ${props => props.sidebarCollapsed ? '30px' : '20%'} 1fr;
+    grid-template-columns: ${props => props.sidebarCollapsed ? '10px' : '20%'} 1fr;
     min-height: 100vh;
-    margin-top: 4%;
+    margin-top: 3.5%;
     transition: grid-template-columns 0.3s ease;
 `;
 
@@ -17,7 +17,7 @@ const SidebarWrapper = styled.div`
     top: 4%;
     left: 0;
     bottom: 0;
-    width: ${props => props.collapsed ? '30px' : '20%'};
+    width: ${props => props.collapsed ? '10px' : '20%'};
     overflow-y: auto;
     transition: width 0.3s ease;
     z-index: 10;
@@ -28,7 +28,6 @@ const FeedContainer = styled.div`
     min-height: 100%;
     grid-column: 2;
     overflow-y: auto;
-    padding: 20px;
 `;
 
 const ToggleButton = styled.button`
@@ -53,7 +52,7 @@ const ToggleButton = styled.button`
 `;
 
 const Marketplace = () => {
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
     // Add hydration fix
     const [mounted, setMounted] = useState(false);
 

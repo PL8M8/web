@@ -7,11 +7,8 @@ import colors from "constants/colors";
 const Mosaic = styled.div`
     --gap: clamp(1rem, 5vmin, 1rem);
     column-gap: var(--gap);
-    width: 96%;
-    padding: 0.5%;
-
-    columns: 1;
-
+    width: 100%;
+    padding: 1%;
     @media (min-width: 500px) {
         columns: 1;
     }
