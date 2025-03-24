@@ -8,7 +8,7 @@ const Mosaic = styled.div`
     --gap: clamp(1rem, 5vmin, 1rem);
     column-gap: var(--gap);
     width: 100%;
-    padding: 1%;
+    padding: 0 1%;
     @media (min-width: 500px) {
         columns: 1;
     }
@@ -28,6 +28,19 @@ const Mosaic = styled.div`
         display: inline-block;
     }
 `;
+
+const VehicleFeedHeader = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 1%;
+
+`
+
+const VehicleCount = styled.div`
+    padding: 0.5%;
+    color: #333;
+`
 
 const Card = styled.div`
     position: relative;
@@ -117,24 +130,29 @@ export default function VehicleFeed() {
     if (!hasMounted) return null;
 
     return (
-        <Mosaic>
-            {vehicles.map(({ id, image_uri, make, model, year, listing_price, color, condition, mileage, tag_number }) => (
-                <Link key={id} href={`/vehicle/${id}`}>
-                    <Card>
-                        <Price>${listing_price.toLocaleString()}</Price>
-                        <Image
-                            src={image_uri || '/fallback.jpg'}
-                            alt={`${make} ${model}`}
-                            onError={(e) => { e.currentTarget.src = '/fallback.jpg'; }}
-                        />
-                        <div style={{ padding: '10px' }}>
-                            <Subtitle>{year} {make} {model}</Subtitle>
-                            <Detail><strong>Condition:</strong> {condition}</Detail>
-                            <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
-                        </div>
-                    </Card>
-                </Link>
-            ))}
-        </Mosaic>
+        <>
+            <VehicleFeedHeader>
+                <VehicleCount>{vehicles.length} of {vehicles.length}</VehicleCount>
+            </VehicleFeedHeader>
+            <Mosaic>
+                {vehicles.map(({ id, image_uri, make, model, year, listing_price, color, condition, mileage, tag_number }) => (
+                    <Link key={id} href={`/vehicle/${id}`}>
+                        <Card>
+                            <Price>${listing_price.toLocaleString()}</Price>
+                            <Image
+                                src={image_uri || '/fallback.jpg'}
+                                alt={`${make} ${model}`}
+                                onError={(e) => { e.currentTarget.src = '/fallback.jpg'; }}
+                            />
+                            <div style={{ padding: '10px' }}>
+                                <Subtitle>{year} {make} {model}</Subtitle>
+                                <Detail><strong>Condition:</strong> {condition}</Detail>
+                                <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
+                            </div>
+                        </Card>
+                    </Link>
+                ))}
+            </Mosaic>
+        </>
     );
 }
