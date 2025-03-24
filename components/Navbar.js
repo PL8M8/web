@@ -53,6 +53,18 @@ const SwitchButton = styled.button`
     }
 `;
 
+const HamburgerButton = styled.button`
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    
+    @media (max-width: 768px) {
+        display: block;
+    }
+`;
+
 const Navbar = ({ extraComponents }) => {
     const router = useRouter();
     const [activeLink, setActiveLink] = useState('Home');
@@ -62,6 +74,15 @@ const Navbar = ({ extraComponents }) => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isSigningUp, setIsSigningUp] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const handleNavLinkClick = () => {
+        setIsMobileMenuOpen(false);
+    };
 
     const navLinks = [
         { name: 'Buy & Sell', path: '/' },
@@ -195,6 +216,9 @@ const Navbar = ({ extraComponents }) => {
                         ))
                     )}
                 </div>
+                {/* <HamburgerButton onClick={toggleMobileMenu} className="hamburger-button">
+                    {isMobileMenuOpen ? '✕' : '☰'}
+                </HamburgerButton> */}
             </nav>
 
             {/* Modal for Sign Up */}

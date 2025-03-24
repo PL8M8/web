@@ -4,11 +4,16 @@ import Link from 'next/link';
 import { supabase } from '../config/supabase';
 import colors from "constants/colors";
 
+const Container = styled.div`
+    height: 100vh;
+`
+
 const Mosaic = styled.div`
     --gap: clamp(1rem, 5vmin, 1rem);
     column-gap: var(--gap);
     width: 100%;
     padding: 0 1%;
+    overflow: auto;
     @media (min-width: 500px) {
         columns: 1;
     }
@@ -130,7 +135,7 @@ export default function VehicleFeed() {
     if (!hasMounted) return null;
 
     return (
-        <>
+        <Container>
             <VehicleFeedHeader>
                 <VehicleCount>{vehicles.length} of {vehicles.length}</VehicleCount>
             </VehicleFeedHeader>
@@ -153,6 +158,6 @@ export default function VehicleFeed() {
                     </Link>
                 ))}
             </Mosaic>
-        </>
+        </Container>
     );
 }
