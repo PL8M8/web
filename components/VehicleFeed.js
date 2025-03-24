@@ -64,6 +64,7 @@ const Price = styled.h3`
     background: #fff;
     margin: 2%;
     border-radius: 5px;
+    border: 1px solid #33333330;
     padding: 1% 4%;
 `;
 

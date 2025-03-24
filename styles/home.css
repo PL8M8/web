@@ -100,11 +100,11 @@ h1 {
     font-size: 2.5rem; 
     width: 75%;
     margin: 2% 0 5%;
-    color: white;
+    color: #333;
 }
 
 .description {
-    color: white;
+    color: #333;
     font-weight: 500;
     margin-top: 16px;
     width: 500px;

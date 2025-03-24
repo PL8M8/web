@@ -65,9 +65,9 @@ const Navbar = ({ extraComponents }) => {
 
     const navLinks = [
         { name: 'Buy & Sell', path: '/' },
-        // { name: 'Case Study 001', path: '/survey'},
-        // { name: 'Add Your Service', path: '/add-service'},
-        { name: 'Sign Up', path: '#' },
+        { name: 'Case Study 001', path: '/survey'},
+        { name: 'Add Your Service', path: '/add-service'},
+        { name: 'Sign In', path: '#' },
     ];
 
     const handleAuth = async (e) => {
@@ -173,7 +173,7 @@ const Navbar = ({ extraComponents }) => {
                         </>
                     ) : (
                         navLinks.map(({ name, path }) => (
-                            name === 'Sign Up' ? (
+                            name === 'Sign In' ? (
                                 <span
                                     key={name}
                                     onClick={toggleModal}
