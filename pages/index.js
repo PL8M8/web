@@ -1,65 +1,91 @@
-import React, { useEffect } from 'react';
-import Navbar from '@components/Navbar';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { supabase } from 'config/supabase';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import Sidebar from '@components/Sidebar';
+import VehicleFeed from '@components/VehicleFeed';
 
-export default function Index() {
-    const router = useRouter();
+// Fix: Remove conflicting display property
+const Container = styled.div`
+    display: grid;
+    grid-template-columns: ${props => props.sidebarCollapsed ? '10px' : '20%'} 1fr;
+    min-height: 100vh;
+    margin-top: 3.5%;
+    transition: grid-template-columns 0.3s ease;
+`;
+
+const SidebarWrapper = styled.div`
+    position: fixed;
+    top: 4%;
+    left: 0;
+    bottom: 0;
+    width: ${props => props.collapsed ? '10px' : '20%'};
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    z-index: 10;
+`;
+
+const FeedContainer = styled.div`
+    width: 100%;
+    min-height: 100%;
+    grid-column: 2;
+    overflow-y: auto;
+`;
+
+const ToggleButton = styled.button`
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+    z-index: 20;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    
+    &:hover {
+        background: #e0e0e0;
+    }
+`;
+
+const Marketplace = () => {
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+    // Add hydration fix
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+        setMounted(true);
+    }, []);
 
-            // Redirect to /garage if the user is signed in
-            if (session) {
-                router.replace('/garage');
-            }
-        };
+    const toggleSidebar = () => {
+        setSidebarCollapsed(!sidebarCollapsed);
+    };
 
-        checkSession();
-
-        // Listen for auth state changes
-        const { data: subscription } = supabase.auth.onAuthStateChange(() => {
-            checkSession();
-        });
-
-        return () => {
-            // subscription
-            // console.log('Subscript is', subscription)
-        };
-    }, [router]);
+    // Handle server-side rendering issues
+    if (!mounted) {
+        return (
+            <div style={{ marginTop: '4%', height: '100vh' }}>
+                <div style={{ padding: '20px' }}>Loading...</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="page">
-            <div className="background" />
-            <Navbar />
-            <main className="main-content">
-                <section>
-                    <div className="intro">
-                        <h1>Your Garage, Simplified.</h1>
-                    </div>
-                    <div className="description">
-                        <p>
-                            Keep all your car info in one spot! Easily track mileage, registration, and photos. Plus,
-                            enjoy:
-                        </p>
-                        <ul>
-                            <li>Friendly reminders to update your mileage</li>
-                            <li>Never forget your tag number or important details</li>
-                            <li>Quick access to all your vehicle info</li>
-                        </ul>
-                        <div className="survey-button">
-                            <Link href="/survey" passHref>
-                                Take the Survey
-                            </Link>
-                        </div>
-                    </div>
-                </section>
-                <section>
-                    <img className="screenshot" src="/screenshot.png" alt="app screenshot" />
-                </section>
-            </main>
-        </div>
+        <Container sidebarCollapsed={sidebarCollapsed}>
+            {/* <SidebarWrapper collapsed={sidebarCollapsed}>
+                <Sidebar collapsed={sidebarCollapsed} />
+                <ToggleButton onClick={toggleSidebar}>
+                    {sidebarCollapsed ? '→' : '←'}
+                </ToggleButton>
+            </SidebarWrapper> */}
+            <FeedContainer>
+                <VehicleFeed />
+            </FeedContainer>
+        </Container>
     );
-}
+};
+
+export default Marketplace;

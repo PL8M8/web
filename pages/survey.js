@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import Navbar from '@components/Navbar';
 
 const ContentWrapper = styled.div`
     display: flex;
@@ -49,7 +48,6 @@ export default function SignInPage() {
     return (
         <div className="page">
             <div className="background" />
-            <Navbar /> 
             <main className="main-content">
             <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSea4PmCTcMu_2B2kc_hjDZD6iEDgbybYMpzOjO-bPzp0YTliA/viewform?embedded=true" width="640" height="4854" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
             </main>

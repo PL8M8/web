@@ -6,51 +6,63 @@ import { supabase } from 'config/supabase';
 
 
 const FormWrapper = styled.div`
-  padding: 40px;
-  border-radius: 10px;
-  text-align: center;
-  width: 100%;
-  max-width: 400px;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
 `;
 
 const Button = styled.button`
-  width: 100%;
-  padding: 10px;
-  background-color: orange;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
+    width: 100%;
+    padding: 10px;
+    background-color: orange;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
 
-  &:hover {
-    background-color: darkorange;
-  }
+    &:hover {
+        background-color: darkorange;
+    }
 `;
 
 const SwitchButton = styled.button`
-  margin-top: 20px;
-  background: none;
-  border: none;
-  color: blue;
-  cursor: pointer;
-  font-size: 14px;
-  text-decoration: underline;
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: blue;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
 
-  &:hover {
-    color: darkblue;
-  }
+    &:hover {
+        color: darkblue;
+    }
+`;
+
+const HamburgerButton = styled.button`
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    
+    @media (max-width: 768px) {
+        display: block;
+    }
 `;
 
 const Navbar = ({ extraComponents }) => {
@@ -62,42 +74,51 @@ const Navbar = ({ extraComponents }) => {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isSigningUp, setIsSigningUp] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const handleNavLinkClick = () => {
+        setIsMobileMenuOpen(false);
+    };
 
     const navLinks = [
-        // { name: 'Buy & Sell', path: '/marketplace' },
+        { name: 'Buy & Sell', path: '/' },
         { name: 'Case Study 001', path: '/survey'},
         { name: 'Add Your Service', path: '/add-service'},
-        { name: 'Sign Up', path: '#' },
+        { name: 'Sign In', path: '#' },
     ];
 
     const handleAuth = async (e) => {
         e.preventDefault();
-        setMessage(''); // Clear any previous messages
-    
+        setMessage('');
+
         if (isSigningUp) {
-          const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: { emailRedirectTo: `${window.location.origin}/welcome` },
-          });
-    
-          if (error) {
-            setMessage(`Error: ${error.message}`);
-          } else {
-            setMessage('Sign-up successful! Check your email for confirmation.');
-          }
-        } else {
-          // Sign in logic
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
-    
-          if (error) {
-            setMessage(`Error: ${error.message}`);
-          } else {
-            setMessage('Sign-in successful! Redirecting...');
-            // Redirect or perform further actions here
-          }
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: { emailRedirectTo: `${window.location.origin}/welcome` },
+            });
+        
+            if (error) {
+                setMessage(`Error: ${error.message}`);
+            } else {
+                setMessage('Sign-up successful! Check your email for confirmation.');
+            }
+            } else {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+        
+            if (error) {
+                setMessage(`Error: ${error.message}`);
+            } else {
+                setMessage('Sign-in successful! Redirecting...');
+                setIsModalOpen(false);
+                await router.replace('/garage')
+            }
         }
-      };
+        };
     
 
     useEffect(() => {
@@ -138,11 +159,11 @@ const Navbar = ({ extraComponents }) => {
         e.preventDefault();
         await supabase.auth.signOut();
         setIsSignedIn(false);
-        router.push('/'); // Redirect to home after sign out
+        router.push('/'); 
     };
 
     const toggleModal = () => {
-        setIsModalOpen(!isModalOpen); // Toggle the modal open/close state
+        setIsModalOpen(!isModalOpen); 
     };
 
     return (
@@ -173,7 +194,7 @@ const Navbar = ({ extraComponents }) => {
                         </>
                     ) : (
                         navLinks.map(({ name, path }) => (
-                            name === 'Sign Up' ? (
+                            name === 'Sign In' ? (
                                 <span
                                     key={name}
                                     onClick={toggleModal}
@@ -195,6 +216,9 @@ const Navbar = ({ extraComponents }) => {
                         ))
                     )}
                 </div>
+                {/* <HamburgerButton onClick={toggleMobileMenu} className="hamburger-button">
+                    {isMobileMenuOpen ? '✕' : '☰'}
+                </HamburgerButton> */}
             </nav>
 
             {/* Modal for Sign Up */}
