@@ -127,10 +127,10 @@ const VehicleDetail = () => {
                     value="Back"
                 />
                 <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
-                <Button 
+                {/* <Button 
                     onClick={undefined}
                     value="Reply"
-                />
+                /> */}
             </Header>
             <ContentWrapper>
                 <LeftWrapper>
