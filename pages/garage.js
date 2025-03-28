@@ -527,7 +527,7 @@ const Garage = () => {
                             onChange={handleInputChange}
                         />
 
-                        {/* <label style={{color: "orange", fontWeight: "bold"}} htmlFor="nickname">Nickname</label>
+                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="nickname">Nickname</label>
                         <Input
                             id="nickname"
                             type="text"
@@ -535,7 +535,7 @@ const Garage = () => {
                             placeholder="Nickname"
                             value={formData.nickname}
                             onChange={handleInputChange}
-                        /> */}
+                        />
 
                         <label style={{color: "orange", fontWeight: "bold"}} htmlFor="condition">Condition</label>
                         <Select
