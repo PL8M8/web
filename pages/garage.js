@@ -559,7 +559,7 @@ const Garage = () => {
                         <h2>Set Sale Price</h2>
                         <label style={{color: "orange", fontWeight: "bold"}} htmlFor="listing_price">Sale Price</label>
                         <div style={{display: "flex", alignItems: 'center'}}>
-                            <h3 style={{color: 'orange', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>$</h3>
+                            <h3 style={{color: 'orange', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom:'10px'}}>$</h3>
                             <Input
                             id="listing_price"
                             type="number"
