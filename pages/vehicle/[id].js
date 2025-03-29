@@ -60,12 +60,20 @@ const Container = styled.div`
     display: flex;
     justify-content: center;
     flex-direction: column;
+
+    @media (max-width: 768px) {
+        margin-top: 10%;
+    }
 `
 
 const ContentWrapper = styled.div`
     display: flex;
     justify-content: space-evenly;
     margin-bottom: 2%;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+    }
 `
 
 const LeftWrapper = styled.div`
