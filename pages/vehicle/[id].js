@@ -137,6 +137,7 @@ const VehicleDetail = () => {
                     <ImageWrapper>
                         <Image 
                             src={vehicle.image_uri} alt={`${vehicle.make} ${vehicle.model}`} 
+                            draggable="false"
                         />
                     </ImageWrapper>
                 </LeftWrapper>

@@ -140,13 +140,14 @@ export default function VehicleFeed() {
                 <VehicleCount>{vehicles.length} of {vehicles.length}</VehicleCount>
             </VehicleFeedHeader>
             <Mosaic>
-                {vehicles.map(({ id, image_uri, make, model, year, listing_price, color, condition, mileage, tag_number }) => (
+                {vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage }) => (
                     <Link key={id} href={`/vehicle/${id}`}>
                         <Card>
                             <Price>${listing_price.toLocaleString()}</Price>
                             <Image
                                 src={image_uri || '/fallback.jpg'}
                                 alt={`${make} ${model}`}
+                                draggable="false"
                                 onError={(e) => { e.currentTarget.src = '/fallback.jpg'; }}
                             />
                             <div style={{ padding: '10px' }}>
