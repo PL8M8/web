@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { supabase } from '../../config/supabase';
 import styled from "styled-components";
 import Button from "@components/Button";
+import Gallery from "@components/ProductImageGallery";
 
 const Title = styled.h1`
     color: #333;
@@ -142,12 +143,13 @@ const VehicleDetail = () => {
             </Header>
             <ContentWrapper>
                 <LeftWrapper>
-                    <ImageWrapper>
+                    {/* <ImageWrapper>
                         <Image 
                             src={vehicle.image_uri} alt={`${vehicle.make} ${vehicle.model}`} 
                             draggable="false"
                         />
-                    </ImageWrapper>
+                    </ImageWrapper> */}
+                    <Gallery/>
                 </LeftWrapper>
                 <RightWrapper>
                     <p><strong>Price:</strong> ${vehicle.listing_price.toLocaleString()}</p>
