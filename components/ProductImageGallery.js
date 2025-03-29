@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const defaultCarImages = [
-  'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1580274455191-1c62238fa333?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+    'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
 ];
 
 const GalleryContainer = styled.div`
@@ -21,15 +20,17 @@ const GalleryContainer = styled.div`
 
 const MainImageContainer = styled.div`
     width: 100%;
+    aspect-ratio: 1 / 1;
     background-color: #f3f4f6;
     border-radius: 8px;
     overflow: hidden;
+    position: relative;
 `;
 
 const MainImage = styled.img`
     width: 100%;
     height: auto;
-    object-fit: contain;
+    object-fit: cover;
     aspect-ratio: 1/1;
 `;
 
@@ -72,6 +73,7 @@ const ProductImageGallery = ({ images = [] }) => {
             <MainImage 
             src={mainImage} 
             alt="Product main view" 
+            draggable="false"
             onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = defaultCarImages[0];
@@ -90,12 +92,13 @@ const ProductImageGallery = ({ images = [] }) => {
                 onClick={() => setMainImage(image)}
             >
                 <ThumbnailImage 
-                src={image} 
-                alt={`Product view ${index + 1}`}
-                onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = defaultCarImages[index % defaultCarImages.length];
-                }}
+                    src={image} 
+                    alt={`Product view ${index + 1}`}
+                    draggable="false"
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = defaultCarImages[index % defaultCarImages.length];
+                    }}
                 />
             </ThumbnailContainer>
             ))}

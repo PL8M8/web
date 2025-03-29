@@ -84,6 +84,7 @@ const LeftWrapper = styled.div`
     justify-content: center;
     align-items: center;
     margin: 1% 1% 0 0;
+    padding: 0 4.5%;
 `
 
 const RightWrapper = styled.div`
