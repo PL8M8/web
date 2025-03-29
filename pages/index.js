@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import Sidebar from '@components/Sidebar';
+// import Sidebar from '@components/Sidebar';
 import VehicleFeed from '@components/VehicleFeed';
 
-// Fix: Remove conflicting display property
 const Container = styled.div`
     display: grid;
     grid-template-columns: ${props => props.sidebarCollapsed ? '10px' : '20%'} 1fr;
     min-height: 100vh;
     margin-top: 3.5%;
     transition: grid-template-columns 0.3s ease;
+
+    @media (max-width: 768px) {
+        margin-top: 15%;
+    }
 `;
 
 const SidebarWrapper = styled.div`
