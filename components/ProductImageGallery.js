@@ -1,3 +1,4 @@
+import colors from 'constants/colors';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -22,6 +23,7 @@ const MainImageContainer = styled.div`
     width: 100%;
     aspect-ratio: 1 / 1;
     background-color: #f3f4f6;
+    border: 1px solid #33333330;
     border-radius: 8px;
     overflow: hidden;
     position: relative;
@@ -46,7 +48,7 @@ const ThumbnailGrid = styled.div`
 
 const ThumbnailContainer = styled.div`
     cursor: pointer;
-    border: 2px solid ${props => props.isActive ? '#3b82f6' : '#e5e7eb'};
+    border: 2px solid ${props => props.isActive ? colors.primary : '#33333330'};
     border-radius: 6px;
     overflow: hidden;
 `;

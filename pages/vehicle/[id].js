@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { supabase } from '../../config/supabase';
 import styled from "styled-components";
 import Button from "@components/Button";
-import Gallery from "@components/ProductImageGallery";
+import VehicleGallery from "@components/ProductImageGallery";
 
 const Title = styled.h1`
     color: #333;
@@ -41,20 +41,6 @@ const Badge = styled.span`
     color: #fff;
     background-color: ${(props) => (props.isTrue ? '#28a745' : '#dc3545')};
 `;
-
-const ImageWrapper = styled.div`
-    border: 2px solid #fff;
-    border-radius: 5px;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-`
-
-const Image = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-`
 
 const Container = styled.div`
     padding: 4% 2% 0;
@@ -144,13 +130,7 @@ const VehicleDetail = () => {
             </Header>
             <ContentWrapper>
                 <LeftWrapper>
-                    {/* <ImageWrapper>
-                        <Image 
-                            src={vehicle.image_uri} alt={`${vehicle.make} ${vehicle.model}`} 
-                            draggable="false"
-                        />
-                    </ImageWrapper> */}
-                    <Gallery/>
+                    <VehicleGallery/>
                 </LeftWrapper>
                 <RightWrapper>
                     <p><strong>Price:</strong> ${vehicle.listing_price.toLocaleString()}</p>
