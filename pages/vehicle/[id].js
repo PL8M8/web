@@ -86,6 +86,7 @@ const VehicleDetail = () => {
     const router = useRouter();
     const { id } = router.query;
     const [vehicle, setVehicle] = useState(null);
+    const [vehicleImages, setVehicleImages] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const toggleModal = () => {
@@ -94,22 +95,47 @@ const VehicleDetail = () => {
 
     useEffect(() => {
         if (id) {
-            async function fetchVehicle() {
+            async function fetchVehicleData() {
                 try {
-                    const { data, error } = await supabase
+                    // Fetch vehicle details
+                    const { data: vehicleData, error: vehicleError } = await supabase
                         .from('vehicles')
                         .select()
                         .eq('id', id)
                         .single();
 
-                    if (error) throw error;
-                    setVehicle(data);
+                    if (vehicleError) throw vehicleError;
+                    setVehicle(vehicleData);
+
+                    // Fetch vehicle images from vehicles_images table
+                    const { data: imagesData, error: imagesError } = await supabase
+                        .from('vehicles_images')
+                        .select('url')
+                        .eq('vehicle_id', id);
+
+                    if (imagesError) throw imagesError;
+                    
+                    // Create an array of image URLs
+                    let imageUrls = [];
+                    
+                    // Add the main vehicle image if it exists
+                    if (vehicleData.image_uri) {
+                        imageUrls.push(vehicleData.image_uri);
+                    }
+                    
+                    // Add additional images from vehicles_images table
+                    if (imagesData && imagesData.length > 0) {
+                        const additionalUrls = imagesData.map(img => img.url);
+                        imageUrls = [...imageUrls, ...additionalUrls];
+                    }
+                    
+                    setVehicleImages(imageUrls);
                 } catch (error) {
-                    console.error("Error fetching vehicle:", error);
+                    console.error("Error fetching vehicle data:", error);
                 }
             }
 
-            fetchVehicle();
+            fetchVehicleData();
         }
     }, [id]);
 
@@ -130,7 +156,7 @@ const VehicleDetail = () => {
             </Header>
             <ContentWrapper>
                 <LeftWrapper>
-                    <VehicleGallery/>
+                    <VehicleGallery images={vehicleImages} imageUri={vehicle.image_uri} />
                 </LeftWrapper>
                 <RightWrapper>
                     <p><strong>Price:</strong> ${vehicle.listing_price.toLocaleString()}</p>

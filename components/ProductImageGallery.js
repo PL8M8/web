@@ -60,10 +60,10 @@ const ThumbnailImage = styled.img`
     aspect-ratio: 1/1;
 `;
 
-const ProductImageGallery = ({ images = [] }) => {
+const ProductImageGallery = ({ images = [], imageUri }) => {
     const displayImages = images && images.length > 0 ? images : defaultCarImages;
     
-    const [mainImage, setMainImage] = useState(displayImages[0]);
+    const [mainImage, setMainImage] = useState(imageUri);
 
     const handleThumbnailHover = (image) => {
         setMainImage(image);
@@ -73,38 +73,41 @@ const ProductImageGallery = ({ images = [] }) => {
         <GalleryContainer>
         <MainImageContainer>
             <MainImage 
-            src={mainImage} 
-            alt="Product main view" 
-            draggable="false"
-            onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = defaultCarImages[0];
-                if (mainImage !== defaultCarImages[0]) {
-                setMainImage(defaultCarImages[0]);
-                }
-            }}
+                src={mainImage} 
+                alt="Product main view" 
+                draggable="false"
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = defaultCarImages[0];
+                    if (mainImage !== defaultCarImages[0]) {
+                    setMainImage(defaultCarImages[0]);
+                    }
+                }}
             />
         </MainImageContainer>
-        <ThumbnailGrid>
-            {displayImages.map((image, index) => (
-            <ThumbnailContainer 
-                key={index}
-                isActive={mainImage === image}
-                onMouseEnter={() => handleThumbnailHover(image)}
-                onClick={() => setMainImage(image)}
-            >
-                <ThumbnailImage 
-                    src={image} 
-                    alt={`Product view ${index + 1}`}
-                    draggable="false"
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = defaultCarImages[index % defaultCarImages.length];
-                    }}
-                />
-            </ThumbnailContainer>
-            ))}
-        </ThumbnailGrid>
+        { displayImages.length > 1 && (
+                    <ThumbnailGrid>
+                    {displayImages.map((image, index) => (
+                    <ThumbnailContainer 
+                        key={index}
+                        isActive={mainImage === image}
+                        onMouseEnter={() => handleThumbnailHover(image)}
+                        onClick={() => setMainImage(image)}
+                    >
+                        <ThumbnailImage 
+                            src={image} 
+                            alt={`Product view ${index + 1}`}
+                            draggable="false"
+                            loading="lazy"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = defaultCarImages[index % defaultCarImages.length];
+                            }}
+                        />
+                    </ThumbnailContainer>
+                    ))}
+                </ThumbnailGrid>
+        )}
         </GalleryContainer>
     );
 };
