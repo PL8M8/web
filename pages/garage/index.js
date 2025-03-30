@@ -25,8 +25,6 @@ import {
     ToggleButton,
 } from './garage.styles';
 
-
-
 const convertLocalFilesToTemporaryBlobs = files => {
     const filesArray = Array.from(files);
     const convertedImageUrls = filesArray.map(file => URL.createObjectURL(file));
@@ -62,9 +60,10 @@ const Garage = () => {
         listing_price: 1000,
         is_sellable: true,
         is_tradeable: true,
-        images: []
+        image_uri: null
     });
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const imageInputRef = useRef(null);
 
     const handleImageOnChange = e => {
@@ -79,17 +78,21 @@ const Garage = () => {
         setImageUrls(prev => prev.filter((_, index) => index !== indexToRemove));
     };
 
-    const handleImageUpload = async () => {
+    const handleImageUpload = async (userId, vehicleId) => {
         const urls = [];
+        const storagePaths = [];
     
         try {
             for (const url of imageUrls) {
                 const imageFile = await fetchTemporaryBlobAndConvertToFileForUpload(url);
-    
+                
+                // Use the new folder structure with vehicleId
+                const storagePath = `listing_images/${userId}/${vehicleId}/${imageFile.name}`;
+                
                 const { imageUrl, error } = await uploadImage({
                     file: imageFile,
                     bucket: "listing_images",
-                    folder: userId,
+                    folder: `${userId}/${vehicleId}`,
                 });
     
                 if (error) {
@@ -97,14 +100,50 @@ const Garage = () => {
                     continue;
                 }
     
-                console.log("Image URL is:", imageUrl);
                 urls.push(imageUrl);
+                storagePaths.push(storagePath);
             }
         } catch (err) {
             console.error("Error during image upload process:", err);
         }
     
-        return urls;
+        return { urls, storagePaths };
+    };
+
+    const saveImageReferencesToDatabase = async (userId, vehicleId, imageData) => {
+        try {
+            const imageEntries = imageData.urls.map((url, index) => ({
+                user_id: userId,
+                vehicle_id: vehicleId,
+                url: url,
+                storage_path: imageData.storagePaths[index]
+            }));
+
+            const { data, error } = await supabase
+                .from('vehicles_images')
+                .insert(imageEntries);
+
+            if (error) {
+                console.error('Error storing image references:', error);
+            }
+
+            // Update the vehicle's image_uri with the first image URL if available
+            if (imageData.urls.length > 0) {
+                const { error: updateError } = await supabase
+                    .from('vehicles')
+                    .update({ image_uri: imageData.urls[0] })
+                    .eq('id', vehicleId);
+                
+                if (updateError) {
+                    console.error('Error updating vehicle image_uri:', updateError);
+                }
+            }
+
+            return { data, error };
+        } catch (err) {
+            console.error('Unexpected error saving image references:', err);
+            return { error: err };
+        }
     };
 
     useEffect(() => {
@@ -150,20 +189,41 @@ const Garage = () => {
                     return;
                 }
 
-                // Fetch vehicle images
+                // Create processed vehicle objects with images array for UI
+                const processedVehicles = [];
+                
                 for (let vehicle of vehiclesData || []) {
-                    if (vehicle.images) {
-                        // If images is already an array in your database, use it directly
+                    const { data: imageData, error: imageError } = await supabase
+                        .from('vehicles_images')
+                        .select('url')
+                        .eq('vehicle_id', vehicle.id);
+                    
+                    if (imageError) {
+                        console.error(`Error fetching images for vehicle ${vehicle.id}:`, imageError);
+                        processedVehicles.push({
+                            ...vehicle,
+                            images: vehicle.image_uri ? [vehicle.image_uri] : []
+                        });
                         continue;
-                    } else if (vehicle.image_uri) {
-                        // Convert single image_uri to images array for consistency
-                        vehicle.images = [vehicle.image_uri];
-                    } else {
-                        vehicle.images = [];
                     }
+                    
+                    // Create an images array that includes all images from vehicles_images
+                    // Make sure the primary image (image_uri) is first in the array if it exists
+                    const allImageUrls = imageData.map(img => img.url);
+                    
+                    // If image_uri exists and is not already in the list, prepend it
+                    if (vehicle.image_uri && !allImageUrls.includes(vehicle.image_uri)) {
+                        allImageUrls.unshift(vehicle.image_uri);
+                    }
+                    
+                    // Add the processed vehicle with images array
+                    processedVehicles.push({
+                        ...vehicle,
+                        images: allImageUrls
+                    });
                 }
 
-                setVehicles(vehiclesData || []);
+                setVehicles(processedVehicles);
             } catch (err) {
                 console.error('Unexpected error fetching vehicles:', err);
             }
@@ -179,7 +239,7 @@ const Garage = () => {
 
     const handleDeleteVehicle = async (vehicleId) => {
         try {
-            // Delete from database
+            // Delete the vehicle - Supabase will handle cascading deletes
             const { error } = await supabase
                 .from('vehicles')
                 .delete()
@@ -200,71 +260,115 @@ const Garage = () => {
     const handleAddVehicle = async (e) => {
         e.preventDefault();
         setError(null);
+        console.log("Setting 'setIsSubmitting' to true...")
+        setIsSubmitting(true);
 
+        console.log('Checking for userId...')
         if (!userId) {
             setError('User not authenticated. Please log in.');
+            setIsSubmitting(false);
             return;
         }
 
         try {
-            // Upload all images
-            const uploadedImageUrls = await handleImageUpload();
-            
-            // Update formData with all uploaded image URLs
-            const updatedFormData = {
-                ...formData,
-                image_uri: uploadedImageUrls[0] || null, // Keep the first image as the main image_uri for backward compatibility
-                images: uploadedImageUrls // Store all images in the images array
-            };
-
+            // Step 1: Create the vehicle to get the ID
+            console.log('trying to create the vehicle...')
             const { data: vehicleData, error: vehicleError } = await supabase
                 .from('vehicles')
-                .insert([updatedFormData])
+                .insert([{
+                    ...formData,
+                    image_uri: null // We'll update this after uploading images
+                }])
                 .select('*');
 
             if (vehicleError) {
+                console.log('there was an error creating the vehicle...')
+                console.error(vehicleError)
                 setError('Error adding vehicle: ' + vehicleError.message);
+                setIsSubmitting(false);
                 return;
             }
 
-            if (vehicleData.length > 0) {
-                const vehicle = vehicleData[0];
-
-                const { error: userVehicleError } = await supabase
-                    .from('users_vehicles')
-                    .insert({
-                        user_id: userId,
-                        vehicle_id: vehicle.id,
-                    });
-
-                if (userVehicleError) {
-                    setError('Error linking vehicle to user: ' + userVehicleError.message);
-                    return;
-                }
-
-                setVehicles((prev) => [...prev, vehicle]);
-                alert('Vehicle successfully added!');
-                setFormData({
-                    make: '',
-                    model: '',
-                    year: '',
-                    mileage: '',
-                    color: '',
-                    vin: '',
-                    nickname: '',
-                    condition: 'excellent',
-                    listing_price: 1000,
-                    is_sellable: true,
-                    is_tradeable: true,
-                    images: []
-                });
-                setIsFormVisible(false);
-                setCurrentFormStep(1);
-                setImageUrls([]);
+            console.log('Vehicle data at this point is:', vehicleData)
+            if (vehicleData.length === 0) {
+                console.log('Oops. No vehicle data Found...')
+                setError('Failed to create vehicle record');
+                setIsSubmitting(false);
+                return;
             }
+
+            const newVehicle = vehicleData[0];
+
+            console.log('new vehicle was created:', newVehicle)
+            // Step 2: Link vehicle to user
+            const { error: userVehicleError } = await supabase
+                .from('users_vehicles')
+                .insert({
+                    user_id: userId,
+                    vehicle_id: newVehicle.id,
+                });
+
+            if (userVehicleError) {
+                setError('Error linking vehicle to user: ' + userVehicleError.message);
+                setIsSubmitting(false);
+                return;
+            }
+
+            // Add the vehicle to state immediately with temporary image URLs for a snappy UI
+            const vehicleWithTempImages = {
+                ...newVehicle,
+                images: [...imageUrls] // Use the local blob URLs temporarily
+            };
+            
+            setVehicles(prev => [...prev, vehicleWithTempImages]);
+            
+            // Reset form state and hide the form
+            setFormData({
+                make: '',
+                model: '',
+                year: '',
+                mileage: '',
+                color: '',
+                vin: '',
+                nickname: '',
+                condition: 'excellent',
+                listing_price: 1000,
+                is_sellable: true,
+                is_tradeable: true,
+                image_uri: null
+            });
+            setIsFormVisible(false);
+            setCurrentFormStep(1);
+            
+            // Step 3: Upload images in the background and store their references
+            startTransition(async () => {
+                // Upload images to the new folder structure and get URLs and storage paths
+                const imageData = await handleImageUpload(userId, newVehicle.id);
+                
+                // Store image references in vehicles_images table and update vehicle's image_uri
+                if (imageData.urls.length > 0) {
+                    await saveImageReferencesToDatabase(userId, newVehicle.id, imageData);
+                    
+                    // Update the vehicle in state with the actual image URLs
+                    setVehicles(prev => prev.map(v => 
+                        v.id === newVehicle.id 
+                            ? { 
+                                ...v, 
+                                images: imageData.urls,
+                                image_uri: imageData.urls[0] // Set the first image as the primary image
+                              } 
+                            : v
+                    ));
+                }
+                
+                setImageUrls([]);
+                setIsSubmitting(false);
+            });
+            
         } catch (err) {
             setError('An unexpected error occurred.');
             console.error(err);
+            setIsSubmitting(false);
         }
     };
 
@@ -428,6 +532,16 @@ const Garage = () => {
                                             onChange={handleInputChange}
                                         />
 
+                                        <label style={{color: "orange", fontWeight: "bold"}} htmlFor="nickname">Nickname</label>
+                                        <Input
+                                            id="nickname"
+                                            type="text"
+                                            name="nickname"
+                                            placeholder="Nickname (optional)"
+                                            value={formData.nickname}
+                                            onChange={handleInputChange}
+                                        />
+
                                         <label style={{color: "orange", fontWeight: "bold"}} htmlFor="condition">Condition</label>
                                         <Select
                                             id="condition"
@@ -451,13 +565,13 @@ const Garage = () => {
                                         <div style={{display: "flex", alignItems: 'center'}}>
                                             <h3 style={{color: 'orange', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>$</h3>
                                             <Input
-                                            id="listing_price"
-                                            type="number"
-                                            name="listing_price"
-                                            placeholder="Set Listing Price"
-                                            value={formData.listing_price}
-                                            onChange={handleInputChange}
-                                        />
+                                                id="listing_price"
+                                                type="number"
+                                                name="listing_price"
+                                                placeholder="Set Listing Price"
+                                                value={formData.listing_price}
+                                                onChange={handleInputChange}
+                                            />
                                         </div>
                                     </>
                                 )}
@@ -484,7 +598,14 @@ const Garage = () => {
                                     </Button>
                                 )}
                                 
-                                {currentFormStep === 3 && <Button onClick={handleAddVehicle}>Add Vehicle</Button> }
+                                {currentFormStep === 3 && (
+                                    <Button 
+                                        onClick={handleAddVehicle}
+                                        disabled={isSubmitting}
+                                    >
+                                        {isSubmitting ? 'Adding...' : 'Add Vehicle'}
+                                    </Button>
+                                )}
                             </NavigationButtonContainer>
                         </ModalContent>
                     </ModalOverlay>
@@ -492,7 +613,7 @@ const Garage = () => {
                 <Mosaic>
                     {vehicles.map((vehicle) => (
                         <Card key={vehicle.id}>
-                            <ImageCarousel images={vehicle.images || [vehicle.image_uri]} />
+                            <ImageCarousel images={vehicle.images || []} />
                             <CardContent>
                                 <Subtitle>
                                     {vehicle.year} {vehicle.make} {vehicle.model}
