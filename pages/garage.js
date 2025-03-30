@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useTransition, useRef } from 'react';
 import styled from 'styled-components';
-import { uploadImage } from 'lib/uploadImage'
+import { uploadImage } from 'lib/uploadImage';
 import { supabase } from 'config/supabase';
 
 const Mosaic = styled.div`
@@ -14,10 +14,102 @@ const Mosaic = styled.div`
     }
 `;
 
+const ImageGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+`;
+
+const ImagePreview = styled.div`
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid orange;
+    height: 150px;
+`;
+
+const RemoveImageButton = styled.button`
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 5;
+
+    &:hover {
+        background-color: red;
+    }
+`;
+
+const ImageUploadButton = styled.button`
+    border: 2px dashed #dddddd;
+    border-radius: 5px;
+    height: 150px;
+    width: 100%;
+    margin-bottom: 2%;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    &:hover {
+        border-color: orange;
+        background-color: rgba(255, 165, 0, 0.05);
+    }
+`;
+
+const ImageGallery = styled.div`
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    margin-top: 10px;
+    padding-bottom: 5px;
+    
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: orange;
+        border-radius: 10px;
+    }
+`;
+
+const ThumbnailImage = styled.img`
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    
+    &.active {
+        border-color: orange;
+    }
+`;
+
 const NavigationButtonContainer = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
-`
+`;
 
 const DeleteButton = styled.button`
     top: 10px;
@@ -41,7 +133,6 @@ const DeleteButton = styled.button`
     }
 `;
 
-
 const ModalOverlay = styled.div`
     position: fixed;
     top: 0;
@@ -62,6 +153,8 @@ const ModalContent = styled.div`
     min-width: 650px;
     min-height: 650px;
     max-width: 650px;
+    max-height: 80vh;
+    overflow-y: auto;
     border: 1px solid #ccc;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
@@ -121,6 +214,7 @@ const FormContainer = styled.div`
     padding: 20px;
     margin: 20px 0;
     height: 600px;
+    overflow-y: auto;
 `;
 
 const Input = styled.input`
@@ -172,39 +266,28 @@ const ToggleButton = styled.button`
 `;
 
 const convertLocalFilesToTemporaryBlobs = files => {
-    // console.log('we have files', files)
-    const filesArray = Array.from(files)
-    // console.log('Files Array Bruh', filesArray)
-    const convertedImageUrls = filesArray.map(file => URL.createObjectURL(file))
-    // console.log('We have URLs Bruh', newImageUrls)
-    return convertedImageUrls
-}
+    const filesArray = Array.from(files);
+    const convertedImageUrls = filesArray.map(file => URL.createObjectURL(file));
+    return convertedImageUrls;
+};
 
 const fetchTemporaryBlobAndConvertToFileForUpload = async temporaryBlobUrl => {
-    const response = await fetch(temporaryBlobUrl)
-    // console.log("Response of fetching blob is ", response)
-    const blob = await response.blob()
-    // console.log("Blob after fetch is ", blob)
-    const fileName = Math.random().toString(36).slice(2,9)
-    // console.log('File name before interpolation:', fileName)
-    const mimeType = blob.type || "application/octet-stream"
-    // console.log('mime type is', mimeType)
-    const file = new File([blob], `${fileName}.${mimeType.split("/")[1]}`,{ type: mimeType })
-    // console.log('final file is', file)
-    return file
-}
-
-
-
+    const response = await fetch(temporaryBlobUrl);
+    const blob = await response.blob();
+    const fileName = Math.random().toString(36).slice(2,9);
+    const mimeType = blob.type || "application/octet-stream";
+    const file = new File([blob], `${fileName}.${mimeType.split("/")[1]}`,{ type: mimeType });
+    return file;
+};
 
 const Garage = () => {
     const [vehicles, setVehicles] = useState([]);
     const [userId, setUserId] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [currentFormStep, setCurrentFormStep] = useState(1);
-    const maxSteps = 3
-    const [imageUrls, setImageUrls] = React.useState([])
-    const [isPending, startTransition] = React.useTransition()
+    const maxSteps = 3;
+    const [imageUrls, setImageUrls] = useState([]);
+    const [isPending, startTransition] = useTransition();
     const [formData, setFormData] = useState({
         make: '',
         model: '',
@@ -216,19 +299,23 @@ const Garage = () => {
         condition: 'excellent',
         listing_price: 1000,
         is_sellable: true,
-        is_tradeable: true
+        is_tradeable: true,
+        images: []
     });
     const [error, setError] = useState(null);
-    const imageInputRef = React.useRef(null)
+    const imageInputRef = useRef(null);
 
     const handleImageOnChange = e => {
-        const files = e.target?.files
+        const files = e.target?.files;
         if (files) {
-            console.log('files before url conversion is', files)
-            const newImageUrls = convertLocalFilesToTemporaryBlobs(files)
-            setImageUrls([...imageUrls, ...newImageUrls])
+            const newImageUrls = convertLocalFilesToTemporaryBlobs(files);
+            setImageUrls(prev => [...prev, ...newImageUrls]);
         }
-    }
+    };
+
+    const handleRemoveImage = (indexToRemove) => {
+        setImageUrls(prev => prev.filter((_, index) => index !== indexToRemove));
+    };
 
     const handleImageUpload = async () => {
         const urls = [];
@@ -245,7 +332,7 @@ const Garage = () => {
     
                 if (error) {
                     console.error("Error uploading image:", error);
-                    continue; // Skip this iteration and move to the next URL
+                    continue;
                 }
     
                 console.log("Image URL is:", imageUrl);
@@ -257,8 +344,6 @@ const Garage = () => {
     
         return urls;
     };
-    
-
 
     useEffect(() => {
         const fetchUserAndVehicles = async () => {
@@ -303,6 +388,19 @@ const Garage = () => {
                     return;
                 }
 
+                // Fetch vehicle images
+                for (let vehicle of vehiclesData || []) {
+                    if (vehicle.images) {
+                        // If images is already an array in your database, use it directly
+                        continue;
+                    } else if (vehicle.image_uri) {
+                        // Convert single image_uri to images array for consistency
+                        vehicle.images = [vehicle.image_uri];
+                    } else {
+                        vehicle.images = [];
+                    }
+                }
+
                 setVehicles(vehiclesData || []);
             } catch (err) {
                 console.error('Unexpected error fetching vehicles:', err);
@@ -332,16 +430,12 @@ const Garage = () => {
 
             // Update state
             setVehicles((prevVehicles) => prevVehicles.filter((v) => v.id !== vehicleId));
-            setFlippedCardId(null); // Reset flipped state
         } catch (err) {
             console.error('Unexpected error deleting vehicle:', err);
         }
     };
 
     const handleAddVehicle = async (e) => {
-        const returnedImageUrls = await handleImageUpload()
-        formData.image_uri = returnedImageUrls[0]
-
         e.preventDefault();
         setError(null);
 
@@ -351,9 +445,19 @@ const Garage = () => {
         }
 
         try {
+            // Upload all images
+            const uploadedImageUrls = await handleImageUpload();
+            
+            // Update formData with all uploaded image URLs
+            const updatedFormData = {
+                ...formData,
+                image_uri: uploadedImageUrls[0] || null, // Keep the first image as the main image_uri for backward compatibility
+                images: uploadedImageUrls // Store all images in the images array
+            };
+
             const { data: vehicleData, error: vehicleError } = await supabase
                 .from('vehicles')
-                .insert([formData])
+                .insert([updatedFormData])
                 .select('*');
 
             if (vehicleError) {
@@ -387,16 +491,52 @@ const Garage = () => {
                     vin: '',
                     nickname: '',
                     condition: 'excellent',
-                    listing_price: 1000
+                    listing_price: 1000,
+                    is_sellable: true,
+                    is_tradeable: true,
+                    images: []
                 });
                 setIsFormVisible(false);
-                setCurrentFormStep(1)
-                setImageUrls([])
+                setCurrentFormStep(1);
+                setImageUrls([]);
             }
         } catch (err) {
             setError('An unexpected error occurred.');
             console.error(err);
         }
+    };
+
+    // Component for image carousel in vehicle cards
+    const ImageCarousel = ({ images }) => {
+        const [activeIndex, setActiveIndex] = useState(0);
+        
+        if (!images || images.length === 0) {
+            return <Image src="/default-car.jpg" alt="Default vehicle" />;
+        }
+        
+        return (
+            <div style={{ position: 'relative' }}>
+                <Image
+                    src={images[activeIndex]}
+                    alt="Vehicle image"
+                    draggable="false"
+                    style={{ userSelect: "none" }}
+                />
+                {images.length > 1 && (
+                    <ImageGallery>
+                        {images.map((img, idx) => (
+                            <ThumbnailImage
+                                key={idx}
+                                src={img}
+                                alt={`Thumbnail ${idx}`}
+                                className={idx === activeIndex ? 'active' : ''}
+                                onClick={() => setActiveIndex(idx)}
+                            />
+                        ))}
+                    </ImageGallery>
+                )}
+            </div>
+        );
     };
 
     return (
@@ -416,47 +556,48 @@ const Garage = () => {
                                 {currentFormStep === 2 && (
                                     <div>
                                         <h2>Upload Vehicle Images</h2>
-                                        <p style={{ color: 'red', textTransform: 'uppercase', fontSize: '10px', fontWeight: 'bold', textAlign: 'center'}}>***JPG or PNG only***</p>
-                                        {!imageUrls.length && (
-                                            <button
-                                                style={{
-                                                    border: "2px dashed #dddddd",
-                                                    borderRadius: "5px",
-                                                    height: "150px",
-                                                    width: "100%",
-                                                    marginBottom: "2%",
-                                                    cursor: "pointer",
-                                                }}
-                                                onClick={() => imageInputRef.current?.click()}
-                                            >
-                                                Add Vehicle Image
-                                            </button>
-                                        )}
+                                        <p style={{ color: 'red', textTransform: 'uppercase', fontSize: '10px', fontWeight: 'bold', textAlign: 'center'}}>
+                                            ***JPG or PNG only***
+                                        </p>
+                                        
+                                        <ImageUploadButton onClick={() => imageInputRef.current?.click()}>
+                                            <span style={{ fontSize: '24px', marginBottom: '5px' }}>+</span>
+                                            <span>Add Vehicle Image{imageUrls.length > 0 ? 's' : ''}</span>
+                                        </ImageUploadButton>
+                                        
                                         <input
                                             type="file"
                                             hidden
                                             ref={imageInputRef}
                                             onChange={handleImageOnChange}
+                                            multiple // Allow multiple files
                                         />
-                                        {/* <button onClick={handleImageUpload}>
-                                            Upload Images - DEV (Triggers on Form Save)
-                                        </button> */}
-                                        <div>
-                                            {imageUrls.map((url, index) => (
-                                                <img
-                                                    src={url}
-                                                    height={300}
-                                                    width={"100%"}
-                                                    key={url}
-                                                    style={{
-                                                        objectFit: "cover",
-                                                        borderRadius: '10px',
-                                                        border: "1px solid orange"
-                                                    }}
-                                                    alt={`image-${index}`}
-                                                />
-                                            ))}
-                                        </div>
+                                        
+                                        {imageUrls.length > 0 && (
+                                            <div>
+                                                <h3 style={{ marginTop: '20px', marginBottom: '10px' }}>
+                                                    {imageUrls.length} Image{imageUrls.length !== 1 ? 's' : ''} Selected
+                                                </h3>
+                                                <ImageGrid>
+                                                    {imageUrls.map((url, index) => (
+                                                        <ImagePreview key={`${url}-${index}`}>
+                                                            <RemoveImageButton onClick={() => handleRemoveImage(index)}>
+                                                                ×
+                                                            </RemoveImageButton>
+                                                            <img
+                                                                src={url}
+                                                                style={{
+                                                                    width: '100%',
+                                                                    height: '100%',
+                                                                    objectFit: 'cover'
+                                                                }}
+                                                                alt={`Vehicle image ${index + 1}`}
+                                                            />
+                                                        </ImagePreview>
+                                                    ))}
+                                                </ImageGrid>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
@@ -525,16 +666,6 @@ const Garage = () => {
                                             onChange={handleInputChange}
                                         />
 
-                                        {/* <label style={{color: "orange", fontWeight: "bold"}} htmlFor="nickname">Nickname</label>
-                                        <Input
-                                            id="nickname"
-                                            type="text"
-                                            name="nickname"
-                                            placeholder="Nickname"
-                                            value={formData.nickname}
-                                            onChange={handleInputChange}
-                                        /> */}
-
                                         <label style={{color: "orange", fontWeight: "bold"}} htmlFor="condition">Condition</label>
                                         <Select
                                             id="condition"
@@ -549,7 +680,6 @@ const Garage = () => {
                                         </Select>
                                     </>
                                 )}
-
 
                                 {/* Step 3: Finalize */}
                                 {currentFormStep === 3 && (
@@ -600,12 +730,7 @@ const Garage = () => {
                 <Mosaic>
                     {vehicles.map((vehicle) => (
                         <Card key={vehicle.id}>
-                            <Image
-                                src={vehicle.image_uri || '/default-car.jpg'}
-                                alt={`${vehicle.make} ${vehicle.model}`}
-                                draggable="false"
-                                style={{userSelect: "none"}}
-                            />
+                            <ImageCarousel images={vehicle.images || [vehicle.image_uri]} />
                             <CardContent>
                                 <Subtitle>
                                     {vehicle.year} {vehicle.make} {vehicle.model}
