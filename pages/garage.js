@@ -23,7 +23,7 @@ import {
     Select,
     Button,
     ToggleButton,
-} from './garage.styles';
+} from '../styles/garage.styles';
 
 const convertLocalFilesToTemporaryBlobs = files => {
     const filesArray = Array.from(files);
