@@ -76,6 +76,17 @@ const Marketplace = () => {
         );
     }
 
+    const carImages = [
+        'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Tesla Model S
+        'https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Porsche 911
+        'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Chevrolet Corvette
+        'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Mercedes-Benz
+        'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // BMW
+        'https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Audi R8
+        'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Classic Car
+        'https://images.unsplash.com/photo-1580274455191-1c62238fa333?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'  // Lamborghini
+    ];
+
     return (
         <Container sidebarCollapsed={sidebarCollapsed}>
             {/* <SidebarWrapper collapsed={sidebarCollapsed}>
@@ -87,6 +98,7 @@ const Marketplace = () => {
             <FeedContainer>
                 <VehicleFeed />
             </FeedContainer>
+
         </Container>
     );
 };

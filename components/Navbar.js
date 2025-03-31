@@ -207,6 +207,7 @@ const Navbar = ({ extraComponents }) => {
     const [message, setMessage] = useState('');
     const [isSigningUp, setIsSigningUp] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [mounted, setMounted] = useState(false); // 👈 Hydration Fix
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -253,6 +254,8 @@ const Navbar = ({ extraComponents }) => {
     };
     
     useEffect(() => {
+        setMounted(true);
+    
         const checkSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setIsSignedIn(!!session);
@@ -384,6 +387,9 @@ const Navbar = ({ extraComponents }) => {
             ))
         );
     };
+
+    // prevent mismatch
+    if (!mounted) return null;
 
     return (
         <>
