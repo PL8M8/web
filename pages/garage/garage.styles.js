@@ -147,11 +147,9 @@ export const ModalContent = styled.div`
     background: white;
     border-radius: 10px;
     padding: 20px;
-    min-width: 650px;
-    min-height: 650px;
-    max-width: 650px;
-    max-height: 80vh;
-    overflow-y: auto;
+    height: 100%;
+    max-height: 700px;
+    width: 100%;
     border: 1px solid #ccc;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
@@ -210,7 +208,7 @@ export const FormContainer = styled.div`
     border-radius: 10px;
     padding: 20px;
     margin: 20px 0;
-    height: 600px;
+    height: 100%;
     overflow-y: auto;
 `;
 
