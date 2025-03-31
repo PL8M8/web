@@ -10,42 +10,7 @@ const Container = styled.div`
 export default function Sidebar() {
     return (
         <Container>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
-            <p>Filter</p>
+            <p>Not Yet Implemented</p>
         </Container>
     )
 }
