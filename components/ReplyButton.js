@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import Button from '@components/Button';
 import colors from '@constants/colors';
@@ -101,70 +101,76 @@ const ContactLink = styled.a`
   font-size: 16px;
 `;
 
-export default function ReplyButton({ contactEmail, contactPhone }) {
+export default function ReplyButton({ 
+  contactEmail, 
+  contactPhone, 
+  listingTitle, 
+  listingUrl 
+}) {
   const [showModal, setShowModal] = useState(false);
   const modalRef = useRef(null);
   
   // Default fallback values
   const email = contactEmail || "info@pl8m8.co";
   const phone = contactPhone || "404-980-1188";
+  const title = listingTitle || "Listing Inquiry";
+  
+  // Get the current page URL if not provided
+  const currentUrl = listingUrl || (typeof window !== 'undefined' ? window.location.href : '');
+  
+  // Create email subject and body
+  const emailSubject = encodeURIComponent(title);
+  const emailBody = encodeURIComponent(`\n\n\n\n--\nListing URL: ${currentUrl}`);
   
   const toggleModal = () => {
     setShowModal(!showModal);
   };
 
-  // Close modal when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setShowModal(false);
-      }
-    };
-
-    if (showModal) {
-      document.addEventListener('mousedown', handleClickOutside);
+  // Handle click outside to close modal - React way
+  const handleOverlayClick = (event) => {
+    // Check if the click is outside the modal container
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      setShowModal(false);
     }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showModal]);
+  };
 
   return (
-    <Container>
+    <>
       <Button 
         onClick={toggleModal}
         value="Reply"
         style={{ backgroundColor: colors.primary }}
       />
-      
-      {showModal && (
-        <ModalOverlay>
-          <ModalContainer ref={modalRef}>
-            <ModalHeader>
-              <ModalTitle>Contact Options</ModalTitle>
-              <CloseButton onClick={toggleModal}>&times;</CloseButton>
-            </ModalHeader>
-            
-            <SectionContainer $hasBottomBorder={true}>
-              <SectionTitle>Email</SectionTitle>
-              <ContactOption>
-                <ContactLink href={`mailto:${email}`}>
-                  {email}
-                </ContactLink>
-              </ContactOption>
-            </SectionContainer>
-            
-            <SectionContainer>
-              <SectionTitle>Call / Text</SectionTitle>
-              <ContactOption>
-                <ContactLink href={`tel:${phone}`}>
-                  {phone}
-                </ContactLink>
-              </ContactOption>
-            </SectionContainer>
-          </ModalContainer>
-        </ModalOverlay>
-      )}
-    </Container>
+      <Container>      
+        {showModal && (
+          <ModalOverlay onClick={handleOverlayClick}>
+            <ModalContainer ref={modalRef}>
+              <ModalHeader>
+                <ModalTitle>Contact Options</ModalTitle>
+                <CloseButton onClick={toggleModal}>&times;</CloseButton>
+              </ModalHeader>
+              
+              <SectionContainer $hasBottomBorder={true}>
+                <SectionTitle>Email</SectionTitle>
+                <ContactOption>
+                  <ContactLink href={`mailto:${email}?subject=${emailSubject}&body=${emailBody}`}>
+                    {email}
+                  </ContactLink>
+                </ContactOption>
+              </SectionContainer>
+              
+              <SectionContainer>
+                <SectionTitle>Call / Text</SectionTitle>
+                <ContactOption>
+                  <ContactLink href={`tel:${phone}`}>
+                    {phone}
+                  </ContactLink>
+                </ContactOption>
+              </SectionContainer>
+            </ModalContainer>
+          </ModalOverlay>
+        )}
+      </Container>
+    </>
   );
 }

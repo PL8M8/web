@@ -12,6 +12,10 @@ const Title = styled.h1`
     width: 100%;
     padding: 0;
     margin: 0;
+
+    @media (max-width: 768px) {
+        font-size: 1rem;
+    }
 `
 
 const FormWrapper = styled.div`
@@ -33,6 +37,7 @@ const Input = styled.input`
 
 const Header = styled.div`
     display: flex;
+    padding: 1%;
 `
 
 const Badge = styled.span`
