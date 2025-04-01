@@ -8,7 +8,6 @@ const Container = styled.div`
   display: inline-block;
 `;
 
-// Overlay that covers the entire screen
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -22,7 +21,6 @@ const ModalOverlay = styled.div`
   z-index: 1000;
 `;
 
-// Modal container centered on the page
 const ModalContainer = styled.div`
   width: 320px;
   background-color: white;
