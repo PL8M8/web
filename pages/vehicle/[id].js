@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { supabase } from '../../config/supabase';
 import styled from "styled-components";
 import Button from "@components/Button";
+import Reply from "@components/ReplyButton";
 import VehicleGallery from "@components/ProductImageGallery";
 
 const Title = styled.h1`
@@ -149,10 +150,7 @@ const VehicleDetail = () => {
                     value="Back"
                 />
                 <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
-                {/* <Button 
-                    onClick={undefined}
-                    value="Reply"
-                /> */}
+                <Reply/>
             </Header>
             <ContentWrapper>
                 <LeftWrapper>
