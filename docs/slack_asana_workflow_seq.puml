@@ -1,0 +1,12 @@
+@startuml
+actor "Team Member" as Member
+participant "Slack" as Slack
+participant "Asana" as Asana
+
+Member -> Slack: Discuss Issue/Feature
+Slack -> Member: Conversation Finalized?
+Member -> Slack: Confirm Decision
+Slack -> Asana: Create Ticket (Manual/Integration)
+Asana --> Slack: Ticket Created & Linked
+Slack --> Member: Notify Team of Created Ticket
+@enduml
