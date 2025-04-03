@@ -1,0 +1,14 @@
+@startuml
+actor Developer
+actor Admin
+
+rectangle "PL8M8 Marketplace Management" {
+  Developer -- (Discuss Issues via Slack)
+  Developer -- (Create & Manage Asana Tickets)
+  Developer -- (Push Code to GitHub)
+  
+  Admin -- (Review & Approve Tickets)
+  Admin -- (Monitor GitHub Activity via Slack)
+  Admin -- (Track Development Progress)
+}
+@enduml

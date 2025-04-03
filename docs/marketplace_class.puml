@@ -1,0 +1,47 @@
+@startuml
+class User {
+  +id: UUID
+  +username: String
+  +email: String
+  +passwordHash: String
+  +listings: [VehicleListing]
+}
+
+class VehicleListing {
+  +id: UUID
+  +title: String
+  +description: String
+  +price: Double
+  +location: String
+  +createdAt: Date
+  +images: [ListingImage]
+  +seller: User
+  +category: VehicleCategory
+}
+
+class ListingImage {
+  +id: UUID
+  +url: String
+  +listing: VehicleListing
+}
+
+class VehicleCategory {
+  +id: UUID
+  +name: String
+  +listings: [VehicleListing]
+}
+
+class Message {
+  +id: UUID
+  +content: String
+  +sender: User
+  +receiver: User
+  +sentAt: Date
+}
+
+User "1" -- "*" VehicleListing : creates >
+VehicleListing "1" -- "*" ListingImage : has >
+VehicleListing "*" -- "1" VehicleCategory : categorized as >
+Message "*" -- "1" User : sender >
+Message "*" -- "1" User : receiver >
+@enduml
