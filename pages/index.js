@@ -1,65 +1,106 @@
-import React, { useEffect } from 'react';
-import Navbar from '@components/Navbar';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { supabase } from 'config/supabase';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+// import Sidebar from '@components/Sidebar';
+import VehicleFeed from '@components/VehicleFeed';
 
-export default function Index() {
-    const router = useRouter();
+const Container = styled.div`
+    display: grid;
+    grid-template-columns: ${props => props.sidebarCollapsed ? '10px' : '20%'} 1fr;
+    min-height: 100vh;
+    margin-top: 3.5%;
+    transition: grid-template-columns 0.3s ease;
+
+    @media (max-width: 768px) {
+        margin-top: 15%;
+    }
+`;
+
+const SidebarWrapper = styled.div`
+    position: fixed;
+    top: 4%;
+    left: 0;
+    bottom: 0;
+    width: ${props => props.collapsed ? '10px' : '20%'};
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    z-index: 10;
+`;
+
+const FeedContainer = styled.div`
+    width: 100%;
+    min-height: 100%;
+    grid-column: 2;
+    overflow-y: auto;
+`;
+
+const ToggleButton = styled.button`
+    position: absolute;
+    bottom: 20px;
+    right: 10px;
+    z-index: 20;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    
+    &:hover {
+        background: #e0e0e0;
+    }
+`;
+
+const Marketplace = () => {
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+    // Add hydration fix
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+        setMounted(true);
+    }, []);
 
-            // Redirect to /garage if the user is signed in
-            if (session) {
-                router.replace('/garage');
-            }
-        };
+    const toggleSidebar = () => {
+        setSidebarCollapsed(!sidebarCollapsed);
+    };
 
-        checkSession();
+    // Handle server-side rendering issues
+    if (!mounted) {
+        return (
+            <div style={{ marginTop: '4%', height: '100vh' }}>
+                <div style={{ padding: '20px' }}>Loading...</div>
+            </div>
+        );
+    }
 
-        // Listen for auth state changes
-        const { data: subscription } = supabase.auth.onAuthStateChange(() => {
-            checkSession();
-        });
-
-        return () => {
-            // subscription
-            // console.log('Subscript is', subscription)
-        };
-    }, [router]);
+    const carImages = [
+        'https://images.unsplash.com/photo-1553440569-bcc63803a83d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Tesla Model S
+        'https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Porsche 911
+        'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Chevrolet Corvette
+        'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Mercedes-Benz
+        'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // BMW
+        'https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Audi R8
+        'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Classic Car
+        'https://images.unsplash.com/photo-1580274455191-1c62238fa333?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'  // Lamborghini
+    ];
 
     return (
-        <div className="page">
-            <div className="background" />
-            <Navbar />
-            <main className="main-content">
-                <section>
-                    <div className="intro">
-                        <h1>Your Garage, Simplified.</h1>
-                    </div>
-                    <div className="description">
-                        <p>
-                            Keep all your car info in one spot! Easily track mileage, registration, and photos. Plus,
-                            enjoy:
-                        </p>
-                        <ul>
-                            <li>Friendly reminders to update your mileage</li>
-                            <li>Never forget your tag number or important details</li>
-                            <li>Quick access to all your vehicle info</li>
-                        </ul>
-                        <div className="survey-button">
-                            <Link href="/survey" passHref>
-                                Take the Survey
-                            </Link>
-                        </div>
-                    </div>
-                </section>
-                <section>
-                    <img className="screenshot" src="/screenshot.png" alt="app screenshot" />
-                </section>
-            </main>
-        </div>
+        <Container sidebarCollapsed={sidebarCollapsed}>
+            {/* <SidebarWrapper collapsed={sidebarCollapsed}>
+                <Sidebar collapsed={sidebarCollapsed} />
+                <ToggleButton onClick={toggleSidebar}>
+                    {sidebarCollapsed ? '→' : '←'}
+                </ToggleButton>
+            </SidebarWrapper> */}
+            <FeedContainer>
+                <VehicleFeed />
+            </FeedContainer>
+
+        </Container>
     );
-}
+};
+
+export default Marketplace;
