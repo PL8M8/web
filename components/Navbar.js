@@ -286,9 +286,15 @@ const Navbar = ({ extraComponents }) => {
 
     useEffect(() => {
         const currentPath = router.pathname;
-        const active = navLinks.some(link => link.path === currentPath)
-            ? navLinks.find(link => link.path === currentPath).name
-            : 'Home';
+        const active = isSignedIn ? (
+                loggedInNavLinks.some(link => link.path === currentPath)
+                ? loggedInNavLinks.find(link => link.path === currentPath).name
+                : 'Home'
+            ) : (
+                navLinks.some(link => link.path === currentPath)
+                ? navLinks.find(link => link.path === currentPath).name
+                : 'Home'
+            )
         setActiveLink(active);
     }, [router.pathname, navLinks]);
 
