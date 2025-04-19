@@ -224,11 +224,11 @@ const Navbar = ({ extraComponents }) => {
         { name: 'Sign In', path: '#' },
     ];
 
-    // const loggedInNavLinks = [ 
-    //     { name: 'Buy & Sell', path: '/' },
-    //     { name: 'Garage', path: '/garage' },
-    //     { name: 'Settings', path: '/settings' },
-    // ]
+    const loggedInNavLinks = [ 
+        { name: 'Buy & Sell', path: '/' },
+        { name: 'Garage', path: '/garage' },
+        { name: 'Settings', path: '/settings' },
+    ]
 
     const handleAuth = async (e) => {
         e.preventDefault();
@@ -321,27 +321,15 @@ const Navbar = ({ extraComponents }) => {
         return isSignedIn ? (
             <>
                 {extraComponents}
-                <Link key={"Buy & Sell"} href={"/"} passHref>
-                    <NavLink
-                        active={activeLink === "Buy & Sell"}
-                    >
-                        {"Buy & Sell"}
-                    </NavLink>
-                </Link>
-                <Link key={"Garage"} href={"/garage"} passHref>
-                    <NavLink
-                        active={activeLink === "Garage"}
-                    >
-                        {"Garage"}
-                    </NavLink>
-                </Link>
-                <Link key={"Settings"} href={"/settings"} passHref>
-                    <NavLink
-                        active={activeLink === "Settings"}
-                    >
-                        {"Settings"}
-                    </NavLink>
-                </Link>
+                {loggedInNavLinks.map(({ name, path }) => (
+                    <Link key={name} href={path} passHref>
+                        <NavLink
+                            active={activeLink === name}
+                        >
+                            {name}
+                        </NavLink>
+                    </Link>
+                ))}
                 <SignOutButton
                     href="#"
                     onClick={handleSignOut}
