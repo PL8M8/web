@@ -224,6 +224,12 @@ const Navbar = ({ extraComponents }) => {
         { name: 'Sign In', path: '#' },
     ];
 
+    const loggedInNavLinks = [ 
+        { name: 'Buy & Sell', path: '/' },
+        { name: 'Garage', path: '/garage' },
+        { name: 'Settings', path: '/settings' },
+    ]
+
     const handleAuth = async (e) => {
         e.preventDefault();
         setMessage('');
@@ -280,9 +286,15 @@ const Navbar = ({ extraComponents }) => {
 
     useEffect(() => {
         const currentPath = router.pathname;
-        const active = navLinks.some(link => link.path === currentPath)
-            ? navLinks.find(link => link.path === currentPath).name
-            : 'Home';
+        const active = isSignedIn ? (
+                loggedInNavLinks.some(link => link.path === currentPath)
+                ? loggedInNavLinks.find(link => link.path === currentPath).name
+                : 'Home'
+            ) : (
+                navLinks.some(link => link.path === currentPath)
+                ? navLinks.find(link => link.path === currentPath).name
+                : 'Home'
+            )
         setActiveLink(active);
     }, [router.pathname, navLinks]);
 
@@ -315,6 +327,15 @@ const Navbar = ({ extraComponents }) => {
         return isSignedIn ? (
             <>
                 {extraComponents}
+                {loggedInNavLinks.map(({ name, path }) => (
+                    <Link key={name} href={path} passHref>
+                        <NavLink
+                            active={activeLink === name}
+                        >
+                            {name}
+                        </NavLink>
+                    </Link>
+                ))}
                 <SignOutButton
                     href="#"
                     onClick={handleSignOut}
