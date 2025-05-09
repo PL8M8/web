@@ -117,7 +117,7 @@ const VehicleDetail = () => {
                     
                     // Create an array of image URLs
                     let imageUrls = [];
-                    
+                                        
                     // Add the main vehicle image if it exists
                     if (vehicleData.image_uri) {
                         imageUrls.push(vehicleData.image_uri);
@@ -126,7 +126,7 @@ const VehicleDetail = () => {
                     // Add additional images from vehicles_images table
                     if (imagesData && imagesData.length > 0) {
                         const additionalUrls = imagesData.map(img => img.url);
-                        imageUrls = [...imageUrls, ...additionalUrls];
+                        imageUrls = imageUrls.length > 0 ? [...imageUrls.slice(1), ...additionalUrls] : [...imageUrls, ...additionalUrls];
                     }
                     
                     setVehicleImages(imageUrls);
