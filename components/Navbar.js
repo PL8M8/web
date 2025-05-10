@@ -33,6 +33,7 @@ const NavLinks = styled.div`
     gap: 20px;
     padding: 20px;
     flex-wrap: wrap;
+    align-items: center;
     
     @media (max-width: 768px) {
         display: none;
@@ -54,7 +55,7 @@ const NavLink = styled.span`
     font-weight: ${props => props.active ? 'bold' : 'normal'};
     transition: color 0.3s;
     cursor: pointer;
-    
+
     &:hover {
         color: #ff8800;
     }
@@ -219,10 +220,14 @@ const Navbar = ({ extraComponents }) => {
 
     const navLinks = [
         { name: 'Buy & Sell', path: '/' },
-        { name: 'Case Study 001', path: '/survey'},
-        { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign In', path: '#' },
     ];
+
+    const loggedInNavLinks = [ 
+        { name: 'Buy & Sell', path: '/' },
+        { name: 'Garage', path: '/garage' },
+        { name: 'Settings', path: '/settings' },
+    ]
 
     const handleAuth = async (e) => {
         e.preventDefault();
@@ -280,9 +285,15 @@ const Navbar = ({ extraComponents }) => {
 
     useEffect(() => {
         const currentPath = router.pathname;
-        const active = navLinks.some(link => link.path === currentPath)
-            ? navLinks.find(link => link.path === currentPath).name
-            : 'Home';
+        const active = isSignedIn ? (
+                loggedInNavLinks.some(link => link.path === currentPath)
+                ? loggedInNavLinks.find(link => link.path === currentPath).name
+                : 'Home'
+            ) : (
+                navLinks.some(link => link.path === currentPath)
+                ? navLinks.find(link => link.path === currentPath).name
+                : 'Home'
+            )
         setActiveLink(active);
     }, [router.pathname, navLinks]);
 
@@ -315,6 +326,15 @@ const Navbar = ({ extraComponents }) => {
         return isSignedIn ? (
             <>
                 {extraComponents}
+                {loggedInNavLinks.map(({ name, path }) => (
+                    <Link key={name} href={path} passHref>
+                        <NavLink
+                            active={activeLink === name}
+                        >
+                            {name}
+                        </NavLink>
+                    </Link>
+                ))}
                 <SignOutButton
                     href="#"
                     onClick={handleSignOut}
