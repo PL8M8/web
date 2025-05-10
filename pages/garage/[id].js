@@ -59,6 +59,18 @@ const Select = styled.select`
 const Header = styled.div`
     display: flex;
     padding: 1%;
+    align-items: center;
+    justify-content: space-between;
+`
+
+const HeaderLeft = styled.div`
+    display: flex;
+    align-items: center;
+`
+
+const HeaderRight = styled.div`
+    display: flex;
+    gap: 10px;
 `
 
 const Badge = styled.span`
@@ -121,6 +133,44 @@ const RightWrapper = styled.div`
     margin: 1% 0 0 1%;
 `
 
+const FieldWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+`
+
+const FieldValue = styled.span`
+    flex: 1;
+    margin-right: 10px;
+`
+
+const EditIcon = styled.span`
+    cursor: pointer;
+    color: #666;
+    margin-left: 10px;
+    font-size: 16px;
+    &:hover {
+        color: #333;
+    }
+`
+
+const EditInput = styled(Input)`
+    margin: 0;
+    flex: 1;
+`
+
+const EditSelect = styled(Select)`
+    margin: 0;
+    flex: 1;
+`
+
+const SaveButton = styled(Button)`
+    margin-top: 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+`
+
 const ReportsCard = styled.div`
     margin-top: 30px;
     padding: 20px;
@@ -177,6 +227,21 @@ const AddButton = styled(Button)`
     border: none;
 `;
 
+const ToggleButton = styled.button`
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    
+    &:hover {
+        color: #333;
+    }
+`
+
 const VehicleDetail = () => {
     const router = useRouter();
     const { id } = router.query;
@@ -192,6 +257,9 @@ const VehicleDetail = () => {
         status: 'open'
     });
     const [loading, setLoading] = useState(false);
+    const [editingFields, setEditingFields] = useState({});
+    const [editedValues, setEditedValues] = useState({});
+    const [isSaving, setIsSaving] = useState(false);
 
     const reportTypes = [
         { value: 'forum', label: 'forum'},
@@ -243,6 +311,7 @@ const VehicleDetail = () => {
 
                 if (vehicleError) throw vehicleError;
                 setVehicle(vehicleData);
+                setEditedValues(vehicleData); // Initialize edited values with current vehicle data
 
                 // Fetch vehicle images from vehicles_images table
                 const { data: imagesData, error: imagesError } = await supabase
@@ -255,15 +324,14 @@ const VehicleDetail = () => {
                 // Create an array of image URLs
                 let imageUrls = [];
                 
-                // Add the main vehicle image if it exists
-                if (vehicleData.image_uri) {
-                    imageUrls.push(vehicleData.image_uri);
+                // First, add all images from vehicles_images table
+                if (imagesData && imagesData.length > 0) {
+                    imageUrls = imagesData.map(img => img.url);
                 }
                 
-                // Add additional images from vehicles_images table
-                if (imagesData && imagesData.length > 0) {
-                    const additionalUrls = imagesData.map(img => img.url);
-                    imageUrls = [...imageUrls, ...additionalUrls];
+                // Then, add the main vehicle image if it exists and isn't already in the list
+                if (vehicleData.image_uri && !imageUrls.includes(vehicleData.image_uri)) {
+                    imageUrls.unshift(vehicleData.image_uri); // Add to beginning to make it first
                 }
                 
                 setVehicleImages(imageUrls);
@@ -284,6 +352,101 @@ const VehicleDetail = () => {
 
         fetchUserAndVehicleData();
     }, [id, router]);
+
+    const handleEditField = (field) => {
+        setEditingFields(prev => ({
+            ...prev,
+            [field]: !prev[field]
+        }));
+    };
+
+    const handleFieldChange = (field, value) => {
+        setEditedValues(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSaveVehicle = async () => {
+        if (!vehicle || !userId) return;
+
+        setIsSaving(true);
+        try {
+            const { error } = await supabase
+                .from('vehicles')
+                .update(editedValues)
+                .eq('id', vehicle.id);
+
+            if (error) throw error;
+
+            // Update local state
+            setVehicle(editedValues);
+            // Clear all editing states
+            setEditingFields({});
+            alert('Vehicle details updated successfully!');
+        } catch (error) {
+            console.error("Error updating vehicle:", error);
+            alert('Failed to update vehicle. Please try again.');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const renderField = (label, field, isBoolean = false, isEditable = true) => {
+        const isEditing = editingFields[field];
+        const value = isEditing ? editedValues[field] : vehicle[field];
+
+        return (
+            <FieldWrapper>
+                <p style={{ margin: 0, flex: 1 }}>
+                    <strong>{label}:</strong> {
+                        isEditing ? (
+                            isBoolean ? (
+                                <EditSelect
+                                    value={value ? 'true' : 'false'}
+                                    onChange={(e) => handleFieldChange(field, e.target.value === 'true')}
+                                >
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </EditSelect>
+                            ) : field === 'condition' ? (
+                                <EditSelect
+                                    value={value}
+                                    onChange={(e) => handleFieldChange(field, e.target.value)}
+                                >
+                                    <option value="excellent">Excellent</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                    <option value="poor">Poor</option>
+                                </EditSelect>
+                            ) : (
+                                <EditInput
+                                    value={value || ''}
+                                    onChange={(e) => handleFieldChange(field, e.target.value)}
+                                    type={field === 'listing_price' || field === 'mileage' || field === 'year' ? 'number' : 'text'}
+                                />
+                            )
+                        ) : (
+                            <span>
+                                {isBoolean ? 
+                                    <Badge isTrue={value}>{value ? 'Yes' : 'No'}</Badge> : 
+                                    field === 'listing_price' ? `${value?.toLocaleString()}` : 
+                                    field === 'mileage' ? `${value} miles` :
+                                    field === 'created_at' ? new Date(value).toLocaleString() :
+                                    value || (field === 'tag_number' ? "Unregistered" : field === 'nickname' ? "No nickname" : "")
+                                }
+                            </span>
+                        )
+                    }
+                </p>
+                {isEditable && (
+                    <EditIcon onClick={() => handleEditField(field)}>
+                        {isEditing ? '✓' : '✎'}
+                    </EditIcon>
+                )}
+            </FieldWrapper>
+        );
+    };
 
     const handleAddReport = async () => {
         if (!newReport.description || !newReport.type) {
@@ -343,27 +506,38 @@ const VehicleDetail = () => {
     return (
         <Container>
             <Header>
-                <Button 
-                    onClick={() => router.back()}
-                    value="Back"
-                />
-                <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
+                <HeaderLeft>
+                    <Button 
+                        onClick={() => router.back()}
+                        value="Back"
+                    />
+                    <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
+                </HeaderLeft>
+                <HeaderRight>
+                    {Object.values(editingFields).some(Boolean) && (
+                        <SaveButton 
+                            onClick={handleSaveVehicle}
+                            value={isSaving ? "Saving..." : "Save Changes"}
+                            disabled={isSaving}
+                        />
+                    )}
+                </HeaderRight>
             </Header>
             <ContentWrapper>
                 <LeftWrapper>
                     <VehicleGallery images={vehicleImages} imageUri={vehicle.image_uri} />
                 </LeftWrapper>
                 <RightWrapper>
-                    <p><strong>Price:</strong> ${vehicle.listing_price.toLocaleString()}</p>
-                    <p><strong>Color:</strong> {vehicle.color}</p>
-                    <p><strong>Condition:</strong> {vehicle.condition}</p>
-                    <p><strong>Mileage:</strong> {vehicle.mileage} miles</p>
-                    <p><strong>Tag Number:</strong> {vehicle.tag_number || "Unregistered"}</p>
-                    <p><strong>Nickname:</strong> {vehicle.nickname || "No nickname"}</p>
-                    <p><strong>VIN:</strong> {vehicle.vin}</p>
-                    <p><strong>Created At:</strong> {new Date(vehicle.created_at).toLocaleString()}</p>
-                    <p><strong>Tradeable:</strong> <Badge isTrue={vehicle.is_tradeable}>Yes</Badge></p>
-                    <p><strong>Sellable:</strong> <Badge isTrue={vehicle.is_sellable}>Yes</Badge></p>
+                    {renderField('Price', 'listing_price')}
+                    {renderField('Color', 'color')}
+                    {renderField('Condition', 'condition')}
+                    {renderField('Mileage', 'mileage')}
+                    {renderField('Tag Number', 'tag_number')}
+                    {renderField('Nickname', 'nickname')}
+                    {renderField('VIN', 'vin')}
+                    {renderField('Created At', 'created_at', false, false)}
+                    {renderField('Tradeable', 'is_tradeable', true)}
+                    {renderField('Sellable', 'is_sellable', true)}
 
                     <ReportsCard>
                         <SectionTitle>Vehicle Reports</SectionTitle>
