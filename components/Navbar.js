@@ -220,8 +220,6 @@ const Navbar = ({ extraComponents }) => {
 
     const navLinks = [
         { name: 'Buy & Sell', path: '/' },
-        { name: 'Case Study 001', path: '/survey'},
-        { name: 'Add Your Service', path: '/add-service'},
         { name: 'Sign In', path: '#' },
     ];
 
