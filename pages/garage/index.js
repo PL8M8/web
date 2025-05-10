@@ -25,6 +25,8 @@ import {
     ToggleButton,
 } from '../../styles/garage.styles';
 
+import Link from 'next/link'
+
 const convertLocalFilesToTemporaryBlobs = files => {
     const filesArray = Array.from(files);
     const convertedImageUrls = filesArray.map(file => URL.createObjectURL(file));
@@ -356,7 +358,7 @@ const Garage = () => {
                                 ...v, 
                                 images: imageData.urls,
                                 image_uri: imageData.urls[0] // Set the first image as the primary image
-                              } 
+                            } 
                             : v
                     ));
                 }
@@ -612,27 +614,29 @@ const Garage = () => {
                 )}
                 <Mosaic>
                     {vehicles.map((vehicle) => (
-                        <Card key={vehicle.id}>
-                            <ImageCarousel images={vehicle.images || []} />
-                            <CardContent>
-                                <Subtitle>
-                                    {vehicle.year} {vehicle.make} {vehicle.model}
-                                </Subtitle>
-                                <Detail>
-                                    <strong>Nickname:</strong> {vehicle.nickname || 'N/A'}
-                                </Detail>
-                                <Detail>
-                                    <strong>Color:</strong> {vehicle.color || 'Unknown'}
-                                </Detail>
-                                <Detail>
-                                    <strong>Mileage:</strong> {vehicle.mileage || 'Unknown'} miles
-                                </Detail>
-                                <Detail>
-                                    <strong>Condition:</strong> {vehicle.condition || 'Unknown'}
-                                </Detail>
-                                <DeleteButton onClick={() => handleDeleteVehicle(vehicle.id)}>Remove Vehicle</DeleteButton>
-                            </CardContent>
-                        </Card>
+                        <Link key={vehicle.id} href={`/garage/${vehicle.id}`}>
+                            <Card key={vehicle.id}>
+                                <ImageCarousel images={vehicle.images || []} />
+                                <CardContent>
+                                    <Subtitle>
+                                        {vehicle.year} {vehicle.make} {vehicle.model}
+                                    </Subtitle>
+                                    <Detail>
+                                        <strong>Nickname:</strong> {vehicle.nickname || 'N/A'}
+                                    </Detail>
+                                    <Detail>
+                                        <strong>Color:</strong> {vehicle.color || 'Unknown'}
+                                    </Detail>
+                                    <Detail>
+                                        <strong>Mileage:</strong> {vehicle.mileage || 'Unknown'} miles
+                                    </Detail>
+                                    <Detail>
+                                        <strong>Condition:</strong> {vehicle.condition || 'Unknown'}
+                                    </Detail>
+                                    <DeleteButton onClick={() => handleDeleteVehicle(vehicle.id)}>Remove Vehicle</DeleteButton>
+                                </CardContent>
+                            </Card>
+                        </Link>
                     ))}
                 </Mosaic>
             </div>
