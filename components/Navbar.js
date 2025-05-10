@@ -33,6 +33,7 @@ const NavLinks = styled.div`
     gap: 20px;
     padding: 20px;
     flex-wrap: wrap;
+    align-items: center;
     
     @media (max-width: 768px) {
         display: none;
@@ -54,7 +55,7 @@ const NavLink = styled.span`
     font-weight: ${props => props.active ? 'bold' : 'normal'};
     transition: color 0.3s;
     cursor: pointer;
-    
+
     &:hover {
         color: #ff8800;
     }
