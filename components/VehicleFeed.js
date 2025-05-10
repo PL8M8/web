@@ -105,14 +105,99 @@ const Button = styled.a`
     }
 `;
 
+// Skeleton loader styles
+const SkeletonCard = styled.div`
+    position: relative;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: #fff;
+    border: 1px solid #44444450;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+`;
+
+const SkeletonPrice = styled.div`
+    position: absolute;
+    top: 2%;
+    left: 2%;
+    width: 80px;
+    height: 24px;
+    background: #fff;
+    border-radius: 5px;
+    border: 1px solid #33333330;
+    z-index: 1;
+`;
+
+const SkeletonImage = styled.div`
+    width: 100%;
+    height: ${props => props.height || '200px'};
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-bottom: 3px solid orange;
+
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+`;
+
+const SkeletonContent = styled.div`
+    padding: 10px;
+`;
+
+const SkeletonLine = styled.div`
+    height: ${props => props.height || '16px'};
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+    margin-bottom: ${props => props.marginBottom || '8px'};
+    width: ${props => props.width || '100%'};
+
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+`;
+
+// Create skeleton cards array with varying heights
+const skeletonCards = Array.from({ length: 6 }, (_, index) => {
+    // Generate random height between 400 and 600px
+    const randomHeight = Math.floor(Math.random() * (600 - 400 + 1)) + 400;
+    
+    return (
+        <SkeletonCard key={`skeleton-${index}`}>
+            <SkeletonPrice />
+            <SkeletonImage height={`${randomHeight}px`} />
+            <SkeletonContent>
+                <SkeletonLine height="20px" width="80%" marginBottom="10px" />
+                <SkeletonLine height="14px" width="70%" marginBottom="6px" />
+                <SkeletonLine height="14px" width="65%" marginBottom="6px" />
+            </SkeletonContent>
+        </SkeletonCard>
+    );
+});
+
 export default function VehicleFeed() {
     const [vehicles, setVehicles] = useState([]);
     const [hasMounted, setHasMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         setHasMounted(true);
 
         async function getVehicles() {
+            // Start timing for minimum loading duration
+            const startTime = Date.now();
+            
             try {
                 const { data, error } = await supabase
                     .from('vehicles')
@@ -124,8 +209,31 @@ export default function VehicleFeed() {
                 if (data && data.length > 0) {
                     setVehicles(data);
                 }
+                
+                // Calculate how long the data fetch took
+                const elapsedTime = Date.now() - startTime;
+                const minLoadingTime = 1000; // 1 second minimum
+                
+                // If fetch was faster than minimum time, wait for the remaining time
+                if (elapsedTime < minLoadingTime) {
+                    await new Promise(resolve => 
+                        setTimeout(resolve, minLoadingTime - elapsedTime)
+                    );
+                }
             } catch (error) {
                 console.error("Error fetching vehicles:", error);
+                
+                // Ensure minimum loading time even on error
+                const elapsedTime = Date.now() - startTime;
+                const minLoadingTime = 1000;
+                
+                if (elapsedTime < minLoadingTime) {
+                    await new Promise(resolve => 
+                        setTimeout(resolve, minLoadingTime - elapsedTime)
+                    );
+                }
+            } finally {
+                setIsLoading(false);
             }
         }
 
@@ -137,27 +245,37 @@ export default function VehicleFeed() {
     return (
         <Container>
             <VehicleFeedHeader>
-                <VehicleCount>{vehicles.length} of {vehicles.length}</VehicleCount>
+                {isLoading ? (
+                    <VehicleCount>Loading vehicles...</VehicleCount>
+                ) : (
+                    <VehicleCount>{vehicles.length} of {vehicles.length}</VehicleCount>
+                )}
             </VehicleFeedHeader>
             <Mosaic>
-                {vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage }) => (
-                    <Link key={id} href={`/vehicle/${id}`}>
-                        <Card>
-                            <Price>${listing_price.toLocaleString()}</Price>
-                            <Image
-                                src={image_uri || '/fallback.jpg'}
-                                alt={`${make} ${model}`}
-                                draggable="false"
-                                onError={(e) => { e.currentTarget.src = '/fallback.jpg'; }}
-                            />
-                            <div style={{ padding: '10px' }}>
-                                <Subtitle>{year} {make} {model}</Subtitle>
-                                <Detail><strong>Condition:</strong> {condition}</Detail>
-                                <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
-                            </div>
-                        </Card>
-                    </Link>
-                ))}
+                {isLoading ? (
+                    // Show skeleton cards while loading
+                    skeletonCards
+                ) : (
+                    // Show actual vehicle cards
+                    vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage }) => (
+                        <Link key={id} href={`/vehicle/${id}`}>
+                            <Card>
+                                <Price>${listing_price.toLocaleString()}</Price>
+                                <Image
+                                    src={image_uri || '/fallback.jpg'}
+                                    alt={`${make} ${model}`}
+                                    draggable="false"
+                                    onError={(e) => { e.currentTarget.src = '/fallback.jpg'; }}
+                                />
+                                <div style={{ padding: '10px' }}>
+                                    <Subtitle>{year} {make} {model}</Subtitle>
+                                    <Detail><strong>Condition:</strong> {condition}</Detail>
+                                    <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
+                                </div>
+                            </Card>
+                        </Link>
+                    ))
+                )}
             </Mosaic>
         </Container>
     );
