@@ -88,16 +88,58 @@ const RightWrapper = styled.div`
     margin: 1% 0 0 1%;
 `
 
+const ReportsSection = styled.div`
+    margin-top: 40px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #33333330;
+    border-radius: 5px;
+`;
+
+const SectionTitle = styled.h2`
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+`;
+
+const ReportsList = styled.ul`
+    list-style-type: disc;
+    padding-left: 20px;
+    color: #333;
+`;
+
+const ReportItem = styled.li`
+    margin-bottom: 10px;
+    line-height: 1.6;
+`;
+
+const ReportMeta = styled.span`
+    color: #666;
+    font-size: 0.9em;
+    font-style: italic;
+`;
+
 const VehicleDetail = () => {
     const router = useRouter();
     const { id } = router.query;
     const [vehicle, setVehicle] = useState(null);
     const [vehicleImages, setVehicleImages] = useState([]);
+    const [reports, setReports] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen); 
     };
+
+    const reportTypes = [
+        { value: 'forum', label: 'forum'},
+        { value: 'warning', label: 'warning'},
+        { value: 'problem', label: 'problem'},
+        { value: 'document', label: 'document'},
+    ];
 
     useEffect(() => {
         if (id) {
@@ -136,6 +178,16 @@ const VehicleDetail = () => {
                     }
                     
                     setVehicleImages(imageUrls);
+
+                    // Fetch reports for this vehicle
+                    const { data: reportsData, error: reportsError } = await supabase
+                        .from('reports')
+                        .select('*')
+                        .eq('vehicle_id', id)
+                        .order('created_at', { ascending: false });
+
+                    if (reportsError) throw reportsError;
+                    setReports(reportsData || []);
                 } catch (error) {
                     console.error("Error fetching vehicle data:", error);
                 }
@@ -144,6 +196,14 @@ const VehicleDetail = () => {
             fetchVehicleData();
         }
     }, [id]);
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
 
     if (!vehicle) return <div>Loading...</div>;
 
@@ -174,6 +234,20 @@ const VehicleDetail = () => {
                     <p><strong>Sellable:</strong> <Badge isTrue={vehicle.is_sellable}>Yes</Badge></p>
                 </RightWrapper>
             </ContentWrapper>
+
+            {reports.length > 0 && (
+                <ReportsSection>
+                    <SectionTitle>Vehicle History & Reports</SectionTitle>
+                    <ReportsList>
+                        {reports.map((report) => (
+                            <ReportItem key={report.id}>
+                                <strong>{reportTypes.find(type => type.value === report.type)?.label || report.type}:</strong> {report.description}
+                                <ReportMeta> — {formatDate(report.created_at)} ({report.status}, {report.severity} priority)</ReportMeta>
+                            </ReportItem>
+                        ))}
+                    </ReportsList>
+                </ReportsSection>
+            )}
         </Container>
     );
 };
