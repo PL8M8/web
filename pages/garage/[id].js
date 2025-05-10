@@ -121,52 +121,60 @@ const RightWrapper = styled.div`
     margin: 1% 0 0 1%;
 `
 
-const ReportsSection = styled.div`
-    margin-top: 40px;
-    width: 100%;
-`
-
-const SectionTitle = styled.h2`
-    color: #333;
-    text-align: center;
-    margin-bottom: 20px;
-`
-
-const ReportCard = styled.div`
-    background-color: #fff;
-    border: 1px solid #33333330;
-    border-radius: 5px;
+const ReportsCard = styled.div`
+    margin-top: 30px;
     padding: 20px;
+    border-top: 1px solid #eee;
+`;
+
+const SectionTitle = styled.h3`
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+`
+
+const ReportItem = styled.div`
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 15px;
     margin: 10px 0;
-    width: 100%;
 `;
 
 const ReportHeader = styled.div`
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    align-items: flex-start;
+    margin-bottom: 8px;
 `;
 
 const ReportMetadata = styled.div`
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
+    margin-top: 10px;
 `;
 
 const ButtonWrapper = styled.div`
-    margin-top: 20px;
+    margin-top: 15px;
     display: flex;
     gap: 10px;
     justify-content: center;
 `;
 
 const ReportForm = styled.div`
-    background-color: #fff;
-    border: 1px solid #33333330;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
     border-radius: 5px;
-    padding: 20px;
-    margin: 20px 0;
+    padding: 15px;
+    margin: 15px 0;
+`;
+
+const AddButton = styled(Button)`
+    margin-bottom: 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
 `;
 
 const VehicleDetail = () => {
@@ -356,103 +364,101 @@ const VehicleDetail = () => {
                     <p><strong>Created At:</strong> {new Date(vehicle.created_at).toLocaleString()}</p>
                     <p><strong>Tradeable:</strong> <Badge isTrue={vehicle.is_tradeable}>Yes</Badge></p>
                     <p><strong>Sellable:</strong> <Badge isTrue={vehicle.is_sellable}>Yes</Badge></p>
-                </RightWrapper>
-            </ContentWrapper>
 
-            <ReportsSection>
-                <SectionTitle>Vehicle Reports</SectionTitle>
-                
-                {isAddingReport ? (
-                    <ReportForm>
-                        <h3>Add New Report</h3>
-                        <Select
-                            value={newReport.type}
-                            onChange={(e) => setNewReport({...newReport, type: e.target.value})}
-                            required
-                        >
-                            <option value="">Select Report Type</option>
-                            {reportTypes.map(type => (
-                                <option key={type.value} value={type.value}>
-                                    {type.label}
-                                </option>
-                            ))}
-                        </Select>
+                    <ReportsCard>
+                        <SectionTitle>Vehicle Reports</SectionTitle>
                         
-                        <TextArea
-                            placeholder="Description*"
-                            value={newReport.description}
-                            onChange={(e) => setNewReport({...newReport, description: e.target.value})}
-                            required
-                        />
-                        
-                        <Select
-                            value={newReport.severity}
-                            onChange={(e) => setNewReport({...newReport, severity: e.target.value})}
-                        >
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </Select>
-                        
-                        <Select
-                            value={newReport.status}
-                            onChange={(e) => setNewReport({...newReport, status: e.target.value})}
-                        >
-                            <option value="open">Open</option>
-                            <option value="in progress">In Progress</option>
-                            <option value="resolved">Resolved</option>
-                            <option value="closed">Closed</option>
-                        </Select>
-                        
-                        <ButtonWrapper>
-                            <Button 
-                                onClick={handleAddReport}
-                                value={loading ? "Adding..." : "Add Report"}
-                                disabled={loading}
-                            />
-                            <Button 
-                                onClick={() => setIsAddingReport(false)}
-                                value="Cancel"
-                            />
-                        </ButtonWrapper>
-                    </ReportForm>
-                ) : (
-                    <ButtonWrapper>
-                        <Button 
+                        <AddButton 
                             onClick={() => setIsAddingReport(true)}
                             value="Add New Report"
                         />
-                    </ButtonWrapper>
-                )}
+                        
+                        {isAddingReport && (
+                            <ReportForm>
+                                <h4>Add New Report</h4>
+                                <Select
+                                    value={newReport.type}
+                                    onChange={(e) => setNewReport({...newReport, type: e.target.value})}
+                                    required
+                                >
+                                    <option value="">Select Report Type</option>
+                                    {reportTypes.map(type => (
+                                        <option key={type.value} value={type.value}>
+                                            {type.label}
+                                        </option>
+                                    ))}
+                                </Select>
+                                
+                                <TextArea
+                                    placeholder="Description*"
+                                    value={newReport.description}
+                                    onChange={(e) => setNewReport({...newReport, description: e.target.value})}
+                                    required
+                                />
+                                
+                                <Select
+                                    value={newReport.severity}
+                                    onChange={(e) => setNewReport({...newReport, severity: e.target.value})}
+                                >
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </Select>
+                                
+                                <Select
+                                    value={newReport.status}
+                                    onChange={(e) => setNewReport({...newReport, status: e.target.value})}
+                                >
+                                    <option value="open">Open</option>
+                                    <option value="in progress">In Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="closed">Closed</option>
+                                </Select>
+                                
+                                <ButtonWrapper>
+                                    <Button 
+                                        onClick={handleAddReport}
+                                        value={loading ? "Adding..." : "Add Report"}
+                                        disabled={loading}
+                                    />
+                                    <Button 
+                                        onClick={() => setIsAddingReport(false)}
+                                        value="Cancel"
+                                    />
+                                </ButtonWrapper>
+                            </ReportForm>
+                        )}
 
-                {reports.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>No reports found for this vehicle.</p>
-                ) : (
-                    reports.map((report) => (
-                        <ReportCard key={report.id}>
-                            <ReportHeader>
-                                <h3 style={{ margin: 0 }}>
-                                    {reportTypes.find(type => type.value === report.type)?.label || report.type}
-                                </h3>
-                                <span style={{ color: '#666', fontSize: '0.9em' }}>
-                                    {formatDate(report.created_at)}
-                                </span>
-                            </ReportHeader>
-                            
-                            <p style={{ margin: '10px 0', color: '#333' }}>{report.description}</p>
-                            
-                            <ReportMetadata>
-                                <Badge severity={report.severity}>
-                                    {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity} Priority
-                                </Badge>
-                                <Badge status={report.status}>
-                                    {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
-                                </Badge>
-                            </ReportMetadata>
-                        </ReportCard>
-                    ))
-                )}
-            </ReportsSection>
+                        {reports.length === 0 ? (
+                            <p style={{ textAlign: 'center', color: '#666', fontSize: '0.9em', marginTop: '10px' }}>No reports found for this vehicle.</p>
+                        ) : (
+                            reports.map((report) => (
+                                <ReportItem key={report.id}>
+                                    <ReportHeader>
+                                        <h4 style={{ margin: 0, fontSize: '1.1rem' }}>
+                                            {reportTypes.find(type => type.value === report.type)?.label || report.type}
+                                        </h4>
+                                        <span style={{ color: '#666', fontSize: '0.85em' }}>
+                                            {formatDate(report.created_at)}
+                                        </span>
+                                    </ReportHeader>
+                                    
+                                    <p style={{ margin: '8px 0', color: '#333', fontSize: '0.95em' }}>{report.description}</p>
+                                    
+                                    <ReportMetadata>
+                                        <Badge severity={report.severity}>
+                                            {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity}
+                                        </Badge>
+                                        <Badge status={report.status}>
+                                            {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
+                                        </Badge>
+                                    </ReportMetadata>
+                                </ReportItem>
+                            ))
+                        )}
+                    </ReportsCard>
+                </RightWrapper>
+            </ContentWrapper>
         </Container>
     );
 };
