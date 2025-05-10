@@ -39,13 +39,39 @@ const VehicleFeedHeader = styled.div`
     justify-content: flex-end;
     align-items: center;
     padding: 0 1%;
-
-`
+`;
 
 const VehicleCount = styled.div`
     padding: 0.5%;
     color: #333;
-`
+`;
+
+// Create container for smooth transitions
+const ContentContainer = styled.div`
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+`;
+
+const SkeletonLayer = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: ${props => props.visible ? 1 : 0};
+    transition: opacity 0.3s ease-out;
+    z-index: ${props => props.visible ? 2 : 1};
+`;
+
+const VehicleLayer = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: ${props => props.visible ? 1 : 0};
+    transition: opacity 0.3s ease-in;
+    z-index: ${props => props.visible ? 2 : 1};
+`;
 
 const Card = styled.div`
     position: relative;
@@ -62,6 +88,8 @@ const Image = styled.img.attrs(() => ({
     width: 100%;
     height: auto;
     border-bottom: 3px solid orange;
+    opacity: ${props => props.loaded ? 1 : 0};
+    transition: opacity 0.2s ease-in;
 `;
 
 const Title = styled.h2`
@@ -84,6 +112,7 @@ const Price = styled.h3`
     border-radius: 5px;
     border: 1px solid #33333330;
     padding: 1% 4%;
+    z-index: 1;
 `;
 
 const Detail = styled.p`
@@ -186,10 +215,34 @@ const skeletonCards = Array.from({ length: 6 }, (_, index) => {
     );
 });
 
+// Function to preload a single image
+const preloadImage = (src) => {
+    return new Promise((resolve, reject) => {
+        if (!src || src === '/fallback.jpg') {
+            resolve();
+            return;
+        }
+        
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.src = src;
+        img.onload = () => {
+            resolve(img);
+        };
+        img.onerror = () => {
+            // For failed images, resolve anyway so the card still shows
+            resolve(null);
+        };
+    });
+};
+
 export default function VehicleFeed() {
     const [vehicles, setVehicles] = useState([]);
     const [hasMounted, setHasMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadingStatus, setLoadingStatus] = useState('Loading vehicles...');
+    const [showContent, setShowContent] = useState(false);
+    const [imageLoadStates, setImageLoadStates] = useState({});
 
     useEffect(() => {
         setHasMounted(true);
@@ -199,6 +252,8 @@ export default function VehicleFeed() {
             const startTime = Date.now();
             
             try {
+                // Fetch vehicle data
+                setLoadingStatus('Fetching vehicle data...');
                 const { data, error } = await supabase
                     .from('vehicles')
                     .select()
@@ -207,14 +262,51 @@ export default function VehicleFeed() {
                 if (error) throw error;
 
                 if (data && data.length > 0) {
+                    // Set vehicles first (so DOM elements are ready)
                     setVehicles(data);
+                    
+                    // Then preload all images
+                    setLoadingStatus('Loading images...');
+                    console.log('Starting image preload for', data.length, 'vehicles');
+                    
+                    const imagePromises = data.map(async (vehicle, index) => {
+                        try {
+                            await preloadImage(vehicle.image_uri || '/fallback.jpg');
+                            console.log(`Image ${index + 1}/${data.length} loaded`);
+                            setImageLoadStates(prev => ({
+                                ...prev,
+                                [vehicle.id]: true
+                            }));
+                            return vehicle;
+                        } catch (error) {
+                            console.warn(`Failed to preload image for vehicle ${vehicle.id}:`, error);
+                            // Mark as loaded even if failed, fallback will be used
+                            setImageLoadStates(prev => ({
+                                ...prev,
+                                [vehicle.id]: true
+                            }));
+                            return vehicle;
+                        }
+                    });
+                    
+                    // Wait for all images to load or fail
+                    await Promise.all(imagePromises);
+                    console.log('All images processed!');
+                    
+                    setLoadingStatus('Ready!');
+                    
+                    // Wait a small moment to ensure all state updates are complete
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Start the fade transition
+                    setShowContent(true);
                 }
                 
-                // Calculate how long the data fetch took
+                // Calculate how long everything took
                 const elapsedTime = Date.now() - startTime;
-                const minLoadingTime = 1000; // 1 second minimum
+                const minLoadingTime = 1500; // 1.5 second minimum to allow for smooth transition
                 
-                // If fetch was faster than minimum time, wait for the remaining time
+                // If everything was faster than minimum time, wait for the remaining time
                 if (elapsedTime < minLoadingTime) {
                     await new Promise(resolve => 
                         setTimeout(resolve, minLoadingTime - elapsedTime)
@@ -222,6 +314,7 @@ export default function VehicleFeed() {
                 }
             } catch (error) {
                 console.error("Error fetching vehicles:", error);
+                setLoadingStatus('Error loading vehicles');
                 
                 // Ensure minimum loading time even on error
                 const elapsedTime = Date.now() - startTime;
@@ -233,7 +326,9 @@ export default function VehicleFeed() {
                     );
                 }
             } finally {
-                setIsLoading(false);
+                setTimeout(() => {
+                    setIsLoading(false);
+                }, 400); // Small delay to complete transition
             }
         }
 
@@ -246,37 +341,51 @@ export default function VehicleFeed() {
         <Container>
             <VehicleFeedHeader>
                 {isLoading ? (
-                    <VehicleCount>Loading vehicles...</VehicleCount>
+                    <VehicleCount>{loadingStatus}</VehicleCount>
                 ) : (
                     <VehicleCount>{vehicles.length} of {vehicles.length}</VehicleCount>
                 )}
             </VehicleFeedHeader>
-            <Mosaic>
-                {isLoading ? (
-                    // Show skeleton cards while loading
-                    skeletonCards
-                ) : (
-                    // Show actual vehicle cards
-                    vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage }) => (
-                        <Link key={id} href={`/vehicle/${id}`}>
-                            <Card>
-                                <Price>${listing_price.toLocaleString()}</Price>
-                                <Image
-                                    src={image_uri || '/fallback.jpg'}
-                                    alt={`${make} ${model}`}
-                                    draggable="false"
-                                    onError={(e) => { e.currentTarget.src = '/fallback.jpg'; }}
-                                />
-                                <div style={{ padding: '10px' }}>
-                                    <Subtitle>{year} {make} {model}</Subtitle>
-                                    <Detail><strong>Condition:</strong> {condition}</Detail>
-                                    <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
-                                </div>
-                            </Card>
-                        </Link>
-                    ))
-                )}
-            </Mosaic>
+            
+            <ContentContainer>
+                {/* Skeleton Layer */}
+                <SkeletonLayer visible={!showContent}>
+                    <Mosaic>
+                        {skeletonCards}
+                    </Mosaic>
+                </SkeletonLayer>
+                
+                {/* Vehicle Content Layer */}
+                <VehicleLayer visible={showContent}>
+                    <Mosaic>
+                        {vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage }) => (
+                            <Link key={id} href={`/vehicle/${id}`}>
+                                <Card>
+                                    <Price>${listing_price.toLocaleString()}</Price>
+                                    <Image
+                                        src={image_uri || '/fallback.jpg'}
+                                        alt={`${make} ${model}`}
+                                        draggable="false"
+                                        loaded={imageLoadStates[id]}
+                                        onError={(e) => { 
+                                            e.currentTarget.src = '/fallback.jpg';
+                                            setImageLoadStates(prev => ({
+                                                ...prev,
+                                                [id]: true
+                                            }));
+                                        }}
+                                    />
+                                    <div style={{ padding: '10px' }}>
+                                        <Subtitle>{year} {make} {model}</Subtitle>
+                                        <Detail><strong>Condition:</strong> {condition}</Detail>
+                                        <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
+                                    </div>
+                                </Card>
+                            </Link>
+                        ))}
+                    </Mosaic>
+                </VehicleLayer>
+            </ContentContainer>
         </Container>
     );
 }
