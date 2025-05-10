@@ -18,26 +18,17 @@ const Title = styled.h1`
     }
 `
 
-const FormWrapper = styled.div`
-    padding: 40px;
-    border-radius: 10px;
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-`;
-
-const Input = styled.input`
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-`;
-
 const Header = styled.div`
     display: flex;
     padding: 1%;
+    align-items: center;
+    justify-content: space-between;
+`
+
+const HeaderLeft = styled.div`
+    display: flex;
+    align-items: center;
+    flex: 1;
 `
 
 const Badge = styled.span`
@@ -49,76 +40,170 @@ const Badge = styled.span`
 `;
 
 const Container = styled.div`
-    padding: 4% 2% 0;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
+    padding: 2% 4%;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
 
     @media (max-width: 768px) {
-        margin-top: 10%;
+        padding: 5% 2%;
     }
 `
 
-const ContentWrapper = styled.div`
-    display: flex;
-    justify-content: space-evenly;
-    margin-bottom: 2%;
+const MainContent = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
 
     @media (max-width: 768px) {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 `
 
 const LeftWrapper = styled.div`
-    border-radius: 5px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 1% 1% 0 0;
-    padding: 0 4.5%;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 20px;
+    height: fit-content;
 `
 
 const RightWrapper = styled.div`
-    border-radius: 5px;
-    width: 100%;
-    padding: 2%;
     background-color: #fff;
-    border: 1px solid #33333330;
-    margin: 1% 0 0 1%;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 20px;
+    height: fit-content;
+`
+
+const DetailItem = styled.div`
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+    display: flex;
+    justify-content: space-between;
+    
+    &:last-child {
+        border-bottom: none;
+    }
+`
+
+const DetailLabel = styled.span`
+    color: #666;
+    font-weight: 500;
+`
+
+const DetailValue = styled.span`
+    color: #333;
+    text-align: right;
 `
 
 const ReportsSection = styled.div`
-    margin-top: 40px;
-    width: 100%;
-    max-width: 1200px;
-    padding: 20px;
     background-color: #fff;
-    border: 1px solid #33333330;
-    border-radius: 5px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 30px;
+    margin-top: 40px;
 `;
 
 const SectionTitle = styled.h2`
     color: #333;
-    text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     font-size: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #f5f5f5;
+    padding-bottom: 15px;
 `;
 
-const ReportsList = styled.ul`
-    list-style-type: disc;
-    padding-left: 20px;
+const ReportsGrid = styled.div`
+    display: grid;
+    gap: 20px;
+`;
+
+const ReportCard = styled.div`
+    background-color: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 20px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-color: #ddd;
+    }
+`;
+
+const ReportHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+`;
+
+const ReportType = styled.h3`
     color: #333;
+    font-size: 1.1rem;
+    margin: 0;
+    text-transform: capitalize;
 `;
 
-const ReportItem = styled.li`
-    margin-bottom: 10px;
+const ReportDate = styled.span`
+    color: #666;
+    font-size: 0.9em;
+`;
+
+const ReportDescription = styled.p`
+    color: #444;
+    margin: 12px 0;
     line-height: 1.6;
 `;
 
-const ReportMeta = styled.span`
+const ReportMetaTags = styled.div`
+    display: flex;
+    gap: 10px;
+    align-items: center;
+`;
+
+const MetaTag = styled.span`
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+    background-color: ${props => {
+        if (props.type === 'status') {
+            if (props.value === 'open') return '#e3f2fd';
+            if (props.value === 'in progress') return '#f3e5f5';
+            if (props.value === 'resolved') return '#e8f5e9';
+            if (props.value === 'closed') return '#e0e0e0';
+        }
+        if (props.type === 'severity') {
+            if (props.value === 'high') return '#ffebee';
+            if (props.value === 'medium') return '#fff3e0';
+            if (props.value === 'low') return '#e8f5e9';
+        }
+        return '#f5f5f5';
+    }};
+    color: ${props => {
+        if (props.type === 'status') {
+            if (props.value === 'open') return '#1976d2';
+            if (props.value === 'in progress') return '#7b1fa2';
+            if (props.value === 'resolved') return '#388e3c';
+            if (props.value === 'closed') return '#424242';
+        }
+        if (props.type === 'severity') {
+            if (props.value === 'high') return '#c62828';
+            if (props.value === 'medium') return '#ef6c00';
+            if (props.value === 'low') return '#2e7d32';
+        }
+        return '#666';
+    }};
+`;
+
+const NoReports = styled.div`
+    text-align: center;
     color: #666;
-    font-size: 0.9em;
+    padding: 40px 0;
     font-style: italic;
 `;
 
@@ -135,10 +220,10 @@ const VehicleDetail = () => {
     };
 
     const reportTypes = [
-        { value: 'forum', label: 'forum'},
-        { value: 'warning', label: 'warning'},
-        { value: 'problem', label: 'problem'},
-        { value: 'document', label: 'document'},
+        { value: 'forum', label: 'Forum Discussion'},
+        { value: 'warning', label: 'Warning'},
+        { value: 'problem', label: 'Problem'},
+        { value: 'document', label: 'Document'},
     ];
 
     useEffect(() => {
@@ -166,15 +251,14 @@ const VehicleDetail = () => {
                     // Create an array of image URLs
                     let imageUrls = [];
                     
-                    // Add the main vehicle image if it exists
-                    if (vehicleData.image_uri) {
-                        imageUrls.push(vehicleData.image_uri);
+                    // First, add all images from vehicles_images table
+                    if (imagesData && imagesData.length > 0) {
+                        imageUrls = imagesData.map(img => img.url);
                     }
                     
-                    // Add additional images from vehicles_images table
-                    if (imagesData && imagesData.length > 0) {
-                        const additionalUrls = imagesData.map(img => img.url);
-                        imageUrls = [...imageUrls, ...additionalUrls];
+                    // Then, add the main vehicle image if it exists and isn't already in the list
+                    if (vehicleData.image_uri && !imageUrls.includes(vehicleData.image_uri)) {
+                        imageUrls.unshift(vehicleData.image_uri); // Add to beginning to make it first
                     }
                     
                     setVehicleImages(imageUrls);
@@ -210,44 +294,99 @@ const VehicleDetail = () => {
     return (
         <Container>
             <Header>
-                <Button 
-                    onClick={() => router.back()}
-                    value="Back"
-                />
-                <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
+                <HeaderLeft>
+                    <Button 
+                        onClick={() => router.back()}
+                        value="Back"
+                    />
+                    <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
+                </HeaderLeft>
                 <Reply/>
             </Header>
-            <ContentWrapper>
+            
+            <MainContent>
                 <LeftWrapper>
                     <VehicleGallery images={vehicleImages} imageUri={vehicle.image_uri} />
                 </LeftWrapper>
+                
                 <RightWrapper>
-                    <p><strong>Price:</strong> ${vehicle.listing_price.toLocaleString()}</p>
-                    <p><strong>Color:</strong> {vehicle.color}</p>
-                    <p><strong>Condition:</strong> {vehicle.condition}</p>
-                    <p><strong>Mileage:</strong> {vehicle.mileage} miles</p>
-                    <p><strong>Tag Number:</strong> {vehicle.tag_number || "Unregistered"}</p>
-                    <p><strong>Nickname:</strong> {vehicle.nickname || "No nickname"}</p>
-                    <p><strong>VIN:</strong> {vehicle.vin}</p>
-                    <p><strong>Created At:</strong> {new Date(vehicle.created_at).toLocaleString()}</p>
-                    <p><strong>Tradeable:</strong> <Badge isTrue={vehicle.is_tradeable}>Yes</Badge></p>
-                    <p><strong>Sellable:</strong> <Badge isTrue={vehicle.is_sellable}>Yes</Badge></p>
+                    <DetailItem>
+                        <DetailLabel>Price</DetailLabel>
+                        <DetailValue>${vehicle.listing_price?.toLocaleString()}</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Color</DetailLabel>
+                        <DetailValue>{vehicle.color}</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Condition</DetailLabel>
+                        <DetailValue>{vehicle.condition}</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Mileage</DetailLabel>
+                        <DetailValue>{vehicle.mileage} miles</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Tag Number</DetailLabel>
+                        <DetailValue>{vehicle.tag_number || "Unregistered"}</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Nickname</DetailLabel>
+                        <DetailValue>{vehicle.nickname || "No nickname"}</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>VIN</DetailLabel>
+                        <DetailValue>{vehicle.vin}</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Listed</DetailLabel>
+                        <DetailValue>{new Date(vehicle.created_at).toLocaleString()}</DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Tradeable</DetailLabel>
+                        <DetailValue>
+                            <Badge isTrue={vehicle.is_tradeable}>{vehicle.is_tradeable ? 'Yes' : 'No'}</Badge>
+                        </DetailValue>
+                    </DetailItem>
+                    <DetailItem>
+                        <DetailLabel>Sellable</DetailLabel>
+                        <DetailValue>
+                            <Badge isTrue={vehicle.is_sellable}>{vehicle.is_sellable ? 'Yes' : 'No'}</Badge>
+                        </DetailValue>
+                    </DetailItem>
                 </RightWrapper>
-            </ContentWrapper>
+            </MainContent>
 
-            {reports.length > 0 && (
-                <ReportsSection>
-                    <SectionTitle>Vehicle History & Reports</SectionTitle>
-                    <ReportsList>
+            <ReportsSection>
+                <SectionTitle>Vehicle History & Reports</SectionTitle>
+                {reports.length > 0 ? (
+                    <ReportsGrid>
                         {reports.map((report) => (
-                            <ReportItem key={report.id}>
-                                <strong>{reportTypes.find(type => type.value === report.type)?.label || report.type}:</strong> {report.description}
-                                <ReportMeta> — {formatDate(report.created_at)} ({report.status}, {report.severity} priority)</ReportMeta>
-                            </ReportItem>
+                            <ReportCard key={report.id}>
+                                <ReportHeader>
+                                    <ReportType>
+                                        {reportTypes.find(type => type.value === report.type)?.label || report.type}
+                                    </ReportType>
+                                    <ReportDate>{formatDate(report.created_at)}</ReportDate>
+                                </ReportHeader>
+                                
+                                <ReportDescription>{report.description}</ReportDescription>
+                                
+                                <ReportMetaTags>
+                                    <MetaTag type="status" value={report.status}>
+                                        {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                                    </MetaTag>
+                                    <MetaTag type="severity" value={report.severity}>
+                                        {report.severity.charAt(0).toUpperCase() + report.severity.slice(1)} Priority
+                                    </MetaTag>
+                                </ReportMetaTags>
+                            </ReportCard>
                         ))}
-                    </ReportsList>
-                </ReportsSection>
-            )}
+                    </ReportsGrid>
+                ) : (
+                    <NoReports>No reports available for this vehicle</NoReports>
+                )}
+            </ReportsSection>
         </Container>
     );
 };
