@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { supabase } from '../../config/supabase';
+import { uploadImage } from 'lib/uploadImage';
 import styled from "styled-components";
 import Button from "@components/Button";
 import VehicleGallery from "@components/ProductImageGallery";
@@ -412,6 +413,89 @@ const EditReportForm = styled.div`
     padding-top: 15px;
 `;
 
+// Image management styles
+const ImagesSection = styled.div`
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid #eee;
+`;
+
+const ImagesGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+`;
+
+const ImageItem = styled.div`
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid ${props => props.isMain ? '#28a745' : 'transparent'};
+`;
+
+const ImageThumbnail = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+`;
+
+const ImageControls = styled.div`
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px;
+`;
+
+const SetMainButton = styled.button`
+    background: rgba(0, 255, 0, 0.8);
+    border: none;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    
+    &:hover {
+        background: rgba(0, 200, 0, 0.9);
+    }
+`;
+
+const RemoveImageButton = styled.button`
+    background: rgba(255, 0, 0, 0.8);
+    border: none;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    
+    &:hover {
+        background: rgba(200, 0, 0, 0.9);
+    }
+`;
+
+const ImageUploadButton = styled.button`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    background: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    aspect-ratio: 1;
+    
+    &:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+`;
+
 const VehicleDetail = () => {
     const router = useRouter();
     const { id } = router.query;
@@ -434,6 +518,8 @@ const VehicleDetail = () => {
     const [editedReports, setEditedReports] = useState({});
     const [deletingReportId, setDeletingReportId] = useState(null);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+    const [isUploadingImages, setIsUploadingImages] = useState(false);
+    const imageInputRef = useRef(null);
 
     const reportTypes = [
         { value: 'forum', label: 'Forum'},
@@ -454,6 +540,13 @@ const VehicleDetail = () => {
         { value: 'resolved', label: 'Resolved' },
         { value: 'closed', label: 'Closed' }
     ];
+
+    const showToast = (message, type = 'success') => {
+        setToast({ show: true, message, type });
+        setTimeout(() => {
+            setToast(prev => ({ ...prev, show: false }));
+        }, 3000);
+    };
 
     useEffect(() => {
         const fetchUserAndVehicleData = async () => {
@@ -490,7 +583,7 @@ const VehicleDetail = () => {
                 // Fetch vehicle images from vehicles_images table
                 const { data: imagesData, error: imagesError } = await supabase
                     .from('vehicles_images')
-                    .select('url')
+                    .select('*')
                     .eq('vehicle_id', id);
 
                 if (imagesError) throw imagesError;
@@ -500,12 +593,20 @@ const VehicleDetail = () => {
                 
                 // First, add all images from vehicles_images table
                 if (imagesData && imagesData.length > 0) {
-                    imageUrls = imagesData.map(img => img.url);
+                    imageUrls = imagesData.map(img => ({
+                        url: img.url,
+                        id: img.id,
+                        storage_path: img.storage_path
+                    }));
                 }
                 
                 // Then, add the main vehicle image if it exists and isn't already in the list
-                if (vehicleData.image_uri && !imageUrls.includes(vehicleData.image_uri)) {
-                    imageUrls.unshift(vehicleData.image_uri); // Add to beginning to make it first
+                if (vehicleData.image_uri && !imageUrls.find(img => img.url === vehicleData.image_uri)) {
+                    imageUrls.unshift({
+                        url: vehicleData.image_uri,
+                        id: null, // Main image might not have an entry in vehicles_images
+                        storage_path: null
+                    });
                 }
                 
                 setVehicleImages(imageUrls);
@@ -526,6 +627,136 @@ const VehicleDetail = () => {
 
         fetchUserAndVehicleData();
     }, [id, router]);
+
+    const handleImageUpload = async (e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsUploadingImages(true);
+        
+        try {
+            const uploadResults = [];
+            
+            for (const file of files) {
+                // Upload image to Supabase storage
+                const storagePath = `${userId}/${vehicle.id}/${file.name}`;
+                const { imageUrl, error } = await uploadImage({
+                    file: file,
+                    bucket: "listing_images",
+                    folder: `${userId}/${vehicle.id}`,
+                });
+
+                if (error) {
+                    console.error("Error uploading image:", error);
+                    continue;
+                }
+
+                // Save image reference to database
+                const { data, error: dbError } = await supabase
+                    .from('vehicles_images')
+                    .insert({
+                        user_id: userId,
+                        vehicle_id: vehicle.id,
+                        url: imageUrl,
+                        storage_path: `listing_images/${storagePath}`
+                    })
+                    .select()
+                    .single();
+
+                if (dbError) {
+                    console.error("Error saving image reference:", dbError);
+                    continue;
+                }
+
+                uploadResults.push(data);
+            }
+
+            // Update local state with new images
+            const newImages = uploadResults.map(img => ({
+                url: img.url,
+                id: img.id,
+                storage_path: img.storage_path
+            }));
+            
+            setVehicleImages(prev => [...prev, ...newImages]);
+            showToast(`${uploadResults.length} image(s) uploaded successfully!`);
+            
+        } catch (error) {
+            console.error("Error uploading images:", error);
+            showToast('Failed to upload images. Please try again.', 'error');
+        } finally {
+            setIsUploadingImages(false);
+            e.target.value = ''; // Reset file input
+        }
+    };
+
+    const handleSetMainImage = async (imageUrl) => {
+        try {
+            // Update vehicle's main image
+            const { error } = await supabase
+                .from('vehicles')
+                .update({ image_uri: imageUrl })
+                .eq('id', vehicle.id);
+
+            if (error) throw error;
+
+            // Update local state
+            setVehicle(prev => ({ ...prev, image_uri: imageUrl }));
+            setEditedValues(prev => ({ ...prev, image_uri: imageUrl }));
+            showToast('Main image updated successfully!');
+            
+        } catch (error) {
+            console.error("Error setting main image:", error);
+            showToast('Failed to set main image. Please try again.', 'error');
+        }
+    };
+
+    const handleRemoveImage = async (image) => {
+        try {
+            if (image.storage_path) {
+                // Delete from storage
+                const { error: storageError } = await supabase
+                    .storage
+                    .from('listing_images')
+                    .remove([image.storage_path]);
+
+                if (storageError) {
+                    console.error("Error deleting from storage:", storageError);
+                }
+            }
+
+            if (image.id) {
+                // Delete from database
+                const { error: dbError } = await supabase
+                    .from('vehicles_images')
+                    .delete()
+                    .eq('id', image.id);
+
+                if (dbError) throw dbError;
+            }
+
+            // If this was the main image, clear it
+            if (vehicle.image_uri === image.url) {
+                const { error } = await supabase
+                    .from('vehicles')
+                    .update({ image_uri: null })
+                    .eq('id', vehicle.id);
+
+                if (!error) {
+                    setVehicle(prev => ({ ...prev, image_uri: null }));
+                    setEditedValues(prev => ({ ...prev, image_uri: null }));
+                }
+            }
+
+            // Update local state
+            setVehicleImages(prev => prev.filter(img => img.url !== image.url));
+            showToast('Image removed successfully!');
+            
+        } catch (error) {
+            console.error("Error removing image:", error);
+            showToast('Failed to remove image. Please try again.', 'error');
+        }
+    };
 
     const handleEditField = (field) => {
         setEditingFields(prev => ({
@@ -557,10 +788,10 @@ const VehicleDetail = () => {
             setVehicle(editedValues);
             // Clear all editing states
             setEditingFields({});
-            alert('Vehicle details updated successfully!');
+            showToast('Vehicle details updated successfully!');
         } catch (error) {
             console.error("Error updating vehicle:", error);
-            alert('Failed to update vehicle. Please try again.');
+            showToast('Failed to update vehicle. Please try again.', 'error');
         } finally {
             setIsSaving(false);
         }
@@ -604,7 +835,7 @@ const VehicleDetail = () => {
                             <span>
                                 {isBoolean ? 
                                     <Badge isTrue={value}>{value ? 'Yes' : 'No'}</Badge> : 
-                                    field === 'listing_price' ? `${value?.toLocaleString()}` : 
+                                    field === 'listing_price' ? `$${value?.toLocaleString()}` : 
                                     field === 'mileage' ? `${value} miles` :
                                     field === 'created_at' ? new Date(value).toLocaleString() :
                                     value || (field === 'tag_number' ? "Unregistered" : field === 'nickname' ? "No nickname" : "")
@@ -624,12 +855,12 @@ const VehicleDetail = () => {
 
     const handleAddReport = async () => {
         if (!newReport.description || !newReport.type) {
-            alert('Please fill in all required fields');
+            showToast('Please fill in all required fields', 'error');
             return;
         }
 
         if (!userId) {
-            alert('User not authenticated. Please log in.');
+            showToast('User not authenticated. Please log in.', 'error');
             return;
         }
 
@@ -657,9 +888,10 @@ const VehicleDetail = () => {
                 status: 'open'
             });
             setIsAddingReport(false);
+            showToast('Report added successfully!');
         } catch (error) {
             console.error("Error adding report:", error);
-            alert('Failed to add report. Please try again.');
+            showToast('Failed to add report. Please try again.', 'error');
         } finally {
             setLoading(false);
         }
@@ -706,10 +938,10 @@ const VehicleDetail = () => {
                 report.id === reportId ? { ...report, ...editedReports[reportId] } : report
             ));
             setEditingReports(prev => ({ ...prev, [reportId]: false }));
-            alert('Report updated successfully!');
+            showToast('Report updated successfully!');
         } catch (error) {
             console.error("Error updating report:", error);
-            alert('Failed to update report. Please try again.');
+            showToast('Failed to update report. Please try again.', 'error');
         }
     };
 
@@ -724,24 +956,10 @@ const VehicleDetail = () => {
 
             setReports(prev => prev.filter(report => report.id !== reportId));
             setDeletingReportId(null);
-            
-            // Show success toast
-            setToast({ show: true, message: 'Report deleted successfully!', type: 'success' });
-            
-            // Hide toast after 3 seconds
-            setTimeout(() => {
-                setToast(prev => ({ ...prev, show: false }));
-            }, 3000);
+            showToast('Report deleted successfully!');
         } catch (error) {
             console.error("Error deleting report:", error);
-            
-            // Show error toast
-            setToast({ show: true, message: 'Failed to delete report. Please try again.', type: 'error' });
-            
-            // Hide toast after 3 seconds
-            setTimeout(() => {
-                setToast(prev => ({ ...prev, show: false }));
-            }, 3000);
+            showToast('Failed to delete report. Please try again.', 'error');
         }
     };
 
@@ -799,7 +1017,7 @@ const VehicleDetail = () => {
             </Header>
             <ContentWrapper>
                 <LeftWrapper>
-                    <VehicleGallery images={vehicleImages} imageUri={vehicle.image_uri} />
+                    <VehicleGallery images={vehicleImages.map(img => img.url)} imageUri={vehicle.image_uri} />
                 </LeftWrapper>
                 <RightWrapper>
                     {renderField('Price', 'listing_price')}
@@ -812,6 +1030,48 @@ const VehicleDetail = () => {
                     {renderField('Created At', 'created_at', false, false)}
                     {renderField('Tradeable', 'is_tradeable', true)}
                     {renderField('Sellable', 'is_sellable', true)}
+
+                    {/* Image Management Section */}
+                    <ImagesSection>
+                        <SectionTitle>Vehicle Images</SectionTitle>
+                        <ImagesGrid>
+                            <ImageUploadButton onClick={() => imageInputRef.current?.click()}>
+                                <span style={{ fontSize: '24px', marginBottom: '5px' }}>+</span>
+                                <span>Add Image</span>
+                            </ImageUploadButton>
+                            
+                            {vehicleImages.map((image, index) => (
+                                <ImageItem key={image.url} isMain={vehicle.image_uri === image.url}>
+                                    <ImageThumbnail src={image.url} alt={`Vehicle image ${index + 1}`} />
+                                    <ImageControls>
+                                        {vehicle.image_uri !== image.url && (
+                                            <SetMainButton onClick={() => handleSetMainImage(image.url)}>
+                                                Set Main
+                                            </SetMainButton>
+                                        )}
+                                        <RemoveImageButton onClick={() => handleRemoveImage(image)}>
+                                            ×
+                                        </RemoveImageButton>
+                                    </ImageControls>
+                                </ImageItem>
+                            ))}
+                        </ImagesGrid>
+                        
+                        <input
+                            type="file"
+                            ref={imageInputRef}
+                            onChange={handleImageUpload}
+                            accept="image/*"
+                            multiple
+                            style={{ display: 'none' }}
+                        />
+                        
+                        {isUploadingImages && (
+                            <p style={{ marginTop: '10px', color: '#666' }}>
+                                Uploading images...
+                            </p>
+                        )}
+                    </ImagesSection>
 
                     <ReportsCard>
                         <SectionTitle>Vehicle Reports</SectionTitle>
