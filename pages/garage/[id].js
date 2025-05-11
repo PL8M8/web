@@ -11,59 +11,27 @@ const Title = styled.h1`
     color: #333;
     text-align: center;
     width: 100%;
-    padding: 0.5%;
     margin: 0;
-    font-size: 1.5rem; // Reduced from default
+    font-size: 1.125rem;
 
     @media (max-width: 768px) {
-        font-size: 1.1rem; // Reduced from 1.25rem
+        font-size: 1rem;
     }
 `
 
-const FormWrapper = styled.div`
-    padding: 40px;
-    border-radius: 10px;
-    text-align: center;
-    width: 100%;
-    max-width: 400px;
-`;
-
-const Input = styled.input`
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-`;
-
-const TextArea = styled.textarea`
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    min-height: 100px;
-    resize: vertical;
-    box-sizing: border-box;
-`;
-
-const Select = styled.select`
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    box-sizing: border-box;
-`;
-
 const Header = styled.div`
     display: flex;
-    padding: 1%;
+    padding: 8px 12px;
     align-items: center;
     justify-content: space-between;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    height: 100px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
 `
 
 const HeaderLeft = styled.div`
@@ -73,14 +41,319 @@ const HeaderLeft = styled.div`
 
 const HeaderRight = styled.div`
     display: flex;
-    gap: 10px;
+    gap: 8px;
 `
 
+const Container = styled.div`
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    padding-top: 100px; // Account for fixed header
+`
+
+const ContentWrapper = styled.div`
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+`
+
+const LeftWrapper = styled.div`
+    width: 400px;
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    /* Scale down the gallery */
+    .vehicle-gallery {
+        transform: scale(0.9);
+        transform-origin: top left;
+        width: 111.11%;
+        margin-bottom: -10%;
+    }
+`
+
+const RightWrapper = styled.div`
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+`
+
+const TopSection = styled.div`
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    overflow-y: auto;
+    height: 50%;
+`
+
+const BottomSection = styled.div`
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1;
+`
+
+const FieldWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    padding: 4px 0;
+    border-bottom: 1px solid #f5f5f5;
+    
+    &:last-child {
+        border-bottom: none;
+    }
+`
+
+const FieldLabel = styled.span`
+    color: #666;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    width: 100px;
+    display: inline-block;
+`
+
+const FieldValue = styled.span`
+    flex: 1;
+    font-size: 0.8125rem;
+    color: #333;
+`
+
+const EditIcon = styled.span`
+    cursor: pointer;
+    color: #666;
+    margin-left: 8px;
+    font-size: 14px;
+    &:hover {
+        color: #333;
+    }
+`
+
+const EditInput = styled.input`
+    width: 100%;
+    padding: 4px;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    flex: 1;
+`;
+
+const EditSelect = styled.select`
+    width: 100%;
+    padding: 4px;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    flex: 1;
+`;
+
+const SaveButton = styled(Button)`
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    font-size: 0.8125rem;
+    
+    &:hover {
+        background-color: #218838;
+    }
+    
+    &:disabled {
+        background-color: #6c757d;
+    }
+`
+
+const SectionTitle = styled.h3`
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1rem;
+`
+
+const ImagesSection = styled.div`
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+`;
+
+const ImagesGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+`;
+
+const ImageItem = styled.div`
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid ${props => props.isMain ? '#28a745' : 'transparent'};
+`;
+
+const ImageThumbnail = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+`;
+
+const ImageOverlay = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    
+    ${ImageItem}:hover & {
+        opacity: 1;
+    }
+`;
+
+const ImageButton = styled.button`
+    background: #fff;
+    border: none;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 10px;
+    
+    &.primary {
+        background: #28a745;
+        color: #fff;
+    }
+    
+    &.danger {
+        background: #dc3545;
+        color: #fff;
+    }
+`;
+
+const AddImageButton = styled.button`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    border: 2px dashed #adb5bd;
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6c757d;
+    
+    &:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+        color: #007bff;
+    }
+    
+    span:first-child {
+        font-size: 16px;
+        margin-bottom: 2px;
+    }
+`;
+
+// Reports Section
+const ReportsSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+`;
+
+const ReportForm = styled.div`
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 8px;
+    margin: 8px 0;
+`;
+
+const AddButton = styled(Button)`
+    margin-bottom: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    font-size: 0.8125rem;
+`;
+
+const ReportsContainer = styled.div`
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+`;
+
+const ReportItem = styled.div`
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 8px;
+    margin: 8px 0;
+    position: relative;
+    
+    &:hover .report-controls {
+        opacity: 1;
+    }
+`;
+
+const ReportHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    padding-right: 60px;
+`;
+
+const ReportMetadata = styled.div`
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+`;
+
 const Badge = styled.span`
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
     color: #fff;
+    font-size: 0.6875rem;
     background-color: ${(props) => {
         if (props.isTrue !== undefined) {
             return props.isTrue ? '#28a745' : '#dc3545';
@@ -96,234 +369,78 @@ const Badge = styled.span`
     }};
 `;
 
-const Container = styled.div`
-    padding: 4% 2% 0;
+const ReportEditControls = styled.div`
+    position: absolute;
+    top: 8px;
+    right: 8px;
     display: flex;
-    justify-content: center;
-    flex-direction: column;
-
-    @media (max-width: 768px) {
-        margin-top: 10%;
-    }
-`
-
-const ContentWrapper = styled.div`
-    display: flex;
-    justify-content: space-evenly;
-    margin-bottom: 2%;
-
-    @media (max-width: 768px) {
-        flex-direction: column;
-    }
-`
-
-const LeftWrapper = styled.div`
-    border-radius: 5px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 1% 1% 0 0;
-    padding: 0 4.5%;
-`
-
-const RightWrapper = styled.div`
-    border-radius: 5px;
-    width: 100%;
-    padding: 2%;
-    background-color: #fff;
-    border: 1px solid #33333330;
-    margin: 1% 0 0 1%;
-`
-
-const FieldWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-`
-
-const FieldValue = styled.span`
-    flex: 1;
-    margin-right: 10px;
-`
-
-const EditIcon = styled.span`
-    cursor: pointer;
-    color: #666;
-    margin-left: 10px;
-    font-size: 16px;
-    &:hover {
-        color: #333;
-    }
-`
-
-const EditInput = styled(Input)`
-    margin: 0;
-    flex: 1;
-`
-
-const EditSelect = styled(Select)`
-    margin: 0;
-    flex: 1;
-`
-
-const SaveButton = styled(Button)`
-    margin-top: 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-`
-
-const ReportsCard = styled.div`
-    margin-top: 30px;
-    padding: 20px;
-    border-top: 1px solid #eee;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 `;
 
-const SectionTitle = styled.h3`
-    color: #333;
-    margin-bottom: 15px;
-    font-size: 1.25rem;
-`
-
-const ReportItem = styled.div`
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 5px;
-    padding: 15px;
-    margin: 10px 0;
-    position: relative;
-    
-    &:hover .report-controls {
-        opacity: 1;
-    }
-`;
-
-const ReportHeader = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-    padding-right: 60px; // Make room for the control buttons
-`;
-
-const ReportMetadata = styled.div`
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-`;
-
-const ButtonWrapper = styled.div`
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-`;
-
-const ReportForm = styled.div`
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 5px;
-    padding: 15px;
-    margin: 15px 0;
-`;
-
-const AddButton = styled(Button)`
-    margin-bottom: 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-`;
-
-const ToggleButton = styled.button`
-    background: none;
-    border: none;
+const IconButton = styled.button`
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #dee2e6;
     color: #666;
     cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    line-height: 1;
     
     &:hover {
         color: #333;
+        background: #fff;
     }
-`
-
-// Toast notification styles
-const ToastContainer = styled.div`
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
 `;
 
-const ToastNotification = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    background-color: ${props => props.type === 'success' ? '#d4edda' : '#f8d7da'};
-    color: ${props => props.type === 'success' ? '#155724' : '#721c24'};
-    border: 1px solid ${props => props.type === 'success' ? '#c3e6cb' : '#f5c6cb'};
-    border-radius: 6px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    opacity: ${props => props.show ? 1 : 0};
-    transform: ${props => props.show ? 'translateY(0)' : 'translateY(-100%)'};
-    transition: all 0.3s ease;
-    min-width: 280px;
+// Forms
+const Input = styled.input`
+    width: 100%;
+    padding: 4px;
+    margin: 4px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.8125rem;
 `;
 
-const CheckMarkIcon = styled.div`
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #28a745;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 16px;
-    
-    @keyframes checkmark {
-        0% {
-            transform: scale(0) rotate(0deg);
-            opacity: 0;
-        }
-        100% {
-            transform: scale(1) rotate(360deg);
-            opacity: 1;
-        }
-    }
-    
-    animation: checkmark 0.5s ease;
+const TextArea = styled.textarea`
+    width: 100%;
+    padding: 4px;
+    margin: 4px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    min-height: 60px;
+    resize: vertical;
 `;
 
-const ToastMessage = styled.span`
-    font-size: 14px;
-    font-weight: 500;
+const Select = styled.select`
+    width: 100%;
+    padding: 4px;
+    margin: 4px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.8125rem;
 `;
 
-// Segmented control styles
 const SegmentedControl = styled.div`
     display: flex;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 4px;
     overflow: hidden;
-    margin: 10px 0;
-    width: 100%;
+    margin: 4px 0;
 `;
 
 const SegmentedOption = styled.button`
     flex: 1;
-    padding: 10px;
+    padding: 4px 8px;
     border: none;
     background-color: ${props => props.selected ? '#007bff' : '#fff'};
     color: ${props => props.selected ? '#fff' : '#333'};
     cursor: pointer;
-    font-size: 14px;
+    font-size: 0.75rem;
     transition: all 0.2s ease;
     
     &:not(:last-child) {
@@ -335,65 +452,95 @@ const SegmentedOption = styled.button`
     }
 `;
 
-// Form label styles
 const FormLabel = styled.label`
     display: block;
-    margin: 15px 0 5px 0;
-    font-weight: bold;
+    margin: 8px 0 4px 0;
+    font-weight: 500;
     color: #333;
-    text-align: left;
-    font-size: 14px;
+    font-size: 0.8125rem;
 `;
 
-// Report edit controls - discrete hover-based controls
-const ReportEditControls = styled.div`
-    position: absolute;
-    top: 10px;
-    right: 10px;
+const ButtonWrapper = styled.div`
+    margin-top: 8px;
     display: flex;
-    gap: 5px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+    gap: 8px;
+    justify-content: center;
 `;
 
-const IconButton = styled.button`
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 3px;
-    font-size: 16px;
-    line-height: 1;
+// Toast notification
+const ToastContainer = styled.div`
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+`;
+
+const ToastNotification = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: ${props => props.type === 'success' ? '#d4edda' : '#f8d7da'};
+    color: ${props => props.type === 'success' ? '#155724' : '#721c24'};
+    border: 1px solid ${props => props.type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    opacity: ${props => props.show ? 1 : 0};
+    transform: ${props => props.show ? 'translateY(0)' : 'translateY(-100%)'};
+    transition: all 0.3s ease;
+    min-width: 240px;
+`;
+
+const CheckMarkIcon = styled.div`
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #28a745;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    animation: checkmark 0.5s ease;
     
-    &:hover {
-        color: #333;
-        background-color: rgba(0, 0, 0, 0.05);
+    @keyframes checkmark {
+        0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1) rotate(360deg);
+            opacity: 1;
+        }
     }
 `;
 
-// Delete confirmation styles
+const ToastMessage = styled.span`
+    font-size: 0.8125rem;
+`;
+
+// Delete Confirmation
 const DeleteConfirmation = styled.div`
     text-align: center;
-    padding: 30px 20px;
+    padding: 16px;
 `;
 
 const ConfirmationText = styled.p`
-    margin: 0 0 20px 0;
+    margin: 0 0 12px 0;
     color: #333;
-    font-size: 16px;
+    font-size: 0.9375rem;
 `;
 
 const WarningText = styled.p`
-    margin: 0 0 20px 0;
+    margin: 0 0 16px 0;
     color: #dc3545;
-    font-weight: bold;
-    font-size: 14px;
+    font-weight: 500;
+    font-size: 0.8125rem;
 `;
 
 const ConfirmButtonWrapper = styled.div`
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
 `;
 
@@ -401,6 +548,8 @@ const DeleteButton = styled(Button)`
     background-color: #dc3545;
     color: white;
     border: none;
+    padding: 4px 12px;
+    font-size: 0.8125rem;
     
     &:hover {
         background-color: #c82333;
@@ -408,92 +557,9 @@ const DeleteButton = styled(Button)`
 `;
 
 const EditReportForm = styled.div`
-    margin-top: 15px;
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-`;
-
-// Image management styles
-const ImagesSection = styled.div`
-    margin-top: 30px;
-    padding: 20px;
-    border-top: 1px solid #eee;
-`;
-
-const ImagesGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-`;
-
-const ImageItem = styled.div`
-    position: relative;
-    aspect-ratio: 1;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 2px solid ${props => props.isMain ? '#28a745' : 'transparent'};
-`;
-
-const ImageThumbnail = styled.img`
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-`;
-
-const ImageControls = styled.div`
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    display: flex;
-    gap: 5px;
-`;
-
-const SetMainButton = styled.button`
-    background: rgba(0, 255, 0, 0.8);
-    border: none;
-    color: white;
-    padding: 5px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    
-    &:hover {
-        background: rgba(0, 200, 0, 0.9);
-    }
-`;
-
-const RemoveImageButton = styled.button`
-    background: rgba(255, 0, 0, 0.8);
-    border: none;
-    color: white;
-    padding: 5px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    
-    &:hover {
-        background: rgba(200, 0, 0, 0.9);
-    }
-`;
-
-const ImageUploadButton = styled.button`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    background: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    aspect-ratio: 1;
-    
-    &:hover {
-        border-color: #007bff;
-        background-color: #f8f9fa;
-    }
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dee2e6;
 `;
 
 const VehicleDetail = () => {
@@ -559,7 +625,7 @@ const VehicleDetail = () => {
                 }
                 if (!session || !session.user) {
                     console.warn('No active session found.');
-                    router.push('/login'); // Redirect to login if no session
+                    router.push('/login');
                     return;
                 }
 
@@ -578,7 +644,7 @@ const VehicleDetail = () => {
 
                 if (vehicleError) throw vehicleError;
                 setVehicle(vehicleData);
-                setEditedValues(vehicleData); // Initialize edited values with current vehicle data
+                setEditedValues(vehicleData);
 
                 // Fetch vehicle images from vehicles_images table
                 const { data: imagesData, error: imagesError } = await supabase
@@ -604,7 +670,7 @@ const VehicleDetail = () => {
                 if (vehicleData.image_uri && !imageUrls.find(img => img.url === vehicleData.image_uri)) {
                     imageUrls.unshift({
                         url: vehicleData.image_uri,
-                        id: null, // Main image might not have an entry in vehicles_images
+                        id: null,
                         storage_path: null
                     });
                 }
@@ -803,47 +869,46 @@ const VehicleDetail = () => {
 
         return (
             <FieldWrapper>
-                <p style={{ margin: 0, flex: 1 }}>
-                    <strong>{label}:</strong> {
-                        isEditing ? (
-                            isBoolean ? (
-                                <EditSelect
-                                    value={value ? 'true' : 'false'}
-                                    onChange={(e) => handleFieldChange(field, e.target.value === 'true')}
-                                >
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
-                                </EditSelect>
-                            ) : field === 'condition' ? (
-                                <EditSelect
-                                    value={value}
-                                    onChange={(e) => handleFieldChange(field, e.target.value)}
-                                >
-                                    <option value="excellent">Excellent</option>
-                                    <option value="good">Good</option>
-                                    <option value="fair">Fair</option>
-                                    <option value="poor">Poor</option>
-                                </EditSelect>
-                            ) : (
-                                <EditInput
-                                    value={value || ''}
-                                    onChange={(e) => handleFieldChange(field, e.target.value)}
-                                    type={field === 'listing_price' || field === 'mileage' || field === 'year' ? 'number' : 'text'}
-                                />
-                            )
+                <FieldLabel>{label}:</FieldLabel>
+                <FieldValue>
+                    {isEditing ? (
+                        isBoolean ? (
+                            <EditSelect
+                                value={value ? 'true' : 'false'}
+                                onChange={(e) => handleFieldChange(field, e.target.value === 'true')}
+                            >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </EditSelect>
+                        ) : field === 'condition' ? (
+                            <EditSelect
+                                value={value}
+                                onChange={(e) => handleFieldChange(field, e.target.value)}
+                            >
+                                <option value="excellent">Excellent</option>
+                                <option value="good">Good</option>
+                                <option value="fair">Fair</option>
+                                <option value="poor">Poor</option>
+                            </EditSelect>
                         ) : (
-                            <span>
-                                {isBoolean ? 
-                                    <Badge isTrue={value}>{value ? 'Yes' : 'No'}</Badge> : 
-                                    field === 'listing_price' ? `$${value?.toLocaleString()}` : 
-                                    field === 'mileage' ? `${value} miles` :
-                                    field === 'created_at' ? new Date(value).toLocaleString() :
-                                    value || (field === 'tag_number' ? "Unregistered" : field === 'nickname' ? "No nickname" : "")
-                                }
-                            </span>
+                            <EditInput
+                                value={value || ''}
+                                onChange={(e) => handleFieldChange(field, e.target.value)}
+                                type={field === 'listing_price' || field === 'mileage' || field === 'year' ? 'number' : 'text'}
+                            />
                         )
-                    }
-                </p>
+                    ) : (
+                        <span>
+                            {isBoolean ? 
+                                <Badge isTrue={value}>{value ? 'Yes' : 'No'}</Badge> : 
+                                field === 'listing_price' ? `$${value?.toLocaleString()}` : 
+                                field === 'mileage' ? `${value} miles` :
+                                field === 'created_at' ? new Date(value).toLocaleString() :
+                                value || (field === 'tag_number' ? "Unregistered" : field === 'nickname' ? "No nickname" : "")
+                            }
+                        </span>
+                    )}
+                </FieldValue>
                 {isEditable && (
                     <EditIcon onClick={() => handleEditField(field)}>
                         {isEditing ? '✓' : '✎'}
@@ -869,7 +934,7 @@ const VehicleDetail = () => {
             const reportData = {
                 ...newReport,
                 vehicle_id: parseInt(id),
-                reporter: userId // Use the authenticated user ID
+                reporter: userId
             };
 
             const { data, error } = await supabase
@@ -1015,44 +1080,40 @@ const VehicleDetail = () => {
                     )}
                 </HeaderRight>
             </Header>
+            
             <ContentWrapper>
                 <LeftWrapper>
-                    <VehicleGallery images={vehicleImages.map(img => img.url)} imageUri={vehicle.image_uri} />
-                </LeftWrapper>
-                <RightWrapper>
-                    {renderField('Price', 'listing_price')}
-                    {renderField('Color', 'color')}
-                    {renderField('Condition', 'condition')}
-                    {renderField('Mileage', 'mileage')}
-                    {renderField('Tag Number', 'tag_number')}
-                    {renderField('Nickname', 'nickname')}
-                    {renderField('VIN', 'vin')}
-                    {renderField('Created At', 'created_at', false, false)}
-                    {renderField('Tradeable', 'is_tradeable', true)}
-                    {renderField('Sellable', 'is_sellable', true)}
-
-                    {/* Image Management Section */}
+                    <div className="vehicle-gallery">
+                        <VehicleGallery images={vehicleImages.map(img => img.url)} imageUri={vehicle.image_uri} />
+                    </div>
+                    
                     <ImagesSection>
-                        <SectionTitle>Vehicle Images</SectionTitle>
+                        <SectionTitle>Manage Images</SectionTitle>
                         <ImagesGrid>
-                            <ImageUploadButton onClick={() => imageInputRef.current?.click()}>
-                                <span style={{ fontSize: '24px', marginBottom: '5px' }}>+</span>
-                                <span>Add Image</span>
-                            </ImageUploadButton>
+                            <AddImageButton onClick={() => imageInputRef.current?.click()}>
+                                <span>+</span>
+                                <span>Add</span>
+                            </AddImageButton>
                             
                             {vehicleImages.map((image, index) => (
                                 <ImageItem key={image.url} isMain={vehicle.image_uri === image.url}>
-                                    <ImageThumbnail src={image.url} alt={`Vehicle image ${index + 1}`} />
-                                    <ImageControls>
+                                    <ImageThumbnail src={image.url} alt={`Vehicle ${index + 1}`} />
+                                    <ImageOverlay>
                                         {vehicle.image_uri !== image.url && (
-                                            <SetMainButton onClick={() => handleSetMainImage(image.url)}>
+                                            <ImageButton 
+                                                className="primary"
+                                                onClick={() => handleSetMainImage(image.url)}
+                                            >
                                                 Set Main
-                                            </SetMainButton>
+                                            </ImageButton>
                                         )}
-                                        <RemoveImageButton onClick={() => handleRemoveImage(image)}>
-                                            ×
-                                        </RemoveImageButton>
-                                    </ImageControls>
+                                        <ImageButton 
+                                            className="danger"
+                                            onClick={() => handleRemoveImage(image)}
+                                        >
+                                            Delete
+                                        </ImageButton>
+                                    </ImageOverlay>
                                 </ImageItem>
                             ))}
                         </ImagesGrid>
@@ -1067,216 +1128,239 @@ const VehicleDetail = () => {
                         />
                         
                         {isUploadingImages && (
-                            <p style={{ marginTop: '10px', color: '#666' }}>
+                            <p style={{ marginTop: '8px', color: '#666', fontSize: '0.8125rem' }}>
                                 Uploading images...
                             </p>
                         )}
                     </ImagesSection>
-
-                    <ReportsCard>
-                        <SectionTitle>Vehicle Reports</SectionTitle>
-                        
-                        <AddButton 
-                            onClick={() => setIsAddingReport(true)}
-                            value="Add New Report"
-                        />
-                        
-                        {isAddingReport && (
-                            <ReportForm>
-                                <h4>Add New Report</h4>
-                                
-                                <FormLabel>Report Type *</FormLabel>
-                                <SegmentedControl>
-                                    {reportTypes.map(type => (
-                                        <SegmentedOption
-                                            key={type.value}
-                                            selected={newReport.type === type.value}
-                                            onClick={() => setNewReport({...newReport, type: type.value})}
-                                        >
-                                            {type.label}
-                                        </SegmentedOption>
-                                    ))}
-                                </SegmentedControl>
-                                
-                                <FormLabel>Description *</FormLabel>
-                                <TextArea
-                                    placeholder="Enter description"
-                                    value={newReport.description}
-                                    onChange={(e) => setNewReport({...newReport, description: e.target.value})}
-                                    required
-                                />
-                                
-                                <FormLabel>Severity</FormLabel>
-                                <SegmentedControl>
-                                    {severityOptions.map(severity => (
-                                        <SegmentedOption
-                                            key={severity.value}
-                                            selected={newReport.severity === severity.value}
-                                            onClick={() => setNewReport({...newReport, severity: severity.value})}
-                                        >
-                                            {severity.label}
-                                        </SegmentedOption>
-                                    ))}
-                                </SegmentedControl>
-                                
-                                <FormLabel>Status</FormLabel>
-                                <Select
-                                    value={newReport.status}
-                                    onChange={(e) => setNewReport({...newReport, status: e.target.value})}
-                                >
-                                    <option value="open">Open</option>
-                                    <option value="in progress">In Progress</option>
-                                    <option value="resolved">Resolved</option>
-                                    <option value="closed">Closed</option>
-                                </Select>
-                                
-                                <ButtonWrapper>
-                                    <Button 
-                                        onClick={handleAddReport}
-                                        value={loading ? "Adding..." : "Add Report"}
-                                        disabled={loading}
-                                    />
-                                    <Button 
-                                        onClick={() => setIsAddingReport(false)}
-                                        value="Cancel"
-                                    />
-                                </ButtonWrapper>
-                            </ReportForm>
-                        )}
-
-                        {reports.length === 0 ? (
-                            <p style={{ textAlign: 'center', color: '#666', fontSize: '0.9em', marginTop: '10px' }}>No reports found for this vehicle.</p>
-                        ) : (
-                            reports.map((report) => (
-                                <ReportItem key={report.id}>
-                                    {deletingReportId !== report.id && (
-                                        <ReportEditControls className="report-controls">
-                                            <IconButton 
-                                                onClick={() => handleEditReport(report.id)}
-                                                title="Edit Report"
-                                            >
-                                                ✎
-                                            </IconButton>
-                                            <IconButton 
-                                                onClick={() => handleConfirmDelete(report.id)}
-                                                title="Delete Report"
-                                            >
-                                                ×
-                                            </IconButton>
-                                        </ReportEditControls>
-                                    )}
+                </LeftWrapper>
+                
+                <RightWrapper>
+                    <TopSection>
+                        {renderField('Price', 'listing_price')}
+                        {renderField('Color', 'color')}
+                        {renderField('Condition', 'condition')}
+                        {renderField('Mileage', 'mileage')}
+                        {renderField('Tag Number', 'tag_number')}
+                        {renderField('Nickname', 'nickname')}
+                        {renderField('VIN', 'vin')}
+                        {renderField('Created At', 'created_at', false, false)}
+                        {renderField('Tradeable', 'is_tradeable', true)}
+                        {renderField('Sellable', 'is_sellable', true)}
+                    </TopSection>
+                    
+                    <BottomSection>
+                        <ReportsSection>
+                            <SectionTitle>Vehicle Reports</SectionTitle>
+                            
+                            <AddButton 
+                                onClick={() => setIsAddingReport(true)}
+                                value="Add New Report"
+                            />
+                            
+                            {isAddingReport && (
+                                <ReportForm>
+                                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9375rem' }}>Add New Report</h4>
                                     
-                                    {deletingReportId === report.id ? (
-                                        <DeleteConfirmation>
-                                            <ConfirmationText>
-                                                Are you sure you want to delete this report?
-                                            </ConfirmationText>
-                                            <WarningText>
-                                                This action cannot be undone.
-                                            </WarningText>
-                                            <ConfirmButtonWrapper>
-                                                <DeleteButton 
-                                                    onClick={() => handleDeleteReport(report.id)}
-                                                    value="Delete Report"
-                                                />
-                                                <Button 
-                                                    onClick={handleCancelDelete}
-                                                    value="Cancel"
-                                                />
-                                            </ConfirmButtonWrapper>
-                                        </DeleteConfirmation>
-                                    ) : editingReports[report.id] ? (
-                                        <EditReportForm>
-                                            <ReportHeader>
-                                                <h4 style={{ margin: 0, fontSize: '1.1rem' }}>
-                                                    {reportTypes.find(type => type.value === report.type)?.label || report.type}
-                                                </h4>
-                                                <span style={{ color: '#666', fontSize: '0.85em' }}>
-                                                    {formatDate(report.created_at)}
-                                                </span>
-                                            </ReportHeader>
-                                            
-                                            <FormLabel>Report Type</FormLabel>
-                                            <SegmentedControl>
-                                                {reportTypes.map(type => (
-                                                    <SegmentedOption
-                                                        key={type.value}
-                                                        selected={editedReports[report.id]?.type === type.value}
-                                                        onClick={() => handleReportFieldChange(report.id, 'type', type.value)}
-                                                    >
-                                                        {type.label}
-                                                    </SegmentedOption>
-                                                ))}
-                                            </SegmentedControl>
-                                            
-                                            <FormLabel>Description</FormLabel>
-                                            <TextArea
-                                                value={editedReports[report.id]?.description || ''}
-                                                onChange={(e) => handleReportFieldChange(report.id, 'description', e.target.value)}
-                                            />
-                                            
-                                            <FormLabel>Severity</FormLabel>
-                                            <SegmentedControl>
-                                                {severityOptions.map(severity => (
-                                                    <SegmentedOption
-                                                        key={severity.value}
-                                                        selected={editedReports[report.id]?.severity === severity.value}
-                                                        onClick={() => handleReportFieldChange(report.id, 'severity', severity.value)}
-                                                    >
-                                                        {severity.label}
-                                                    </SegmentedOption>
-                                                ))}
-                                            </SegmentedControl>
-                                            
-                                            <FormLabel>Status</FormLabel>
-                                            <Select
-                                                value={editedReports[report.id]?.status || ''}
-                                                onChange={(e) => handleReportFieldChange(report.id, 'status', e.target.value)}
+                                    <FormLabel>Report Type *</FormLabel>
+                                    <SegmentedControl>
+                                        {reportTypes.map(type => (
+                                            <SegmentedOption
+                                                key={type.value}
+                                                selected={newReport.type === type.value}
+                                                onClick={() => setNewReport({...newReport, type: type.value})}
                                             >
-                                                <option value="open">Open</option>
-                                                <option value="in progress">In Progress</option>
-                                                <option value="resolved">Resolved</option>
-                                                <option value="closed">Closed</option>
-                                            </Select>
+                                                {type.label}
+                                            </SegmentedOption>
+                                        ))}
+                                    </SegmentedControl>
+                                    
+                                    <FormLabel>Description *</FormLabel>
+                                    <TextArea
+                                        placeholder="Enter description"
+                                        value={newReport.description}
+                                        onChange={(e) => setNewReport({...newReport, description: e.target.value})}
+                                        required
+                                    />
+                                    
+                                    <FormLabel>Severity</FormLabel>
+                                    <SegmentedControl>
+                                        {severityOptions.map(severity => (
+                                            <SegmentedOption
+                                                key={severity.value}
+                                                selected={newReport.severity === severity.value}
+                                                onClick={() => setNewReport({...newReport, severity: severity.value})}
+                                            >
+                                                {severity.label}
+                                            </SegmentedOption>
+                                        ))}
+                                    </SegmentedControl>
+                                    
+                                    <FormLabel>Status</FormLabel>
+                                    <Select
+                                        value={newReport.status}
+                                        onChange={(e) => setNewReport({...newReport, status: e.target.value})}
+                                    >
+                                        <option value="open">Open</option>
+                                        <option value="in progress">In Progress</option>
+                                        <option value="resolved">Resolved</option>
+                                        <option value="closed">Closed</option>
+                                    </Select>
+                                    
+                                    <ButtonWrapper>
+                                        <Button 
+                                            onClick={handleAddReport}
+                                            value={loading ? "Adding..." : "Add Report"}
+                                            disabled={loading}
+                                        />
+                                        <Button 
+                                            onClick={() => setIsAddingReport(false)}
+                                            value="Cancel"
+                                        />
+                                    </ButtonWrapper>
+                                </ReportForm>
+                            )}
+
+                            <ReportsContainer>
+                                {reports.length === 0 ? (
+                                    <p style={{ textAlign: 'center', color: '#666', fontSize: '0.8125rem', marginTop: '16px' }}>
+                                        No reports found for this vehicle.
+                                    </p>
+                                ) : (
+                                    reports.map((report) => (
+                                        <ReportItem key={report.id}>
+                                            {deletingReportId !== report.id && (
+                                                <ReportEditControls className="report-controls">
+                                                    <IconButton 
+                                                        onClick={() => handleEditReport(report.id)}
+                                                        title="Edit Report"
+                                                    >
+                                                        Edit
+                                                    </IconButton>
+                                                    <IconButton 
+                                                        onClick={() => handleConfirmDelete(report.id)}
+                                                        title="Delete Report"
+                                                    >
+                                                        Delete
+                                                    </IconButton>
+                                                </ReportEditControls>
+                                            )}
                                             
-                                            <ButtonWrapper>
-                                                <Button 
-                                                    onClick={() => handleSaveReport(report.id)}
-                                                    value="Save"
-                                                />
-                                                <Button 
-                                                    onClick={() => handleEditReport(report.id)}
-                                                    value="Cancel"
-                                                />
-                                            </ButtonWrapper>
-                                        </EditReportForm>
-                                    ) : (
-                                        <>
-                                            <ReportHeader>
-                                                <h4 style={{ margin: 0, fontSize: '1.1rem' }}>
-                                                    {reportTypes.find(type => type.value === report.type)?.label || report.type}
-                                                </h4>
-                                                <span style={{ color: '#666', fontSize: '0.85em' }}>
-                                                    {formatDate(report.created_at)}
-                                                </span>
-                                            </ReportHeader>
-                                            
-                                            <p style={{ margin: '8px 0', color: '#333', fontSize: '0.95em' }}>{report.description}</p>
-                                            
-                                            <ReportMetadata>
-                                                <Badge severity={report.severity}>
-                                                    {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity}
-                                                </Badge>
-                                                <Badge status={report.status}>
-                                                    {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
-                                                </Badge>
-                                            </ReportMetadata>
-                                        </>
-                                    )}
-                                </ReportItem>
-                            ))
-                        )}
-                    </ReportsCard>
+                                            {deletingReportId === report.id ? (
+                                                <DeleteConfirmation>
+                                                    <ConfirmationText>
+                                                        Are you sure you want to delete this report?
+                                                    </ConfirmationText>
+                                                    <WarningText>
+                                                        This action cannot be undone.
+                                                    </WarningText>
+                                                    <ConfirmButtonWrapper>
+                                                        <DeleteButton 
+                                                            onClick={() => handleDeleteReport(report.id)}
+                                                            value="Delete Report"
+                                                        />
+                                                        <Button 
+                                                            onClick={handleCancelDelete}
+                                                            value="Cancel"
+                                                        />
+                                                    </ConfirmButtonWrapper>
+                                                </DeleteConfirmation>
+                                            ) : editingReports[report.id] ? (
+                                                <EditReportForm>
+                                                    <ReportHeader>
+                                                        <h4 style={{ margin: 0, fontSize: '0.9375rem' }}>
+                                                            {reportTypes.find(type => type.value === report.type)?.label || report.type}
+                                                        </h4>
+                                                        <span style={{ color: '#666', fontSize: '0.75rem' }}>
+                                                            {formatDate(report.created_at)}
+                                                        </span>
+                                                    </ReportHeader>
+                                                    
+                                                    <FormLabel>Report Type</FormLabel>
+                                                    <SegmentedControl>
+                                                        {reportTypes.map(type => (
+                                                            <SegmentedOption
+                                                                key={type.value}
+                                                                selected={editedReports[report.id]?.type === type.value}
+                                                                onClick={() => handleReportFieldChange(report.id, 'type', type.value)}
+                                                            >
+                                                                {type.label}
+                                                            </SegmentedOption>
+                                                        ))}
+                                                    </SegmentedControl>
+                                                    
+                                                    <FormLabel>Description</FormLabel>
+                                                    <TextArea
+                                                        value={editedReports[report.id]?.description || ''}
+                                                        onChange={(e) => handleReportFieldChange(report.id, 'description', e.target.value)}
+                                                    />
+                                                    
+                                                    <FormLabel>Severity</FormLabel>
+                                                    <SegmentedControl>
+                                                        {severityOptions.map(severity => (
+                                                            <SegmentedOption
+                                                                key={severity.value}
+                                                                selected={editedReports[report.id]?.severity === severity.value}
+                                                                onClick={() => handleReportFieldChange(report.id, 'severity', severity.value)}
+                                                            >
+                                                                {severity.label}
+                                                            </SegmentedOption>
+                                                        ))}
+                                                    </SegmentedControl>
+                                                    
+                                                    <FormLabel>Status</FormLabel>
+                                                    <Select
+                                                        value={editedReports[report.id]?.status || ''}
+                                                        onChange={(e) => handleReportFieldChange(report.id, 'status', e.target.value)}
+                                                    >
+                                                        <option value="open">Open</option>
+                                                        <option value="in progress">In Progress</option>
+                                                        <option value="resolved">Resolved</option>
+                                                        <option value="closed">Closed</option>
+                                                    </Select>
+                                                    
+                                                    <ButtonWrapper>
+                                                        <Button 
+                                                            onClick={() => handleSaveReport(report.id)}
+                                                            value="Save"
+                                                        />
+                                                        <Button 
+                                                            onClick={() => handleEditReport(report.id)}
+                                                            value="Cancel"
+                                                        />
+                                                    </ButtonWrapper>
+                                                </EditReportForm>
+                                            ) : (
+                                                <>
+                                                    <ReportHeader>
+                                                        <h4 style={{ margin: 0, fontSize: '0.9375rem' }}>
+                                                            {reportTypes.find(type => type.value === report.type)?.label || report.type}
+                                                        </h4>
+                                                        <span style={{ color: '#666', fontSize: '0.75rem' }}>
+                                                            {formatDate(report.created_at)}
+                                                        </span>
+                                                    </ReportHeader>
+                                                    
+                                                    <p style={{ margin: '6px 0', color: '#333', fontSize: '0.8125rem' }}>
+                                                        {report.description}
+                                                    </p>
+                                                    
+                                                    <ReportMetadata>
+                                                        <Badge severity={report.severity}>
+                                                            {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity}
+                                                        </Badge>
+                                                        <Badge status={report.status}>
+                                                            {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
+                                                        </Badge>
+                                                    </ReportMetadata>
+                                                </>
+                                            )}
+                                        </ReportItem>
+                                    ))
+                                )}
+                            </ReportsContainer>
+                        </ReportsSection>
+                    </BottomSection>
                 </RightWrapper>
             </ContentWrapper>
         </Container>
