@@ -4,39 +4,88 @@ import { supabase } from '../../config/supabase';
 import { uploadImage } from 'lib/uploadImage';
 import styled from "styled-components";
 import Button from "@components/Button";
-import VehicleGallery from "@components/ProductImageGallery";
 
-// Reduced header text size
-const Title = styled.h1`
-    color: #333;
-    text-align: center;
+const TitleContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
     width: 100%;
+    text-align: center;
+`
+
+const EditableTitle = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+`
+
+const TitleText = styled.h1`
+    color: #333;
     margin: 0;
     font-size: 1.125rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+        background-color: #f0f0f0;
+    }
 
     @media (max-width: 768px) {
         font-size: 1rem;
     }
 `
 
+const TitleSelect = styled.select`
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1.125rem;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    max-width: 120px;
+    
+    &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    
+    @media (max-width: 768px) {
+        font-size: 1rem;
+    }
+`
+
+const TitleEditIcon = styled.span`
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    
+    &:hover {
+        color: #333;
+    }
+`
+
 const Header = styled.div`
     display: flex;
-    padding: 8px 12px;
     align-items: center;
     justify-content: space-between;
     background-color: #fff;
     border-bottom: 1px solid #e0e0e0;
     height: 100px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
 `
 
 const HeaderLeft = styled.div`
     display: flex;
     align-items: center;
+    flex: 1;
 `
 
 const HeaderRight = styled.div`
@@ -50,7 +99,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     background-color: #f8f9fa;
-    padding-top: 100px; // Account for fixed header
+    padding: 50px 12px 12px 12px;
 `
 
 const ContentWrapper = styled.div`
@@ -58,7 +107,6 @@ const ContentWrapper = styled.div`
     overflow: hidden;
     display: flex;
     gap: 12px;
-    padding: 12px;
 `
 
 const LeftWrapper = styled.div`
@@ -71,12 +119,31 @@ const LeftWrapper = styled.div`
     display: flex;
     flex-direction: column;
     
-    /* Scale down the gallery */
-    .vehicle-gallery {
-        transform: scale(0.9);
-        transform-origin: top left;
-        width: 111.11%;
-        margin-bottom: -10%;
+    /* Main image display only */
+    .main-image-container {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .main-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .no-image {
+        width: 100%;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        color: #555;
+        font-size: 0.8125rem;
     }
 `
 
@@ -586,6 +653,25 @@ const VehicleDetail = () => {
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
     const [isUploadingImages, setIsUploadingImages] = useState(false);
     const imageInputRef = useRef(null);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [editedTitle, setEditedTitle] = useState({
+        year: '',
+        make: '',
+        model: ''
+    });
+    
+    // Year options (e.g., last 50 years)
+    const currentYear = new Date().getFullYear();
+    const yearOptions = Array.from({ length: 50 }, (_, i) => currentYear - i);
+    
+    // Common make options (you can expand this list)
+    const makeOptions = [
+        'Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz',
+        'Audi', 'Volkswagen', 'Nissan', 'Hyundai', 'Kia', 'Mazda',
+        'Subaru', 'Lexus', 'Acura', 'Tesla', 'Jeep', 'Ram', 'GMC',
+        'Cadillac', 'Lincoln', 'Porsche', 'Ferrari', 'Lamborghini',
+        'Other'
+    ];
 
     const reportTypes = [
         { value: 'forum', label: 'Forum'},
@@ -613,6 +699,16 @@ const VehicleDetail = () => {
             setToast(prev => ({ ...prev, show: false }));
         }, 3000);
     };
+
+    useEffect(() => {
+        if (vehicle) {
+            setEditedTitle({
+                year: vehicle.year || '',
+                make: vehicle.make || '',
+                model: vehicle.model || ''
+            });
+        }
+    }, [vehicle]);
 
     useEffect(() => {
         const fetchUserAndVehicleData = async () => {
@@ -645,6 +741,11 @@ const VehicleDetail = () => {
                 if (vehicleError) throw vehicleError;
                 setVehicle(vehicleData);
                 setEditedValues(vehicleData);
+                setEditedTitle({
+                    year: vehicleData.year || '',
+                    make: vehicleData.make || '',
+                    model: vehicleData.model || ''
+                });
 
                 // Fetch vehicle images from vehicles_images table
                 const { data: imagesData, error: imagesError } = await supabase
@@ -841,19 +942,31 @@ const VehicleDetail = () => {
     const handleSaveVehicle = async () => {
         if (!vehicle || !userId) return;
 
+        // If editing title, include title fields in the update
+        const updatedValues = isEditingTitle ? 
+            { ...editedValues, ...editedTitle } : 
+            editedValues;
+
         setIsSaving(true);
         try {
             const { error } = await supabase
                 .from('vehicles')
-                .update(editedValues)
+                .update(updatedValues)
                 .eq('id', vehicle.id);
 
             if (error) throw error;
 
             // Update local state
-            setVehicle(editedValues);
+            setVehicle(updatedValues);
+            setEditedValues(updatedValues);
+            setEditedTitle({
+                year: updatedValues.year || '',
+                make: updatedValues.make || '',
+                model: updatedValues.model || ''
+            });
             // Clear all editing states
             setEditingFields({});
+            setIsEditingTitle(false);
             showToast('Vehicle details updated successfully!');
         } catch (error) {
             console.error("Error updating vehicle:", error);
@@ -861,6 +974,25 @@ const VehicleDetail = () => {
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleTitleFieldChange = (field, value) => {
+        setEditedTitle(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const toggleTitleEdit = () => {
+        if (isEditingTitle) {
+            // Reset to original values if canceling
+            setEditedTitle({
+                year: vehicle.year || '',
+                make: vehicle.make || '',
+                model: vehicle.model || ''
+            });
+        }
+        setIsEditingTitle(!isEditingTitle);
     };
 
     const renderField = (label, field, isBoolean = false, isEditable = true) => {
@@ -1068,10 +1200,58 @@ const VehicleDetail = () => {
                         onClick={() => router.back()}
                         value="Back"
                     />
-                    <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
+                    <TitleContainer>
+                        {isEditingTitle ? (
+                            <EditableTitle>
+                                <TitleSelect
+                                    value={editedTitle.year}
+                                    onChange={(e) => handleTitleFieldChange('year', parseInt(e.target.value))}
+                                >
+                                    <option value="">Year</option>
+                                    {yearOptions.map(year => (
+                                        <option key={year} value={year}>{year}</option>
+                                    ))}
+                                </TitleSelect>
+                                
+                                <TitleSelect
+                                    value={editedTitle.make}
+                                    onChange={(e) => handleTitleFieldChange('make', e.target.value)}
+                                >
+                                    <option value="">Make</option>
+                                    {makeOptions.map(make => (
+                                        <option key={make} value={make}>{make}</option>
+                                    ))}
+                                </TitleSelect>
+                                
+                                <input
+                                    type="text"
+                                    value={editedTitle.model}
+                                    onChange={(e) => handleTitleFieldChange('model', e.target.value)}
+                                    placeholder="Model"
+                                    style={{
+                                        padding: '4px 8px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        fontSize: '1.125rem',
+                                        backgroundColor: '#fff',
+                                        color: '#333',
+                                        maxWidth: '150px'
+                                    }}
+                                />
+                                
+                                <TitleEditIcon onClick={toggleTitleEdit}>✓</TitleEditIcon>
+                                <TitleEditIcon onClick={toggleTitleEdit}>✕</TitleEditIcon>
+                            </EditableTitle>
+                        ) : (
+                            <TitleText onClick={toggleTitleEdit}>
+                                {vehicle.year} {vehicle.make} {vehicle.model}
+                                <TitleEditIcon style={{ marginLeft: '8px' }}>✎</TitleEditIcon>
+                            </TitleText>
+                        )}
+                    </TitleContainer>
                 </HeaderLeft>
                 <HeaderRight>
-                    {Object.values(editingFields).some(Boolean) && (
+                    {(Object.values(editingFields).some(Boolean) || isEditingTitle) && (
                         <SaveButton 
                             onClick={handleSaveVehicle}
                             value={isSaving ? "Saving..." : "Save Changes"}
@@ -1083,8 +1263,18 @@ const VehicleDetail = () => {
             
             <ContentWrapper>
                 <LeftWrapper>
-                    <div className="vehicle-gallery">
-                        <VehicleGallery images={vehicleImages.map(img => img.url)} imageUri={vehicle.image_uri} />
+                    <div className="main-image-container">
+                        {vehicle.image_uri ? (
+                            <img 
+                                src={vehicle.image_uri} 
+                                alt="Vehicle" 
+                                className="main-image"
+                            />
+                        ) : (
+                            <div className="no-image">
+                                No main image set
+                            </div>
+                        )}
                     </div>
                     
                     <ImagesSection>
