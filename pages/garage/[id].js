@@ -78,8 +78,11 @@ const Header = styled.div`
     align-items: center;
     justify-content: space-between;
     background-color: #fff;
-    border-bottom: 1px solid #e0e0e0;
-    height: 100px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    height: 50px;
+    margin: 10px 0;
+    padding: 1%;
 `
 
 const HeaderLeft = styled.div`
@@ -107,6 +110,7 @@ const ContentWrapper = styled.div`
     overflow: hidden;
     display: flex;
     gap: 12px;
+    height: 100%;
 `
 
 const LeftWrapper = styled.div`
@@ -116,13 +120,23 @@ const LeftWrapper = styled.div`
     border: 1px solid #e0e0e0;
     padding: 8px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    height: 100%;
     
-    /* Main image display only */
+    /* Images container takes up upper half */
+    .images-container {
+        grid-row: 1;
+        display: grid;
+        grid-template-rows: min-content 1fr;
+        gap: 8px;
+        overflow: hidden;
+    }
+    
+    /* Main image display */
     .main-image-container {
         width: 100%;
-        margin-bottom: 8px;
     }
     
     .main-image {
@@ -145,6 +159,16 @@ const LeftWrapper = styled.div`
         color: #555;
         font-size: 0.8125rem;
     }
+    
+    /* Vehicle details take up lower half */
+    .vehicle-details {
+        grid-row: 2;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        padding: 10px;
+    }
 `
 
 const RightWrapper = styled.div`
@@ -155,22 +179,13 @@ const RightWrapper = styled.div`
     gap: 8px;
 `
 
-const TopSection = styled.div`
-    background-color: #fff;
-    border-radius: 6px;
-    border: 1px solid #e0e0e0;
-    padding: 10px;
-    overflow-y: auto;
-    height: 50%;
-`
-
 const BottomSection = styled.div`
+    flex: 1;
     background-color: #fff;
     border-radius: 6px;
     border: 1px solid #e0e0e0;
     padding: 10px;
     overflow-y: auto;
-    flex: 1;
 `
 
 const FieldWrapper = styled.div`
@@ -234,6 +249,7 @@ const SaveButton = styled(Button)`
     color: white;
     border: none;
     padding: 4px 12px;
+    height: 100%;
     font-size: 0.8125rem;
     
     &:hover {
@@ -252,22 +268,21 @@ const SectionTitle = styled.h3`
 `
 
 const ImagesSection = styled.div`
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid #e0e0e0;
+    overflow-y: auto;
+    grid-row: 2;
 `;
 
 const ImagesGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 8px;
-    margin-top: 8px;
+    grid-template-columns: repeat(7, minmax(40px, 1fr));
+    gap: 1px;
+    margin-top: 2px;
 `;
 
 const ImageItem = styled.div`
     position: relative;
     aspect-ratio: 1;
-    border-radius: 6px;
+    border-radius: 4px;
     overflow: hidden;
     border: 2px solid ${props => props.isMain ? '#28a745' : 'transparent'};
 `;
@@ -284,12 +299,12 @@ const ImageOverlay = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     opacity: 0;
     transition: opacity 0.2s ease;
     
@@ -302,10 +317,10 @@ const ImageButton = styled.button`
     background: #fff;
     border: none;
     color: #333;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 3px 5px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 8px;
     
     &.primary {
         background: #28a745;
@@ -325,7 +340,7 @@ const AddImageButton = styled.button`
     justify-content: center;
     aspect-ratio: 1;
     border: 2px dashed #adb5bd;
-    border-radius: 6px;
+    border-radius: 4px;
     background: none;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -338,8 +353,12 @@ const AddImageButton = styled.button`
     }
     
     span:first-child {
-        font-size: 16px;
+        font-size: 14px;
         margin-bottom: 2px;
+    }
+    
+    span:last-child {
+        font-size: 8px;
     }
 `;
 
@@ -1263,70 +1282,71 @@ const VehicleDetail = () => {
             
             <ContentWrapper>
                 <LeftWrapper>
-                    <div className="main-image-container">
-                        {vehicle.image_uri ? (
-                            <img 
-                                src={vehicle.image_uri} 
-                                alt="Vehicle" 
-                                className="main-image"
-                            />
-                        ) : (
-                            <div className="no-image">
-                                No main image set
-                            </div>
-                        )}
-                    </div>
-                    
-                    <ImagesSection>
-                        <SectionTitle>Manage Images</SectionTitle>
-                        <ImagesGrid>
-                            <AddImageButton onClick={() => imageInputRef.current?.click()}>
-                                <span>+</span>
-                                <span>Add</span>
-                            </AddImageButton>
-                            
-                            {vehicleImages.map((image, index) => (
-                                <ImageItem key={image.url} isMain={vehicle.image_uri === image.url}>
-                                    <ImageThumbnail src={image.url} alt={`Vehicle ${index + 1}`} />
-                                    <ImageOverlay>
-                                        {vehicle.image_uri !== image.url && (
+                    {/* Images Container - Upper Half */}
+                    <div className="images-container">
+                        <div className="main-image-container">
+                            {vehicle.image_uri ? (
+                                <img 
+                                    src={vehicle.image_uri} 
+                                    alt="Vehicle" 
+                                    className="main-image"
+                                />
+                            ) : (
+                                <div className="no-image">
+                                    No main image set
+                                </div>
+                            )}
+                        </div>
+                        
+                        <ImagesSection>
+                            <ImagesGrid>
+                                <AddImageButton onClick={() => imageInputRef.current?.click()}>
+                                    <span>+</span>
+                                    <span>Add</span>
+                                </AddImageButton>
+                                
+                                {vehicleImages.map((image, index) => (
+                                    <ImageItem key={image.url} isMain={vehicle.image_uri === image.url}>
+                                        <ImageThumbnail src={image.url} alt={`Vehicle ${index + 1}`} />
+                                        <ImageOverlay>
+                                            {vehicle.image_uri !== image.url && (
+                                                <ImageButton 
+                                                    className="primary"
+                                                    onClick={() => handleSetMainImage(image.url)}
+                                                >
+                                                    Main
+                                                </ImageButton>
+                                            )}
                                             <ImageButton 
-                                                className="primary"
-                                                onClick={() => handleSetMainImage(image.url)}
+                                                className="danger"
+                                                onClick={() => handleRemoveImage(image)}
                                             >
-                                                Set Main
+                                                Delete
                                             </ImageButton>
-                                        )}
-                                        <ImageButton 
-                                            className="danger"
-                                            onClick={() => handleRemoveImage(image)}
-                                        >
-                                            Delete
-                                        </ImageButton>
-                                    </ImageOverlay>
-                                </ImageItem>
-                            ))}
-                        </ImagesGrid>
-                        
-                        <input
-                            type="file"
-                            ref={imageInputRef}
-                            onChange={handleImageUpload}
-                            accept="image/*"
-                            multiple
-                            style={{ display: 'none' }}
-                        />
-                        
-                        {isUploadingImages && (
-                            <p style={{ marginTop: '8px', color: '#666', fontSize: '0.8125rem' }}>
-                                Uploading images...
-                            </p>
-                        )}
-                    </ImagesSection>
-                </LeftWrapper>
-                
-                <RightWrapper>
-                    <TopSection>
+                                        </ImageOverlay>
+                                    </ImageItem>
+                                ))}
+                            </ImagesGrid>
+                            
+                            <input
+                                type="file"
+                                ref={imageInputRef}
+                                onChange={handleImageUpload}
+                                accept="image/*"
+                                multiple
+                                style={{ display: 'none' }}
+                            />
+                            
+                            {isUploadingImages && (
+                                <p style={{ marginTop: '8px', color: '#666', fontSize: '0.8125rem' }}>
+                                    Uploading images...
+                                </p>
+                            )}
+                        </ImagesSection>
+                    </div>
+
+                    {/* Vehicle Details - Lower Half */}
+                    <div className="vehicle-details">
                         {renderField('Price', 'listing_price')}
                         {renderField('Color', 'color')}
                         {renderField('Condition', 'condition')}
@@ -1337,8 +1357,10 @@ const VehicleDetail = () => {
                         {renderField('Created At', 'created_at', false, false)}
                         {renderField('Tradeable', 'is_tradeable', true)}
                         {renderField('Sellable', 'is_sellable', true)}
-                    </TopSection>
-                    
+                    </div>
+                </LeftWrapper>
+                
+                <RightWrapper>                    
                     <BottomSection>
                         <ReportsSection>
                             <SectionTitle>Vehicle Reports</SectionTitle>
