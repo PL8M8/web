@@ -5,15 +5,17 @@ import styled from "styled-components";
 import Button from "@components/Button";
 import VehicleGallery from "@components/ProductImageGallery";
 
+// Reduced header text size
 const Title = styled.h1`
     color: #333;
     text-align: center;
     width: 100%;
     padding: 0.5%;
     margin: 0;
+    font-size: 1.5rem; // Reduced from default
 
     @media (max-width: 768px) {
-        font-size: 1.25rem;
+        font-size: 1.1rem; // Reduced from 1.25rem
     }
 `
 
@@ -189,6 +191,11 @@ const ReportItem = styled.div`
     border-radius: 5px;
     padding: 15px;
     margin: 10px 0;
+    position: relative;
+    
+    &:hover .report-controls {
+        opacity: 1;
+    }
 `;
 
 const ReportHeader = styled.div`
@@ -196,6 +203,7 @@ const ReportHeader = styled.div`
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 8px;
+    padding-right: 60px; // Make room for the control buttons
 `;
 
 const ReportMetadata = styled.div`
@@ -242,6 +250,168 @@ const ToggleButton = styled.button`
     }
 `
 
+// Toast notification styles
+const ToastContainer = styled.div`
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+`;
+
+const ToastNotification = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background-color: ${props => props.type === 'success' ? '#d4edda' : '#f8d7da'};
+    color: ${props => props.type === 'success' ? '#155724' : '#721c24'};
+    border: 1px solid ${props => props.type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: ${props => props.show ? 1 : 0};
+    transform: ${props => props.show ? 'translateY(0)' : 'translateY(-100%)'};
+    transition: all 0.3s ease;
+    min-width: 280px;
+`;
+
+const CheckMarkIcon = styled.div`
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #28a745;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    
+    @keyframes checkmark {
+        0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1) rotate(360deg);
+            opacity: 1;
+        }
+    }
+    
+    animation: checkmark 0.5s ease;
+`;
+
+const ToastMessage = styled.span`
+    font-size: 14px;
+    font-weight: 500;
+`;
+
+// Segmented control styles
+const SegmentedControl = styled.div`
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0;
+    width: 100%;
+`;
+
+const SegmentedOption = styled.button`
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: ${props => props.selected ? '#007bff' : '#fff'};
+    color: ${props => props.selected ? '#fff' : '#333'};
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    
+    &:not(:last-child) {
+        border-right: 1px solid #ccc;
+    }
+    
+    &:hover {
+        background-color: ${props => props.selected ? '#0056b3' : '#f8f9fa'};
+    }
+`;
+
+// Form label styles
+const FormLabel = styled.label`
+    display: block;
+    margin: 15px 0 5px 0;
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+    font-size: 14px;
+`;
+
+// Report edit controls - discrete hover-based controls
+const ReportEditControls = styled.div`
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+`;
+
+const IconButton = styled.button`
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 16px;
+    line-height: 1;
+    
+    &:hover {
+        color: #333;
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+`;
+
+// Delete confirmation styles
+const DeleteConfirmation = styled.div`
+    text-align: center;
+    padding: 30px 20px;
+`;
+
+const ConfirmationText = styled.p`
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 16px;
+`;
+
+const WarningText = styled.p`
+    margin: 0 0 20px 0;
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 14px;
+`;
+
+const ConfirmButtonWrapper = styled.div`
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+`;
+
+const DeleteButton = styled(Button)`
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    
+    &:hover {
+        background-color: #c82333;
+    }
+`;
+
+const EditReportForm = styled.div`
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+`;
+
 const VehicleDetail = () => {
     const router = useRouter();
     const { id } = router.query;
@@ -260,12 +430,16 @@ const VehicleDetail = () => {
     const [editingFields, setEditingFields] = useState({});
     const [editedValues, setEditedValues] = useState({});
     const [isSaving, setIsSaving] = useState(false);
+    const [editingReports, setEditingReports] = useState({});
+    const [editedReports, setEditedReports] = useState({});
+    const [deletingReportId, setDeletingReportId] = useState(null);
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
     const reportTypes = [
-        { value: 'forum', label: 'forum'},
-        { value: 'warning', label: 'warning'},
-        { value: 'problem', label: 'problem'},
-        { value: 'document', label: 'document'},
+        { value: 'forum', label: 'Forum'},
+        { value: 'warning', label: 'Warning'},
+        { value: 'problem', label: 'Problem'},
+        { value: 'document', label: 'Document'},
     ];
 
     const severityOptions = [
@@ -491,6 +665,94 @@ const VehicleDetail = () => {
         }
     };
 
+    const handleEditReport = (reportId) => {
+        const report = reports.find(r => r.id === reportId);
+        setEditingReports(prev => ({
+            ...prev,
+            [reportId]: !prev[reportId]
+        }));
+        setEditedReports(prev => ({
+            ...prev,
+            [reportId]: { ...report }
+        }));
+    };
+
+    const handleReportFieldChange = (reportId, field, value) => {
+        setEditedReports(prev => ({
+            ...prev,
+            [reportId]: {
+                ...prev[reportId],
+                [field]: value
+            }
+        }));
+    };
+
+    const handleSaveReport = async (reportId) => {
+        try {
+            const { error } = await supabase
+                .from('reports')
+                .update({
+                    description: editedReports[reportId].description,
+                    type: editedReports[reportId].type,
+                    severity: editedReports[reportId].severity,
+                    status: editedReports[reportId].status
+                })
+                .eq('id', reportId);
+
+            if (error) throw error;
+
+            // Update local state
+            setReports(prev => prev.map(report => 
+                report.id === reportId ? { ...report, ...editedReports[reportId] } : report
+            ));
+            setEditingReports(prev => ({ ...prev, [reportId]: false }));
+            alert('Report updated successfully!');
+        } catch (error) {
+            console.error("Error updating report:", error);
+            alert('Failed to update report. Please try again.');
+        }
+    };
+
+    const handleDeleteReport = async (reportId) => {
+        try {
+            const { error } = await supabase
+                .from('reports')
+                .delete()
+                .eq('id', reportId);
+
+            if (error) throw error;
+
+            setReports(prev => prev.filter(report => report.id !== reportId));
+            setDeletingReportId(null);
+            
+            // Show success toast
+            setToast({ show: true, message: 'Report deleted successfully!', type: 'success' });
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                setToast(prev => ({ ...prev, show: false }));
+            }, 3000);
+        } catch (error) {
+            console.error("Error deleting report:", error);
+            
+            // Show error toast
+            setToast({ show: true, message: 'Failed to delete report. Please try again.', type: 'error' });
+            
+            // Hide toast after 3 seconds
+            setTimeout(() => {
+                setToast(prev => ({ ...prev, show: false }));
+            }, 3000);
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setDeletingReportId(null);
+    };
+
+    const handleConfirmDelete = (reportId) => {
+        setDeletingReportId(reportId);
+    };
+
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -505,6 +767,18 @@ const VehicleDetail = () => {
 
     return (
         <Container>
+            {/* Toast Notification */}
+            <ToastContainer>
+                <ToastNotification show={toast.show} type={toast.type}>
+                    {toast.type === 'success' && (
+                        <CheckMarkIcon>
+                            ✓
+                        </CheckMarkIcon>
+                    )}
+                    <ToastMessage>{toast.message}</ToastMessage>
+                </ToastNotification>
+            </ToastContainer>
+            
             <Header>
                 <HeaderLeft>
                     <Button 
@@ -550,35 +824,42 @@ const VehicleDetail = () => {
                         {isAddingReport && (
                             <ReportForm>
                                 <h4>Add New Report</h4>
-                                <Select
-                                    value={newReport.type}
-                                    onChange={(e) => setNewReport({...newReport, type: e.target.value})}
-                                    required
-                                >
-                                    <option value="">Select Report Type</option>
-                                    {reportTypes.map(type => (
-                                        <option key={type.value} value={type.value}>
-                                            {type.label}
-                                        </option>
-                                    ))}
-                                </Select>
                                 
+                                <FormLabel>Report Type *</FormLabel>
+                                <SegmentedControl>
+                                    {reportTypes.map(type => (
+                                        <SegmentedOption
+                                            key={type.value}
+                                            selected={newReport.type === type.value}
+                                            onClick={() => setNewReport({...newReport, type: type.value})}
+                                        >
+                                            {type.label}
+                                        </SegmentedOption>
+                                    ))}
+                                </SegmentedControl>
+                                
+                                <FormLabel>Description *</FormLabel>
                                 <TextArea
-                                    placeholder="Description*"
+                                    placeholder="Enter description"
                                     value={newReport.description}
                                     onChange={(e) => setNewReport({...newReport, description: e.target.value})}
                                     required
                                 />
                                 
-                                <Select
-                                    value={newReport.severity}
-                                    onChange={(e) => setNewReport({...newReport, severity: e.target.value})}
-                                >
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                </Select>
+                                <FormLabel>Severity</FormLabel>
+                                <SegmentedControl>
+                                    {severityOptions.map(severity => (
+                                        <SegmentedOption
+                                            key={severity.value}
+                                            selected={newReport.severity === severity.value}
+                                            onClick={() => setNewReport({...newReport, severity: severity.value})}
+                                        >
+                                            {severity.label}
+                                        </SegmentedOption>
+                                    ))}
+                                </SegmentedControl>
                                 
+                                <FormLabel>Status</FormLabel>
                                 <Select
                                     value={newReport.status}
                                     onChange={(e) => setNewReport({...newReport, status: e.target.value})}
@@ -608,25 +889,130 @@ const VehicleDetail = () => {
                         ) : (
                             reports.map((report) => (
                                 <ReportItem key={report.id}>
-                                    <ReportHeader>
-                                        <h4 style={{ margin: 0, fontSize: '1.1rem' }}>
-                                            {reportTypes.find(type => type.value === report.type)?.label || report.type}
-                                        </h4>
-                                        <span style={{ color: '#666', fontSize: '0.85em' }}>
-                                            {formatDate(report.created_at)}
-                                        </span>
-                                    </ReportHeader>
+                                    {deletingReportId !== report.id && (
+                                        <ReportEditControls className="report-controls">
+                                            <IconButton 
+                                                onClick={() => handleEditReport(report.id)}
+                                                title="Edit Report"
+                                            >
+                                                ✎
+                                            </IconButton>
+                                            <IconButton 
+                                                onClick={() => handleConfirmDelete(report.id)}
+                                                title="Delete Report"
+                                            >
+                                                ×
+                                            </IconButton>
+                                        </ReportEditControls>
+                                    )}
                                     
-                                    <p style={{ margin: '8px 0', color: '#333', fontSize: '0.95em' }}>{report.description}</p>
-                                    
-                                    <ReportMetadata>
-                                        <Badge severity={report.severity}>
-                                            {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity}
-                                        </Badge>
-                                        <Badge status={report.status}>
-                                            {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
-                                        </Badge>
-                                    </ReportMetadata>
+                                    {deletingReportId === report.id ? (
+                                        <DeleteConfirmation>
+                                            <ConfirmationText>
+                                                Are you sure you want to delete this report?
+                                            </ConfirmationText>
+                                            <WarningText>
+                                                This action cannot be undone.
+                                            </WarningText>
+                                            <ConfirmButtonWrapper>
+                                                <DeleteButton 
+                                                    onClick={() => handleDeleteReport(report.id)}
+                                                    value="Delete Report"
+                                                />
+                                                <Button 
+                                                    onClick={handleCancelDelete}
+                                                    value="Cancel"
+                                                />
+                                            </ConfirmButtonWrapper>
+                                        </DeleteConfirmation>
+                                    ) : editingReports[report.id] ? (
+                                        <EditReportForm>
+                                            <ReportHeader>
+                                                <h4 style={{ margin: 0, fontSize: '1.1rem' }}>
+                                                    {reportTypes.find(type => type.value === report.type)?.label || report.type}
+                                                </h4>
+                                                <span style={{ color: '#666', fontSize: '0.85em' }}>
+                                                    {formatDate(report.created_at)}
+                                                </span>
+                                            </ReportHeader>
+                                            
+                                            <FormLabel>Report Type</FormLabel>
+                                            <SegmentedControl>
+                                                {reportTypes.map(type => (
+                                                    <SegmentedOption
+                                                        key={type.value}
+                                                        selected={editedReports[report.id]?.type === type.value}
+                                                        onClick={() => handleReportFieldChange(report.id, 'type', type.value)}
+                                                    >
+                                                        {type.label}
+                                                    </SegmentedOption>
+                                                ))}
+                                            </SegmentedControl>
+                                            
+                                            <FormLabel>Description</FormLabel>
+                                            <TextArea
+                                                value={editedReports[report.id]?.description || ''}
+                                                onChange={(e) => handleReportFieldChange(report.id, 'description', e.target.value)}
+                                            />
+                                            
+                                            <FormLabel>Severity</FormLabel>
+                                            <SegmentedControl>
+                                                {severityOptions.map(severity => (
+                                                    <SegmentedOption
+                                                        key={severity.value}
+                                                        selected={editedReports[report.id]?.severity === severity.value}
+                                                        onClick={() => handleReportFieldChange(report.id, 'severity', severity.value)}
+                                                    >
+                                                        {severity.label}
+                                                    </SegmentedOption>
+                                                ))}
+                                            </SegmentedControl>
+                                            
+                                            <FormLabel>Status</FormLabel>
+                                            <Select
+                                                value={editedReports[report.id]?.status || ''}
+                                                onChange={(e) => handleReportFieldChange(report.id, 'status', e.target.value)}
+                                            >
+                                                <option value="open">Open</option>
+                                                <option value="in progress">In Progress</option>
+                                                <option value="resolved">Resolved</option>
+                                                <option value="closed">Closed</option>
+                                            </Select>
+                                            
+                                            <ButtonWrapper>
+                                                <Button 
+                                                    onClick={() => handleSaveReport(report.id)}
+                                                    value="Save"
+                                                />
+                                                <Button 
+                                                    onClick={() => handleEditReport(report.id)}
+                                                    value="Cancel"
+                                                />
+                                            </ButtonWrapper>
+                                        </EditReportForm>
+                                    ) : (
+                                        <>
+                                            <ReportHeader>
+                                                <h4 style={{ margin: 0, fontSize: '1.1rem' }}>
+                                                    {reportTypes.find(type => type.value === report.type)?.label || report.type}
+                                                </h4>
+                                                <span style={{ color: '#666', fontSize: '0.85em' }}>
+                                                    {formatDate(report.created_at)}
+                                                </span>
+                                            </ReportHeader>
+                                            
+                                            <p style={{ margin: '8px 0', color: '#333', fontSize: '0.95em' }}>{report.description}</p>
+                                            
+                                            <ReportMetadata>
+                                                <Badge severity={report.severity}>
+                                                    {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity}
+                                                </Badge>
+                                                <Badge status={report.status}>
+                                                    {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
+                                                </Badge>
+                                            </ReportMetadata>
+                                        </>
+                                    )}
                                 </ReportItem>
                             ))
                         )}
