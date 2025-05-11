@@ -97,6 +97,14 @@ const Title = styled.h2`
     font-size: 1.2em;
 `;
 
+const DateListed = styled.p`
+    color: gray;
+    font-size: 0.65em;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+`
+
 const Subtitle = styled.h3`
     font-size: 1em;
     color: ${colors.primary};
@@ -214,6 +222,57 @@ const skeletonCards = Array.from({ length: 6 }, (_, index) => {
         </SkeletonCard>
     );
 });
+
+// Format relative time from timestamp
+const formatRelativeTime = (dateString) => {
+    if (!dateString) return 'Unknown';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now - date;
+    
+    // Convert to seconds
+    const diffInSec = Math.floor(diffInMs / 1000);
+    
+    // Less than a minute
+    if (diffInSec < 60) {
+        return 'just now';
+    }
+    
+    // Less than an hour
+    if (diffInSec < 3600) {
+        const minutes = Math.floor(diffInSec / 60);
+        return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+    }
+    
+    // Less than a day
+    if (diffInSec < 86400) {
+        const hours = Math.floor(diffInSec / 3600);
+        return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    }
+    
+    // Less than a week
+    if (diffInSec < 604800) {
+        const days = Math.floor(diffInSec / 86400);
+        return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+    }
+    
+    // Less than a month (approximation)
+    if (diffInSec < 2592000) {
+        const weeks = Math.floor(diffInSec / 604800);
+        return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    }
+    
+    // Less than a year (approximation)
+    if (diffInSec < 31536000) {
+        const months = Math.floor(diffInSec / 2592000);
+        return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+    }
+    
+    // More than a year
+    const years = Math.floor(diffInSec / 31536000);
+    return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+};
 
 // Function to preload a single image
 const preloadImage = (src) => {
@@ -358,7 +417,7 @@ export default function VehicleFeed() {
                 {/* Vehicle Content Layer */}
                 <VehicleLayer visible={showContent}>
                     <Mosaic>
-                        {vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage }) => (
+                        {vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage, created_at }) => (
                             <Link key={id} href={`/vehicle/${id}`}>
                                 <Card>
                                     <Price>${listing_price.toLocaleString()}</Price>
@@ -379,6 +438,7 @@ export default function VehicleFeed() {
                                         <Subtitle>{year} {make} {model}</Subtitle>
                                         <Detail><strong>Condition:</strong> {condition}</Detail>
                                         <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
+                                        <DateListed>Listed {formatRelativeTime(created_at)}</DateListed>
                                     </div>
                                 </Card>
                             </Link>
