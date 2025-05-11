@@ -32,11 +32,12 @@ const HeaderLeft = styled.div`
 `
 
 const Badge = styled.span`
-    padding: 5px 10px;
+    padding: 4px 10px;
     border-radius: 5px;
     font-weight: bold;
     color: #fff;
     background-color: ${(props) => (props.isTrue ? '#28a745' : '#dc3545')};
+    font-size: 0.875rem;
 `;
 
 const Container = styled.div`
@@ -68,6 +69,18 @@ const LeftWrapper = styled.div`
     border: 1px solid #e0e0e0;
     padding: 20px;
     height: fit-content;
+    
+    /* Target the thumbnail gallery specifically */
+    .thumbnail-gallery {
+        margin-top: 10px;
+        gap: 8px !important;
+    }
+    
+    .thumbnail-image {
+        width: 60px !important;
+        height: 60px !important;
+        object-fit: cover !important;
+    }
 `
 
 const RightWrapper = styled.div`
@@ -78,42 +91,91 @@ const RightWrapper = styled.div`
     height: fit-content;
 `
 
-const DetailItem = styled.div`
-    padding: 12px 0;
-    border-bottom: 1px solid #f5f5f5;
-    display: flex;
-    justify-content: space-between;
-    
-    &:last-child {
-        border-bottom: none;
-    }
+// Price Section styled more prominently
+const PriceSection = styled.div`
+    text-align: center;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 20px;
 `
 
-const DetailLabel = styled.span`
+const PriceLabel = styled.div`
     color: #666;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+`
+
+const PriceValue = styled.div`
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 700;
+`
+
+// Compact details grid
+const DetailsGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+`
+
+const DetailCard = styled.div`
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    padding: 10px;
+`
+
+const DetailLabel = styled.div`
+    color: #666;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+`
+
+const DetailValue = styled.div`
+    color: #333;
+    font-size: 0.9375rem;
     font-weight: 500;
 `
 
-const DetailValue = styled.span`
-    color: #333;
-    text-align: right;
+const AvailabilitySection = styled.div`
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+    text-align: center;
+`
+
+const AvailabilityLabel = styled.div`
+    color: #666;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+`
+
+const BadgeWrapper = styled.div`
+    display: flex;
+    gap: 10px;
+    justify-content: center;
 `
 
 const ReportsSection = styled.div`
-    background-color: #fff;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    padding: 30px;
-    margin-top: 40px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
 `;
 
 const SectionTitle = styled.h2`
     color: #333;
-    margin-bottom: 30px;
-    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
     text-align: center;
     border-bottom: 2px solid #f5f5f5;
-    padding-bottom: 15px;
+    padding-bottom: 10px;
 `;
 
 const ReportsGrid = styled.div`
@@ -310,83 +372,100 @@ const VehicleDetail = () => {
                 </LeftWrapper>
                 
                 <RightWrapper>
-                    <DetailItem>
-                        <DetailLabel>Price</DetailLabel>
-                        <DetailValue>${vehicle.listing_price?.toLocaleString()}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Color</DetailLabel>
-                        <DetailValue>{vehicle.color}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Condition</DetailLabel>
-                        <DetailValue>{vehicle.condition}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Mileage</DetailLabel>
-                        <DetailValue>{vehicle.mileage} miles</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Tag Number</DetailLabel>
-                        <DetailValue>{vehicle.tag_number || "Unregistered"}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Nickname</DetailLabel>
-                        <DetailValue>{vehicle.nickname || "No nickname"}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>VIN</DetailLabel>
-                        <DetailValue>{vehicle.vin}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Listed</DetailLabel>
-                        <DetailValue>{new Date(vehicle.created_at).toLocaleString()}</DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Tradeable</DetailLabel>
-                        <DetailValue>
-                            <Badge isTrue={vehicle.is_tradeable}>{vehicle.is_tradeable ? 'Yes' : 'No'}</Badge>
-                        </DetailValue>
-                    </DetailItem>
-                    <DetailItem>
-                        <DetailLabel>Sellable</DetailLabel>
-                        <DetailValue>
-                            <Badge isTrue={vehicle.is_sellable}>{vehicle.is_sellable ? 'Yes' : 'No'}</Badge>
-                        </DetailValue>
-                    </DetailItem>
+                    <PriceSection>
+                        <PriceLabel>Listed Price</PriceLabel>
+                        <PriceValue>${vehicle.listing_price?.toLocaleString()}</PriceValue>
+                    </PriceSection>
+                    
+                    <DetailsGrid>
+                        {vehicle.color && (
+                            <DetailCard>
+                                <DetailLabel>Color</DetailLabel>
+                                <DetailValue>{vehicle.color}</DetailValue>
+                            </DetailCard>
+                        )}
+                        {vehicle.condition && (
+                            <DetailCard>
+                                <DetailLabel>Condition</DetailLabel>
+                                <DetailValue>{vehicle.condition}</DetailValue>
+                            </DetailCard>
+                        )}
+                        {vehicle.mileage && vehicle.mileage > 0 && (
+                            <DetailCard>
+                                <DetailLabel>Mileage</DetailLabel>
+                                <DetailValue>{vehicle.mileage} miles</DetailValue>
+                            </DetailCard>
+                        )}
+                        {vehicle.vin && (
+                            <DetailCard>
+                                <DetailLabel>VIN</DetailLabel>
+                                <DetailValue>{vehicle.vin}</DetailValue>
+                            </DetailCard>
+                        )}
+                        {vehicle.tag_number && (
+                            <DetailCard>
+                                <DetailLabel>Tag Number</DetailLabel>
+                                <DetailValue>{vehicle.tag_number}</DetailValue>
+                            </DetailCard>
+                        )}
+                        {vehicle.nickname && (
+                            <DetailCard>
+                                <DetailLabel>Nickname</DetailLabel>
+                                <DetailValue>{vehicle.nickname}</DetailValue>
+                            </DetailCard>
+                        )}
+                        {vehicle.created_at && (
+                            <DetailCard>
+                                <DetailLabel>Listed Date</DetailLabel>
+                                <DetailValue>{formatDate(vehicle.created_at)}</DetailValue>
+                            </DetailCard>
+                        )}
+                    </DetailsGrid>
+                    
+                    <AvailabilitySection>
+                        <AvailabilityLabel>Availability</AvailabilityLabel>
+                        <BadgeWrapper>
+                            <Badge isTrue={vehicle.is_tradeable}>
+                                {vehicle.is_tradeable ? 'Tradeable' : 'Non-tradeable'}
+                            </Badge>
+                            <Badge isTrue={vehicle.is_sellable}>
+                                {vehicle.is_sellable ? 'For Sale' : 'Not for Sale'}
+                            </Badge>
+                        </BadgeWrapper>
+                    </AvailabilitySection>
+                    
+                    <ReportsSection>
+                        <SectionTitle>Vehicle History & Reports</SectionTitle>
+                        {reports.length > 0 ? (
+                            <ReportsGrid>
+                                {reports.map((report) => (
+                                    <ReportCard key={report.id}>
+                                        <ReportHeader>
+                                            <ReportType>
+                                                {reportTypes.find(type => type.value === report.type)?.label || report.type}
+                                            </ReportType>
+                                            <ReportDate>{formatDate(report.created_at)}</ReportDate>
+                                        </ReportHeader>
+                                        
+                                        <ReportDescription>{report.description}</ReportDescription>
+                                        
+                                        <ReportMetaTags>
+                                            <MetaTag type="status" value={report.status}>
+                                                {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                                            </MetaTag>
+                                            <MetaTag type="severity" value={report.severity}>
+                                                {report.severity.charAt(0).toUpperCase() + report.severity.slice(1)} Priority
+                                            </MetaTag>
+                                        </ReportMetaTags>
+                                    </ReportCard>
+                                ))}
+                            </ReportsGrid>
+                        ) : (
+                            <NoReports>No reports available for this vehicle</NoReports>
+                        )}
+                    </ReportsSection>
                 </RightWrapper>
             </MainContent>
-
-            <ReportsSection>
-                <SectionTitle>Vehicle History & Reports</SectionTitle>
-                {reports.length > 0 ? (
-                    <ReportsGrid>
-                        {reports.map((report) => (
-                            <ReportCard key={report.id}>
-                                <ReportHeader>
-                                    <ReportType>
-                                        {reportTypes.find(type => type.value === report.type)?.label || report.type}
-                                    </ReportType>
-                                    <ReportDate>{formatDate(report.created_at)}</ReportDate>
-                                </ReportHeader>
-                                
-                                <ReportDescription>{report.description}</ReportDescription>
-                                
-                                <ReportMetaTags>
-                                    <MetaTag type="status" value={report.status}>
-                                        {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-                                    </MetaTag>
-                                    <MetaTag type="severity" value={report.severity}>
-                                        {report.severity.charAt(0).toUpperCase() + report.severity.slice(1)} Priority
-                                    </MetaTag>
-                                </ReportMetaTags>
-                            </ReportCard>
-                        ))}
-                    </ReportsGrid>
-                ) : (
-                    <NoReports>No reports available for this vehicle</NoReports>
-                )}
-            </ReportsSection>
         </Container>
     );
 };
