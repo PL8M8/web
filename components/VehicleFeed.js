@@ -420,7 +420,7 @@ export default function VehicleFeed() {
                         {vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage, created_at }) => (
                             <Link key={id} href={`/vehicle/${id}`}>
                                 <Card>
-                                    <Price>${listing_price.toLocaleString()}</Price>
+                                    <Price>${listing_price?.toLocaleString()}</Price>
                                     <Image
                                         src={image_uri || '/fallback.jpg'}
                                         alt={`${make} ${model}`}
