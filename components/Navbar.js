@@ -284,7 +284,19 @@ const Navbar = ({ extraComponents }) => {
     }, [router]);
 
     useEffect(() => {
-        const currentPath = router.pathname;
+        // Utility: convert a dynamic path like "/profile/[id]" into a regex
+        const pathToRegex = (path) => {
+        const escaped = path
+            .replace(/\//g, "\\/")
+            .replace(/\[.*?\]/g, "[^/]+"); // replace [id] with wildcard
+
+        return new RegExp(`^${escaped}(\\/.*)?$`); // match full path or subroutes
+        };
+
+        const currentPath = loggedInNavLinks
+            .filter(link => pathToRegex(link.path).test(router.pathname))
+            .sort((a, b) => b.path.length - a.path.length)[0]?.path;
+
         const active = isSignedIn ? (
                 loggedInNavLinks.some(link => link.path === currentPath)
                 ? loggedInNavLinks.find(link => link.path === currentPath).name
