@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import styled from 'styled-components';
 import { supabase } from 'config/supabase';
 
-    const NavbarContainer = styled.nav`
+const NavbarContainer = styled.nav`
     display: flex;
     align-items: center;
     padding-left: 20px;
@@ -178,13 +178,18 @@ const Button = styled.button`
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s;
+    opacity: ${props => props.disabled ? 0.6 : 1};
 
     &:hover {
-        background-color: darkorange;
+        background-color: ${props => props.disabled ? 'orange' : 'darkorange'};
+    }
+
+    &:disabled {
+        cursor: not-allowed;
     }
 `;
 
-const SwitchButton = styled.button`
+const BackButton = styled.button`
     margin-top: 20px;
     background: none;
     border: none;
@@ -198,17 +203,28 @@ const SwitchButton = styled.button`
     }
 `;
 
+const Message = styled.p`
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: ${props => props.error ? '#ffebee' : '#e8f5e8'};
+    color: ${props => props.error ? '#c62828' : '#2e7d32'};
+    border: 1px solid ${props => props.error ? '#ffcdd2' : '#c8e6c9'};
+`;
+
 const Navbar = ({ extraComponents }) => {
     const router = useRouter();
     const [activeLink, setActiveLink] = useState('Home');
     const [isSignedIn, setIsSignedIn] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [otp, setOtp] = useState('');
     const [message, setMessage] = useState('');
-    const [isSigningUp, setIsSigningUp] = useState(true);
+    const [isError, setIsError] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [mounted, setMounted] = useState(false); // 👈 Hydration Fix
+    const [mounted, setMounted] = useState(false);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -229,33 +245,71 @@ const Navbar = ({ extraComponents }) => {
         // { name: 'Settings', path: '/settings' },
     ]
 
-    const handleAuth = async (e) => {
-        e.preventDefault();
+    const resetForm = () => {
+        setEmail('');
+        setOtp('');
         setMessage('');
+        setIsError(false);
+        setOtpSent(false);
+        setIsLoading(false);
+    };
 
-        if (isSigningUp) {
-            const { error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: { emailRedirectTo: `${window.location.origin}/welcome` },
-            });
-        
-            if (error) {
-                setMessage(`Error: ${error.message}`);
-            } else {
-                setMessage('Sign-up successful! Check your email for confirmation.');
-            }
+    const sendOtp = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage('');
+        setIsError(false);
+
+        const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+                emailRedirectTo: `${window.location.origin}/welcome`,
+            },
+        });
+
+        if (error) {
+            setMessage(`Error: ${error.message}`);
+            setIsError(true);
         } else {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-        
-            if (error) {
-                setMessage(`Error: ${error.message}`);
-            } else {
-                setMessage('Sign-in successful! Redirecting...');
-                setIsModalOpen(false);
-                await router.replace('/garage');
-            }
+            setMessage('Check your email for the verification code!');
+            setIsError(false);
+            setOtpSent(true);
         }
+        
+        setIsLoading(false);
+    };
+
+    const verifyOtp = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage('');
+        setIsError(false);
+
+        const { error } = await supabase.auth.verifyOtp({
+            email,
+            token: otp,
+            type: 'email'
+        });
+
+        if (error) {
+            setMessage(`Error: ${error.message}`);
+            setIsError(true);
+        } else {
+            setMessage('Sign-in successful! Redirecting...');
+            setIsError(false);
+            setIsModalOpen(false);
+            resetForm();
+            await router.replace('/garage');
+        }
+        
+        setIsLoading(false);
+    };
+
+    const goBack = () => {
+        setOtpSent(false);
+        setOtp('');
+        setMessage('');
+        setIsError(false);
     };
     
     useEffect(() => {
@@ -332,6 +386,9 @@ const Navbar = ({ extraComponents }) => {
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
         setIsMobileMenuOpen(false);
+        if (!isModalOpen) {
+            resetForm();
+        }
     };
 
     const renderDesktopNavLinks = () => {
@@ -453,31 +510,51 @@ const Navbar = ({ extraComponents }) => {
                     <Modal onClick={(e) => e.stopPropagation()}>
                         <FormWrapper>
                             <h1 style={{ textAlign: 'center', width: '100%', color: "orange" }}>
-                                {isSigningUp ? 'Sign Up' : 'Sign In'}
+                                {otpSent ? 'Enter Verification Code' : 'Sign In'}
                             </h1>
-                            {message && <p>{message}</p>}
-                            <form onSubmit={handleAuth}>
-                                <Input
-                                    type="email"
-                                    placeholder="Email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                />
-                                <Input
-                                    type="password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
-                                <Button type="submit">{isSigningUp ? 'Sign Up' : 'Sign In'}</Button>
-                            </form>
-                            <SwitchButton onClick={() => setIsSigningUp(!isSigningUp)}>
-                                {isSigningUp
-                                    ? 'Already have an account? Sign In'
-                                    : "Don't have an account? Sign Up"}
-                            </SwitchButton>
+                            
+                            {message && (
+                                <Message error={isError}>
+                                    {message}
+                                </Message>
+                            )}
+
+                            {!otpSent ? (
+                                <form onSubmit={sendOtp}>
+                                    <Input
+                                        type="email"
+                                        placeholder="Enter your email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        disabled={isLoading}
+                                    />
+                                    <Button type="submit" disabled={isLoading}>
+                                        {isLoading ? 'Sending...' : 'Send Verification Code'}
+                                    </Button>
+                                </form>
+                            ) : (
+                                <form onSubmit={verifyOtp}>
+                                    <p style={{ marginBottom: '20px', color: '#666' }}>
+                                        We sent a verification code to <strong>{email}</strong>
+                                    </p>
+                                    <Input
+                                        type="text"
+                                        placeholder="Enter 6-digit code"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        maxLength="6"
+                                        required
+                                        disabled={isLoading}
+                                    />
+                                    <Button type="submit" disabled={isLoading || otp.length !== 6}>
+                                        {isLoading ? 'Verifying...' : 'Verify & Sign In'}
+                                    </Button>
+                                    <BackButton type="button" onClick={goBack}>
+                                        ← Use different email
+                                    </BackButton>
+                                </form>
+                            )}
                         </FormWrapper>
                     </Modal>
                 </ModalOverlay>
