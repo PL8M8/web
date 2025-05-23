@@ -431,7 +431,8 @@ const ReportMetadata = styled.div`
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    margin-top: 6px;
+    margin-left: auto;
+    padding-right: 6px;
 `;
 
 const Badge = styled.span`
@@ -1548,6 +1549,14 @@ const VehicleDetail = () => {
                                                         <h4 style={{ margin: 0, fontSize: '0.9375rem' }}>
                                                             {reportTypes.find(type => type.value === report.type)?.label || report.type}
                                                         </h4>
+                                                        <ReportMetadata>
+                                                            <Badge severity={report.severity}>
+                                                                {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity}
+                                                            </Badge>
+                                                            <Badge status={report.status}>
+                                                                {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
+                                                            </Badge>
+                                                        </ReportMetadata>
                                                         <span style={{ color: '#666', fontSize: '0.75rem' }}>
                                                             {formatDate(report.created_at)}
                                                         </span>
@@ -1556,15 +1565,6 @@ const VehicleDetail = () => {
                                                     <p style={{ margin: '6px 0', color: '#333', fontSize: '0.8125rem' }}>
                                                         {report.description}
                                                     </p>
-                                                    
-                                                    <ReportMetadata>
-                                                        <Badge severity={report.severity}>
-                                                            {severityOptions.find(sev => sev.value === report.severity)?.label || report.severity}
-                                                        </Badge>
-                                                        <Badge status={report.status}>
-                                                            {statusOptions.find(stat => stat.value === report.status)?.label || report.status}
-                                                        </Badge>
-                                                    </ReportMetadata>
                                                 </>
                                             )}
                                         </ReportItem>
