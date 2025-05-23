@@ -382,6 +382,15 @@ const Navbar = ({ extraComponents }) => {
         return isSignedIn ? (
             <>
                 {extraComponents}
+                {loggedInNavLinks.map(({ name, path }) => (
+                    <Link key={name} href={path} passHref>
+                        <MobileNavLink
+                            active={activeLink === name}
+                        >
+                            {name}
+                        </MobileNavLink>
+                    </Link>
+                ))}
                 <MobileSignOutButton
                     href="#"
                     onClick={(e) => {
