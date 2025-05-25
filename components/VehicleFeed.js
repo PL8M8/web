@@ -6,8 +6,6 @@ import colors from "constants/colors";
 
 const Container = styled.div`
     height: 100vh;
-`
-
 const Mosaic = styled.div`
     --gap: clamp(1rem, 5vmin, 1rem);
     column-gap: var(--gap);
@@ -19,11 +17,11 @@ const Mosaic = styled.div`
     }
 
     @media (min-width: 768px) {
-        columns: 2;
+        columns: 3;
     }
 
     @media (min-width: 1024px) {
-        columns: 3;
+        columns: 5;
     }
 
     & > * {
