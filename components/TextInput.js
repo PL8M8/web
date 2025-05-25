@@ -132,7 +132,7 @@ const TextInput = ({
         {...props}
       />
       {errorToShow && <ErrorMessage>{errorToShow}</ErrorMessage>}
-      {showSuccess && isValid && <SuccessMessage>✓ Valid email address</SuccessMessage>}
+      {/* {showSuccess && isValid && <SuccessMessage>✓ Valid email address</SuccessMessage>} */}
     </InputWrapper>
   );
 };

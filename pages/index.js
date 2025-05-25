@@ -60,6 +60,11 @@ const InputSection = styled.div`
     
     @media (min-width: 768px) {
         flex-direction: row;
+        align-items: flex-end; 
+    }
+    
+    button {
+        padding: 0.75rem 1rem;
     }
 `;
 
@@ -150,10 +155,43 @@ const Copyright = styled.div`
     text-align: center;
 `;
 
+const SuccessMessage = styled.div`
+    background-color: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #c3e6cb;
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 1rem;
+    max-width: 500px;
+    width: 100%;
+`;
+
+const ErrorMessage = styled.div`
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 1rem;
+    max-width: 500px;
+    width: 100%;
+`;
+
 export default function Index() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     useEffect(() => {
         const checkSession = async () => {
@@ -173,10 +211,14 @@ export default function Index() {
         });
 
         return () => {
-            // subscription
-            // console.log('Subscript is', subscription)
+            // subscription cleanup
         };
     }, [router]);
+
+    // Don't render until component is mounted (fixes hydration issues)
+    if (!isMounted) {
+        return null;
+    }
 
     const handleEmailSubmit = async () => {
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -184,12 +226,64 @@ export default function Index() {
         }
         
         setIsSubmitting(true);
-        // Add your waitlist submission logic here
+        setSubmitStatus(null);
+        setErrorMessage('');
+        
         try {
-            // Example: await submitToWaitlist(email);
-            console.log('Submitting email:', email);
+            const cleanEmail = email.toLowerCase().trim();
+            
+            // First, check if email already exists
+            const { data: existingEmails, error: checkError } = await supabase
+                .from('waitlist')
+                .select('email')
+                .eq('email', cleanEmail)
+                .limit(1);
+
+            if (checkError) {
+                console.error('Error checking existing email:', checkError);
+                setErrorMessage('Something went wrong. Please try again.');
+                setSubmitStatus('error');
+                return;
+            }
+
+            // If email already exists
+            if (existingEmails && existingEmails.length > 0) {
+                const cleverResponses = [
+                    "Great minds think alike! You're already on our VIP list. 🚗",
+                    "Déjà vu? You're already signed up and ready to roll! 🎉",
+                    "We love the enthusiasm, but you're already in the driver's seat on our waitlist! 🏁",
+                    "Plot twist: You're already part of the PL8M8 family! No double-dipping needed. 😄",
+                    "Your email is already cruising in our waitlist. Sit tight, we'll be in touch! 🛣️"
+                ];
+                
+                const randomResponse = cleverResponses[Math.floor(Math.random() * cleverResponses.length)];
+                setErrorMessage(randomResponse);
+                setSubmitStatus('error');
+                return;
+            }
+
+            // If email doesn't exist, insert it
+            const { data, error } = await supabase
+                .from('waitlist')
+                .insert([
+                    { 
+                        email: cleanEmail,
+                        created_at: new Date().toISOString()
+                    }
+                ]);
+
+            if (error) {
+                console.error('Supabase insert error:', error);
+                setErrorMessage('Something went wrong. Please try again.');
+                setSubmitStatus('error');
+            } else {
+                setSubmitStatus('success');
+                setEmail(''); // Clear the input on success
+            }
         } catch (error) {
             console.error('Error submitting to waitlist:', error);
+            setErrorMessage('Something went wrong. Please try again.');
+            setSubmitStatus('error');
         } finally {
             setIsSubmitting(false);
         }
@@ -218,13 +312,28 @@ export default function Index() {
                         disabled={isSubmitting || !email}
                     />
                 </InputSection>
-                <Disclaimer>
-                    By submitting my personal data I agree to receive marketing emails from PL8M8
-                </Disclaimer>
+                
+                {submitStatus === 'success' && (
+                    <SuccessMessage>
+                        🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
+                    </SuccessMessage>
+                )}
+                
+                {submitStatus === 'error' && (
+                    <ErrorMessage>
+                        {errorMessage}
+                    </ErrorMessage>
+                )}
+                
+                {submitStatus !== 'success' && (
+                    <Disclaimer>
+                        By submitting my personal data I agree to receive marketing emails from PL8M8
+                    </Disclaimer>
+                )}
             </Main>
             
             <Footer>
-                <FooterContent>
+                { false && ( <FooterContent>
                     <FooterLeft>
                         <FooterLogoImage src="/logo.png" alt="PL8M8 Logo" />
                         <Tagline2>Know your car™</Tagline2>
@@ -242,7 +351,7 @@ export default function Index() {
                             <FooterLink>Privacy Policy</FooterLink>
                         </FooterSection>
                     </FooterRight>
-                </FooterContent>
+                </FooterContent>)}
                 
                 <Divider />
                 <Copyright>© {new Date().getFullYear()} PL8M8 LLC. All rights reserved.</Copyright>
