@@ -242,7 +242,7 @@ const Navbar = ({ extraComponents }) => {
     const loggedInNavLinks = [ 
         { name: 'Buy & Sell', path: '/' },
         { name: 'Garage', path: '/garage' },
-        // { name: 'Settings', path: '/settings' },
+        { name: 'Settings', path: '/settings' },
     ]
 
     const resetForm = () => {
