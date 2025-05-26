@@ -185,7 +185,7 @@ export default function Index() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
+    const [submitStatus, setSubmitStatus] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [isMounted, setIsMounted] = useState(false);
 
@@ -197,15 +197,13 @@ export default function Index() {
         const checkSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
 
-            // Redirect to /garage if the user is signed in
             if (session) {
                 router.replace('/garage');
-            }
+            } 
         };
 
         checkSession();
 
-        // Listen for auth state changes
         const { data: subscription } = supabase.auth.onAuthStateChange(() => {
             checkSession();
         });
@@ -215,7 +213,6 @@ export default function Index() {
         };
     }, [router]);
 
-    // Don't render until component is mounted (fixes hydration issues)
     if (!isMounted) {
         return null;
     }
@@ -231,8 +228,7 @@ export default function Index() {
         
         try {
             const cleanEmail = email.toLowerCase().trim();
-            
-            // First, check if email already exists
+        
             const { data: existingEmails, error: checkError } = await supabase
                 .from('waitlist')
                 .select('email')
@@ -278,7 +274,7 @@ export default function Index() {
                 setSubmitStatus('error');
             } else {
                 setSubmitStatus('success');
-                setEmail(''); // Clear the input on success
+                setEmail(''); 
             }
         } catch (error) {
             console.error('Error submitting to waitlist:', error);
@@ -295,7 +291,7 @@ export default function Index() {
                 <LogoContainer>
                     <LogoImage src="/logo.png" alt="PL8M8 Logo" />
                 </LogoContainer>
-                <Tagline>Where car buying meets community. Real people, real deals, real transparency.</Tagline>
+                <Tagline>Where car maintenence meets community. Real people, real deals, real transparency.</Tagline>
                 <InputSection>
                     <TextInput 
                         type="email"
