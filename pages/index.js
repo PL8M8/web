@@ -184,10 +184,12 @@ const ErrorMessage = styled.div`
 export default function Index() {
     const router = useRouter();
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [isMounted, setIsMounted] = useState(false);
+    const [onPasswordPage, setOnPasswordPage] = useState(true);
 
     useEffect(() => {
         setIsMounted(true);
@@ -285,48 +287,102 @@ export default function Index() {
         }
     };
 
+    const handlePasswordSubmit = () => {
+        const betaPassword = 'pl8m8-2025-b3ta';
+
+        if(password === betaPassword){
+            console.log("HELLO")
+        } else {
+            console.log("NO")
+        }
+    }
+
     return (
         <MainWrapper>
-            <Main>
-                <LogoContainer>
-                    <LogoImage src="/logo.png" alt="PL8M8 Logo" />
-                </LogoContainer>
-                <Tagline>Where car maintenence meets community. Real people, real deals, real transparency.</Tagline>
-                <InputSection>
-                    <TextInput 
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        validateEmail={true}
-                        showSuccess={true}
-                        required={true}
-                    />
-                    <Button 
-                        value={isSubmitting ? "Joining..." : "Join waitlist"}
-                        onClick={handleEmailSubmit}
-                        disabled={isSubmitting || !email}
-                    />
-                </InputSection>
-                
-                {submitStatus === 'success' && (
-                    <SuccessMessage>
-                        🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
-                    </SuccessMessage>
-                )}
-                
-                {submitStatus === 'error' && (
-                    <ErrorMessage>
-                        {errorMessage}
-                    </ErrorMessage>
-                )}
-                
-                {submitStatus !== 'success' && (
-                    <Disclaimer>
-                        By submitting my personal data I agree to receive marketing emails from PL8M8
-                    </Disclaimer>
-                )}
-            </Main>
+            { !onPasswordPage ? (
+                <Main>
+                    <LogoContainer>
+                        <LogoImage src="/logo.png" alt="PL8M8 Logo" />
+                    </LogoContainer>
+
+                    <Tagline>Where car maintenence meets community. Real people, real deals, real transparency.</Tagline>
+                    <InputSection>
+                        <TextInput 
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            validateEmail={true}
+                            showSuccess={true}
+                            required={true}
+                        />
+                        <Button 
+                            value={isSubmitting ? "Joining..." : "Join waitlist"}
+                            onClick={handleEmailSubmit}
+                            disabled={isSubmitting || !email}
+                        />
+                    </InputSection>
+                    
+                    {submitStatus === 'success' && (
+                        <SuccessMessage>
+                            🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
+                        </SuccessMessage>
+                    )}
+                    
+                    {submitStatus === 'error' && (
+                        <ErrorMessage>
+                            {errorMessage}
+                        </ErrorMessage>
+                    )}
+                    
+                    {submitStatus !== 'success' && (
+                        <Disclaimer>
+                            By submitting my personal data I agree to receive marketing emails from PL8M8
+                        </Disclaimer>
+                    )}
+                </Main>
+            ) : (
+                <Main>
+                    <LogoContainer>
+                        <LogoImage src="/logo.png" alt="PL8M8 Logo" />
+                    </LogoContainer>
+
+                    <Tagline>Thanks for helping us test! Enter your password to get started </Tagline>
+                        <InputSection>
+                            <TextInput 
+                                type="password"
+                                placeholder="Enter password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                showSuccess={true}
+                                required={true}
+                            />
+                            <Button 
+                                value={isSubmitting ? "Entering..." : "Enter"}
+                                onClick={handlePasswordSubmit}
+                                disabled={isSubmitting || !email}
+                            />
+                        </InputSection>
+                        
+                        {submitStatus === 'success' && (
+                            <SuccessMessage>
+                                🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
+                            </SuccessMessage>
+                        )}
+                        
+                        {submitStatus === 'error' && (
+                            <ErrorMessage>
+                                {errorMessage}
+                            </ErrorMessage>
+                        )}
+                        
+                        {/* {submitStatus !== 'success' && (
+                            <Disclaimer>
+                                By submitting my personal data I agree to receive marketing emails from PL8M8
+                            </Disclaimer>
+                        )} */}
+                </Main>
+            )}
             
             <Footer>
                 { false && ( <FooterContent>
