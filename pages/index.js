@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { supabase } from 'config/supabase';
 import Button from '@components/Button';
 import TextInput from '@components/TextInput';
+import Navbar from '@components/Navbar';
 
 const MainWrapper = styled.div`
     display: flex;
@@ -74,6 +75,31 @@ const Disclaimer = styled.div`
     max-width: 400px;
     text-align: left;
 `;
+
+const NavbarContainer = styled.nav`
+    display: flex;
+    align-items: center;
+    padding-right: 20px;
+    padding-top: 4px;
+    flex-wrap: nowrap; 
+    width: 100%; 
+    height: 50px;
+    box-sizing: border-box;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000;
+`;
+
+const SignInButtonContainer = styled.div`
+    margin-left: auto;
+    padding-right: 20px;
+`
+
+const GoBackButtonContainer = styled.div`
+    margin-right: auto;
+    padding-left: 20px;
+`
 
 const Footer = styled.footer`
     padding: 2rem;
@@ -189,7 +215,7 @@ export default function Index() {
     const [submitStatus, setSubmitStatus] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [isMounted, setIsMounted] = useState(false);
-    const [onPasswordPage, setOnPasswordPage] = useState(true);
+    const [onPasswordPage, setOnPasswordPage] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -287,6 +313,10 @@ export default function Index() {
         }
     };
 
+    const togglePasswordPage = () => {
+        setOnPasswordPage(!onPasswordPage)
+    }
+
     const handlePasswordSubmit = () => {
         const betaPassword = 'pl8m8-2025-b3ta';
 
@@ -301,6 +331,15 @@ export default function Index() {
         <MainWrapper>
             { !onPasswordPage ? (
                 <Main>
+                    <NavbarContainer>
+                        <SignInButtonContainer>
+                            <Button
+                                value={"Sign In"}
+                                onClick={togglePasswordPage}
+                                
+                            />                    
+                        </SignInButtonContainer>
+                    </NavbarContainer>
                     <LogoContainer>
                         <LogoImage src="/logo.png" alt="PL8M8 Logo" />
                     </LogoContainer>
@@ -343,6 +382,14 @@ export default function Index() {
                 </Main>
             ) : (
                 <Main>
+                    <NavbarContainer>
+                        <GoBackButtonContainer>
+                            <Button
+                                value={"Go Back"}
+                                onClick={togglePasswordPage}
+                            />                    
+                        </GoBackButtonContainer>
+                    </NavbarContainer>
                     <LogoContainer>
                         <LogoImage src="/logo.png" alt="PL8M8 Logo" />
                     </LogoContainer>
