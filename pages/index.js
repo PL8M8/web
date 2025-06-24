@@ -209,6 +209,7 @@ const ErrorMessage = styled.div`
 
 export default function Index() {
     const router = useRouter();
+    const betaPassword = "pl8m8-2025-b3ta";
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -216,6 +217,7 @@ export default function Index() {
     const [errorMessage, setErrorMessage] = useState('');
     const [isMounted, setIsMounted] = useState(false);
     const [onPasswordPage, setOnPasswordPage] = useState(false);
+    const [incorrectPassword, setIncorrectPassword ] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -318,12 +320,13 @@ export default function Index() {
     }
 
     const handlePasswordSubmit = () => {
-        const betaPassword = 'pl8m8-2025-b3ta';
-
         if(password === betaPassword){
-            console.log("HELLO")
+            setIncorrectPassword(false);
+            // router.push('#');
+            console.log("correct password")
         } else {
-            console.log("NO")
+            setIncorrectPassword(true);
+            console.log("wrong password")
         }
     }
 
@@ -417,9 +420,9 @@ export default function Index() {
                             </SuccessMessage>
                         )}
                         
-                        {submitStatus === 'error' && (
+                        {incorrectPassword && (
                             <ErrorMessage>
-                                {errorMessage}
+                                Incorrect Password
                             </ErrorMessage>
                         )}
                         
