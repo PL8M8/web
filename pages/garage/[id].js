@@ -701,7 +701,7 @@ const VehicleDetail = () => {
     const [userId, setUserId] = useState(null);
     const [newReport, setNewReport] = useState({
         description: '',
-        type: '',
+        type: 'problem',
         severity: 'low',
         status: 'open'
     });
@@ -736,9 +736,9 @@ const VehicleDetail = () => {
     ];
 
     const reportTypes = [
+        { value: 'problem', label: 'Problem'},
         { value: 'forum', label: 'Forum'},
         { value: 'warning', label: 'Warning'},
-        { value: 'problem', label: 'Problem'},
         { value: 'document', label: 'Document'},
     ];
 

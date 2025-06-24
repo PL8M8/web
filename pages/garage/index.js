@@ -234,8 +234,20 @@ const Garage = () => {
         fetchUserAndVehicles();
     }, []);
 
+    const validateVIN = (vin) => {
+        const isValidVin = /^[A-Z0-9]{13}$/i.test(vin);
+        if (!isValidVin) {
+            setError('VIN must be exactly 13 letters or numbers.');
+        } else {
+            setError('');
+        }
+    } 
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        if(name==="vin"){ 
+            validateVIN(value);
+        }
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
