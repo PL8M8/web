@@ -61,7 +61,7 @@ const Garage = () => {
         condition: 'excellent',
         listing_price: 1000,
         is_sellable: true,
-        is_tradeable: true,
+        is_rentable: true,
         image_uri: null
     });
     const [error, setError] = useState(null);
@@ -348,7 +348,7 @@ const Garage = () => {
                 condition: 'excellent',
                 listing_price: 1000,
                 is_sellable: true,
-                is_tradeable: true,
+                is_rentable: true,
                 image_uri: null
             });
             setIsFormVisible(false);

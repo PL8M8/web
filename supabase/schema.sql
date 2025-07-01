@@ -431,7 +431,7 @@ CREATE TABLE IF NOT EXISTS "public"."vehicles" (
     "condition" "public"."vehicle condition" NOT NULL,
     "tag_number" character varying DEFAULT 'unregistered'::character varying,
     "is_sellable" boolean DEFAULT false NOT NULL,
-    "is_tradeable" boolean DEFAULT false NOT NULL,
+    "is_rentable" boolean DEFAULT false NOT NULL,
     "mileage" bigint DEFAULT '0'::bigint,
     "image_uri" "text" DEFAULT 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?q=80&w=3862&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'::"text",
     "nickname" "text",
