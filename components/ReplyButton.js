@@ -23,7 +23,8 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  width: 320px;
+  width: 500px;
+  max-width: 90vw;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
@@ -124,17 +125,124 @@ const LoginButton = styled.button`
   }
 `;
 
+// New messaging modal styles
+const MessageForm = styled.form`
+  padding: 20px;
+`;
+
+const MessageInput = styled.textarea`
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  
+  &:focus {
+    outline: none;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+  
+  &::placeholder {
+    color: #999;
+  }
+`;
+
+const MessageActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  gap: 12px;
+`;
+
+const ActionButton = styled.button`
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid;
+  
+  ${props => props.primary ? `
+    background-color: ${colors.primary};
+    color: white;
+    border-color: ${colors.primary};
+    
+    &:hover:not(:disabled) {
+      background-color: #5a6268;
+    }
+    
+    &:disabled {
+      background-color: #e9ecef;
+      color: #6c757d;
+      border-color: #e9ecef;
+      cursor: not-allowed;
+    }
+  ` : `
+    background-color: white;
+    color: #666;
+    border-color: #ddd;
+    
+    &:hover {
+      background-color: #f8f9fa;
+      border-color: #adb5bd;
+    }
+  `}
+`;
+
+const CharacterCount = styled.div`
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+`;
+
+const ErrorMessage = styled.div`
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+`;
+
+const SuccessMessage = styled.div`
+  color: #155724;
+  font-size: 14px;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+`;
+
 export default function ReplyButton({ 
   contactEmail, 
   contactPhone, 
   listingTitle, 
   listingUrl,
+  vehicleId,  // Add vehicleId prop for forum reports
   onLoginClick
 }) {
   const [showModal, setShowModal] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
   const modalRef = useRef(null);
+  const messageModalRef = useRef(null);
+  
+  const maxMessageLength = 500;
   
   // Check authentication status on component mount
   useEffect(() => {
@@ -146,6 +254,9 @@ export default function ReplyButton({
           setIsLoggedIn(false);
         } else {
           setIsLoggedIn(session && session.user ? true : false);
+          if (session && session.user) {
+            setCurrentUserId(session.user.id);
+          }
         }
       } catch (err) {
         console.error('Unexpected error checking auth status:', err);
@@ -171,14 +282,37 @@ export default function ReplyButton({
   const emailBody = encodeURIComponent(`\n\n\n\n--\nListing URL: ${currentUrl}`);
   
   const toggleModal = () => {
-    setShowModal(!showModal);
+    if (isLoggedIn) {
+      // If logged in, go directly to message modal
+      setShowMessageModal(!showMessageModal);
+      setMessage('');
+      setSubmitError('');
+      setSubmitSuccess('');
+    } else {
+      // If not logged in, show login modal
+      setShowModal(!showModal);
+      setSubmitError('');
+      setSubmitSuccess('');
+    }
   };
 
-  // Handle click outside to close modal - React way
+  const toggleMessageModal = () => {
+    setShowMessageModal(!showMessageModal);
+    setMessage('');
+    setSubmitError('');
+    setSubmitSuccess('');
+  };
+
+  // Handle click outside to close modal
   const handleOverlayClick = (event) => {
-    // Check if the click is outside the modal container
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setShowModal(false);
+    }
+  };
+
+  const handleMessageOverlayClick = (event) => {
+    if (messageModalRef.current && !messageModalRef.current.contains(event.target)) {
+      setShowMessageModal(false);
     }
   };
 
@@ -186,6 +320,68 @@ export default function ReplyButton({
     setShowModal(false);
     if (onLoginClick) {
       onLoginClick();
+    }
+  };
+
+  const handleMessageChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= maxMessageLength) {
+      setMessage(value);
+      setSubmitError('');
+    }
+  };
+
+  const handleSubmitMessage = async (e) => {
+    e.preventDefault();
+    
+    if (!message.trim()) {
+      setSubmitError('Please enter a message');
+      return;
+    }
+
+    if (!vehicleId) {
+      setSubmitError('Vehicle information not available');
+      return;
+    }
+
+    if (!currentUserId) {
+      setSubmitError('User authentication required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .insert([{
+          vehicle_id: vehicleId,
+          user_id: currentUserId,
+          type: 'forum',
+          description: message.trim(),
+          status: 'open',
+          severity: 'low'
+        }]);
+
+      if (error) {
+        throw error;
+      }
+
+      setSubmitSuccess('Message posted successfully!');
+      setMessage('');
+      
+      // Close modal after a short delay
+      setTimeout(() => {
+        setShowMessageModal(false);
+        setSubmitSuccess('');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error submitting message:', error);
+      setSubmitError('Failed to post message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -198,44 +394,70 @@ export default function ReplyButton({
         disabled={isCheckingAuth}
       />
       <Container>      
-        {showModal && (
+        {/* Login Modal - Only for non-logged-in users */}
+        {showModal && !isLoggedIn && (
           <ModalOverlay onClick={handleOverlayClick}>
             <ModalContainer ref={modalRef}>
               <ModalHeader>
-                <ModalTitle>
-                  {isLoggedIn ? 'Contact Options' : 'Login Required'}
-                </ModalTitle>
+                <ModalTitle>Login Required</ModalTitle>
                 <CloseButton onClick={toggleModal}>&times;</CloseButton>
               </ModalHeader>
               
-              {isLoggedIn ? (
-                <>
-                  <SectionContainer $hasBottomBorder={true}>
-                    <SectionTitle>Email</SectionTitle>
-                    <ContactOption>
-                      <ContactLink href={`mailto:${email}?subject=${emailSubject}&body=${emailBody}`}>
-                        {email}
-                      </ContactLink>
-                    </ContactOption>
-                  </SectionContainer>
-                  
-                  <SectionContainer>
-                    <SectionTitle>Call / Text</SectionTitle>
-                    <ContactOption>
-                      <ContactLink href={`tel:${phone}`}>
-                        {phone}
-                      </ContactLink>
-                    </ContactOption>
-                  </SectionContainer>
-                </>
-              ) : (
-                <LoginMessage>
-                  Please login to find out more about this listing and contact the seller.
-                  <LoginButton onClick={handleLoginClick}>
-                    ok
-                  </LoginButton>
-                </LoginMessage>
-              )}
+              <LoginMessage>
+                Please login to find out more about this listing and contact the seller.
+                <LoginButton onClick={handleLoginClick}>
+                  Login
+                </LoginButton>
+              </LoginMessage>
+            </ModalContainer>
+          </ModalOverlay>
+        )}
+
+        {/* Message Modal - For logged-in users */}
+        {showMessageModal && isLoggedIn && (
+          <ModalOverlay onClick={handleMessageOverlayClick}>
+            <ModalContainer ref={messageModalRef}>
+              <ModalHeader>
+                <ModalTitle>Post a Message</ModalTitle>
+                <CloseButton onClick={toggleMessageModal}>&times;</CloseButton>
+              </ModalHeader>
+              
+              <MessageForm onSubmit={handleSubmitMessage}>
+                <div style={{ marginBottom: '12px', color: '#666', fontSize: '14px' }}>
+                  Share your thoughts, questions, or experiences about this vehicle.
+                </div>
+                
+                <MessageInput
+                  value={message}
+                  onChange={handleMessageChange}
+                  placeholder="Enter your message here... (e.g., 'Great vehicle! Had one just like it', 'Any maintenance issues?', 'Still available?')"
+                  disabled={isSubmitting}
+                />
+                
+                <CharacterCount>
+                  {message.length}/{maxMessageLength} characters
+                </CharacterCount>
+                
+                {submitError && <ErrorMessage>{submitError}</ErrorMessage>}
+                {submitSuccess && <SuccessMessage>{submitSuccess}</SuccessMessage>}
+                
+                <MessageActions>
+                  <ActionButton 
+                    type="button" 
+                    onClick={toggleMessageModal}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </ActionButton>
+                  <ActionButton 
+                    type="submit" 
+                    primary 
+                    disabled={isSubmitting || !message.trim()}
+                  >
+                    {isSubmitting ? 'Posting...' : 'Post Message'}
+                  </ActionButton>
+                </MessageActions>
+              </MessageForm>
             </ModalContainer>
           </ModalOverlay>
         )}
