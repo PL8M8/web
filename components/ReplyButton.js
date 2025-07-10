@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import Button from '@components/Button';
 import colors from '@constants/colors';
+import { supabase } from 'config/supabase';
 
 const Container = styled.div`
   position: relative;
@@ -99,15 +100,64 @@ const ContactLink = styled.a`
   font-size: 16px;
 `;
 
+const LoginMessage = styled.div`
+  padding: 24px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+`;
+
+const LoginButton = styled.button`
+  margin-top: 16px;
+  background-color: ${colors.primary};
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
 export default function ReplyButton({ 
   contactEmail, 
   contactPhone, 
   listingTitle, 
-  listingUrl 
+  listingUrl,
+  onLoginClick
 }) {
   const [showModal, setShowModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const modalRef = useRef(null);
   
+  // Check authentication status on component mount
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error('Error fetching session:', sessionError);
+          setIsLoggedIn(false);
+        } else {
+          setIsLoggedIn(session && session.user ? true : false);
+        }
+      } catch (err) {
+        console.error('Unexpected error checking auth status:', err);
+        setIsLoggedIn(false);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
   // Default fallback values
   const email = contactEmail || "info@pl8m8.co";
   const phone = contactPhone || "404-980-1188";
@@ -132,39 +182,60 @@ export default function ReplyButton({
     }
   };
 
+  const handleLoginClick = () => {
+    setShowModal(false);
+    if (onLoginClick) {
+      onLoginClick();
+    }
+  };
+
   return (
     <>
       <Button 
         onClick={toggleModal}
-        value="Reply"
+        value={isCheckingAuth ? "Loading..." : "Send A Message"}
         style={{ backgroundColor: colors.primary }}
+        disabled={isCheckingAuth}
       />
       <Container>      
         {showModal && (
           <ModalOverlay onClick={handleOverlayClick}>
             <ModalContainer ref={modalRef}>
               <ModalHeader>
-                <ModalTitle>Contact Options</ModalTitle>
+                <ModalTitle>
+                  {isLoggedIn ? 'Contact Options' : 'Login Required'}
+                </ModalTitle>
                 <CloseButton onClick={toggleModal}>&times;</CloseButton>
               </ModalHeader>
               
-              <SectionContainer $hasBottomBorder={true}>
-                <SectionTitle>Email</SectionTitle>
-                <ContactOption>
-                  <ContactLink href={`mailto:${email}?subject=${emailSubject}&body=${emailBody}`}>
-                    {email}
-                  </ContactLink>
-                </ContactOption>
-              </SectionContainer>
-              
-              <SectionContainer>
-                <SectionTitle>Call / Text</SectionTitle>
-                <ContactOption>
-                  <ContactLink href={`tel:${phone}`}>
-                    {phone}
-                  </ContactLink>
-                </ContactOption>
-              </SectionContainer>
+              {isLoggedIn ? (
+                <>
+                  <SectionContainer $hasBottomBorder={true}>
+                    <SectionTitle>Email</SectionTitle>
+                    <ContactOption>
+                      <ContactLink href={`mailto:${email}?subject=${emailSubject}&body=${emailBody}`}>
+                        {email}
+                      </ContactLink>
+                    </ContactOption>
+                  </SectionContainer>
+                  
+                  <SectionContainer>
+                    <SectionTitle>Call / Text</SectionTitle>
+                    <ContactOption>
+                      <ContactLink href={`tel:${phone}`}>
+                        {phone}
+                      </ContactLink>
+                    </ContactOption>
+                  </SectionContainer>
+                </>
+              ) : (
+                <LoginMessage>
+                  Please login to find out more about this listing and contact the seller.
+                  <LoginButton onClick={handleLoginClick}>
+                    ok
+                  </LoginButton>
+                </LoginMessage>
+              )}
             </ModalContainer>
           </ModalOverlay>
         )}
