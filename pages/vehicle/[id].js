@@ -363,7 +363,7 @@ const VehicleDetail = () => {
                     />
                     <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
                 </HeaderLeft>
-                <Reply/>
+                <Reply vehicleId={id}/>
             </Header>
             
             <MainContent>

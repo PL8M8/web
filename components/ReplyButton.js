@@ -71,36 +71,6 @@ const CloseButton = styled.button`
   }
 `;
 
-const SectionContainer = styled.div`
-  padding: 16px;
-  border-bottom: ${props => props.$hasBottomBorder ? '1px solid #eaeaea' : 'none'};
-`;
-
-const SectionTitle = styled.div`
-  font-weight: 500;
-  font-size: 16px;
-  margin-bottom: 12px;
-  color: #333;
-`;
-
-const ContactOption = styled.div`
-  padding: 12px;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-  cursor: pointer;
-  
-  &:hover {
-    background-color: #f5f5f5;
-  }
-`;
-
-const ContactLink = styled.a`
-  text-decoration: none;
-  color: #444;
-  display: block;
-  font-size: 16px;
-`;
-
 const LoginMessage = styled.div`
   padding: 24px;
   text-align: center;
@@ -160,6 +130,7 @@ const MessageActions = styled.div`
   gap: 12px;
 `;
 
+// Keep the ActionButton for modal buttons
 const ActionButton = styled.button`
   padding: 10px 20px;
   border-radius: 6px;
@@ -196,6 +167,49 @@ const ActionButton = styled.button`
   `}
 `;
 
+// Styled button component that handles different states
+const StyledButton = styled.button`
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  transition: all 0.2s;
+  border: 1px solid;
+  
+  ${props => {
+    if (props.inquirySent) {
+      return `
+        background-color: #28a745;
+        color: white;
+        border-color: #28a745;
+        opacity: 0.8;
+        
+        &:hover {
+          background-color: #28a745;
+          opacity: 0.8;
+        }
+      `;
+    } else if (props.disabled) {
+      return `
+        background-color: #e9ecef;
+        color: #6c757d;
+        border-color: #e9ecef;
+      `;
+    } else {
+      return `
+        background-color: ${colors.primary};
+        color: white;
+        border-color: ${colors.primary};
+        
+        &:hover {
+          background-color: #5a6268;
+        }
+      `;
+    }
+  }}
+`;
+
 const CharacterCount = styled.div`
   font-size: 12px;
   color: #666;
@@ -223,11 +237,7 @@ const SuccessMessage = styled.div`
 `;
 
 export default function ReplyButton({ 
-  contactEmail, 
-  contactPhone, 
-  listingTitle, 
-  listingUrl,
-  vehicleId,  // Add vehicleId prop for forum reports
+  vehicleId, 
   onLoginClick
 }) {
   const [showModal, setShowModal] = useState(false);
@@ -235,6 +245,8 @@ export default function ReplyButton({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [hasPostedForum, setHasPostedForum] = useState(false);
+  const [isCheckingForum, setIsCheckingForum] = useState(false);
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -269,31 +281,49 @@ export default function ReplyButton({
     checkAuthStatus();
   }, []);
 
-  // Default fallback values
-  const email = contactEmail || "info@pl8m8.co";
-  const phone = contactPhone || "404-980-1188";
-  const title = listingTitle || "Listing Inquiry";
-  
-  // Get the current page URL if not provided
-  const currentUrl = listingUrl || (typeof window !== 'undefined' ? window.location.href : '');
-  
-  // Create email subject and body
-  const emailSubject = encodeURIComponent(title);
-  const emailBody = encodeURIComponent(`\n\n\n\n--\nListing URL: ${currentUrl}`);
+  // Check if user has already posted a forum message for this vehicle
+  useEffect(() => {
+    const checkForumPost = async () => {
+      if (!currentUserId || !vehicleId) return;
+      
+      setIsCheckingForum(true);
+      try {
+        const { data, error } = await supabase
+          .from('reports')
+          .select('id')
+          .eq('vehicle_id', vehicleId)
+          .eq('reporter', currentUserId)
+          .eq('type', 'forum')
+          .limit(1);
+
+        if (error) {
+          console.error('Error checking forum posts:', error);
+          return;
+        }
+
+        setHasPostedForum(data && data.length > 0);
+      } catch (err) {
+        console.error('Unexpected error checking forum posts:', err);
+      } finally {
+        setIsCheckingForum(false);
+      }
+    };
+
+    checkForumPost();
+  }, [currentUserId, vehicleId]);
   
   const toggleModal = () => {
-    if (isLoggedIn) {
-      // If logged in, go directly to message modal
+    if (isLoggedIn && !hasPostedForum) {
       setShowMessageModal(!showMessageModal);
       setMessage('');
       setSubmitError('');
       setSubmitSuccess('');
-    } else {
-      // If not logged in, show login modal
+    } else if (!isLoggedIn) {
       setShowModal(!showModal);
       setSubmitError('');
       setSubmitSuccess('');
     }
+    // If hasPostedForum is true, do nothing (button should be disabled)
   };
 
   const toggleMessageModal = () => {
@@ -303,7 +333,6 @@ export default function ReplyButton({
     setSubmitSuccess('');
   };
 
-  // Handle click outside to close modal
   const handleOverlayClick = (event) => {
     if (modalRef.current && !modalRef.current.contains(event.target)) {
       setShowModal(false);
@@ -332,6 +361,9 @@ export default function ReplyButton({
   };
 
   const handleSubmitMessage = async (e) => {
+    console.log('Submitting message:', message);
+    console.log('Vehicle ID:', vehicleId);
+    console.log('Current User ID:', currentUserId);
     e.preventDefault();
     
     if (!message.trim()) {
@@ -357,7 +389,7 @@ export default function ReplyButton({
         .from('reports')
         .insert([{
           vehicle_id: vehicleId,
-          user_id: currentUserId,
+          reporter: currentUserId,
           type: 'forum',
           description: message.trim(),
           status: 'open',
@@ -368,8 +400,9 @@ export default function ReplyButton({
         throw error;
       }
 
-      setSubmitSuccess('Message posted successfully!');
+      setSubmitSuccess('Inquiry sent successfully!');
       setMessage('');
+      setHasPostedForum(true); // Update state to reflect that user has now posted
       
       // Close modal after a short delay
       setTimeout(() => {
@@ -379,20 +412,35 @@ export default function ReplyButton({
 
     } catch (error) {
       console.error('Error submitting message:', error);
-      setSubmitError('Failed to post message. Please try again.');
+      setSubmitError('Failed to send inquiry. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Determine button text and disabled state
+  const getButtonText = () => {
+    if (isCheckingAuth || isCheckingForum) {
+      return "Loading...";
+    }
+    if (hasPostedForum) {
+      return "Inquiry Sent";
+    }
+    return "Send Inquiry";
+  };
+
+  const isButtonDisabled = isCheckingAuth || isCheckingForum || hasPostedForum;
+
   return (
     <>
-      <Button 
-        onClick={toggleModal}
-        value={isCheckingAuth ? "Loading..." : "Send A Message"}
-        style={{ backgroundColor: colors.primary }}
-        disabled={isCheckingAuth}
-      />
+      <StyledButton 
+        onClick={isButtonDisabled ? undefined : toggleModal}
+        disabled={isButtonDisabled}
+        inquirySent={hasPostedForum}
+        title={hasPostedForum ? "You have already sent an inquiry for this vehicle" : ""}
+      >
+        {getButtonText()}
+      </StyledButton>
       <Container>      
         {/* Login Modal - Only for non-logged-in users */}
         {showModal && !isLoggedIn && (
@@ -405,9 +453,6 @@ export default function ReplyButton({
               
               <LoginMessage>
                 Please login to find out more about this listing and contact the seller.
-                <LoginButton onClick={handleLoginClick}>
-                  Login
-                </LoginButton>
               </LoginMessage>
             </ModalContainer>
           </ModalOverlay>
@@ -418,19 +463,19 @@ export default function ReplyButton({
           <ModalOverlay onClick={handleMessageOverlayClick}>
             <ModalContainer ref={messageModalRef}>
               <ModalHeader>
-                <ModalTitle>Post a Message</ModalTitle>
+                <ModalTitle>Send an Inquiry</ModalTitle>
                 <CloseButton onClick={toggleMessageModal}>&times;</CloseButton>
               </ModalHeader>
               
               <MessageForm onSubmit={handleSubmitMessage}>
                 <div style={{ marginBottom: '12px', color: '#666', fontSize: '14px' }}>
-                  Share your thoughts, questions, or experiences about this vehicle.
+                  Send an inquiry about this vehicle to connect with the seller.
                 </div>
                 
                 <MessageInput
                   value={message}
                   onChange={handleMessageChange}
-                  placeholder="Enter your message here... (e.g., 'Great vehicle! Had one just like it', 'Any maintenance issues?', 'Still available?')"
+                  placeholder="Enter your inquiry here... (e.g., 'Is this vehicle still available?', 'Can we schedule a viewing?', 'What's the maintenance history?')"
                   disabled={isSubmitting}
                 />
                 
@@ -454,7 +499,7 @@ export default function ReplyButton({
                     primary 
                     disabled={isSubmitting || !message.trim()}
                   >
-                    {isSubmitting ? 'Posting...' : 'Post Message'}
+                    {isSubmitting ? 'Sending...' : 'Send Inquiry'}
                   </ActionButton>
                 </MessageActions>
               </MessageForm>
