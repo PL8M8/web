@@ -330,6 +330,7 @@ const VehicleDetail = () => {
                         .from('reports')
                         .select('*')
                         .eq('vehicle_id', id)
+                        .neq('type', 'forum')
                         .order('created_at', { ascending: false });
 
                     if (reportsError) throw reportsError;
@@ -363,7 +364,7 @@ const VehicleDetail = () => {
                     />
                     <Title>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
                 </HeaderLeft>
-                <Reply/>
+                <Reply vehicleId={id}/>
             </Header>
             
             <MainContent>
