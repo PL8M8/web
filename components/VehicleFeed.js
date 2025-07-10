@@ -34,9 +34,15 @@ const Mosaic = styled.div`
 `;
 
 const VehicleFeedHeader = styled.div`
+    background-color: #fff;
+    border: 1px solid #44444450;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
     display: flex;
     justify-content: flex-end;
+    min-height: 72px;
     align-items: center;
+    margin: 1rem;
     padding: 0 1%;
 `;
 
