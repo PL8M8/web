@@ -4,7 +4,8 @@ export async function middleware(request) {
     const { pathname } = request.nextUrl;
     
     // Define protected routes (routes that need authentication)
-    const protectedRoutes = ['/garage', '/settings', '/listings', '/vehicle', '/garage'];
+    // const protectedRoutes = ['/garage', '/settings', '/vehicle', 'listings','/garage'];
+    const protectedRoutes = [] // TODO: Remove for dev purposes, no protected routes
     
     // Check if current path is protected
     const isProtectedRoute = protectedRoutes.some(route => 

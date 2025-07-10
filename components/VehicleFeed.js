@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Link from 'next/link';
 import { supabase } from '../config/supabase';
@@ -6,42 +6,166 @@ import colors from "constants/colors";
 
 const Container = styled.div`
     height: 100vh;
+`
 const Mosaic = styled.div`
-    --gap: clamp(1rem, 5vmin, 1rem);
-    column-gap: var(--gap);
+    display: grid;
+    gap: clamp(1rem, 5vmin, 1rem);
     width: 100%;
     padding: 0 1%;
     overflow: auto;
-    @media (min-width: 500px) {
-        columns: 1;
-    }
-
+    
+    /* Responsive grid columns */
+    grid-template-columns: repeat(1, 1fr);
+    
     @media (min-width: 768px) {
-        columns: 3;
+        grid-template-columns: repeat(2, 1fr);
     }
 
     @media (min-width: 1024px) {
-        columns: 5;
+        grid-template-columns: repeat(3, 1fr);
     }
-
-    & > * {
-        break-inside: avoid;
-        margin-bottom: var(--gap);
-        width: 100%;
-        display: inline-block;
+    
+    @media (min-width: 1440px) {
+        grid-template-columns: repeat(4, 1fr);
     }
 `;
 
 const VehicleFeedHeader = styled.div`
+    background-color: #fff;
+    border: 1px solid #44444450;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    margin: 1rem;
+    padding: 1rem;
+    min-height: 72px;
+`;
+
+const FilterContainer = styled.div`
     display: flex;
-    justify-content: flex-end;
+    align-items: flex-end;
+    justify-content: space-evenly;
+    gap: 1rem;
+    width: 100%;
+    
+    @media (max-width: 768px) {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+`;
+
+const FilterWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 120px;
+    
+    @media (max-width: 768px) {
+        min-width: 140px;
+    }
+`;
+
+const FilterLabel = styled.label`
+    font-size: 0.75rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+`;
+
+const FilterSelect = styled.select`
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    flex: 1;
+    
+    &:focus {
+        outline: none;
+        border-color: ${colors.primary};
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    
+    @media (max-width: 480px) {
+        font-size: 0.8rem;
+    }
+`;
+
+const PriceRangeContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    
+    @media (max-width: 768px) {
+        min-width: 200px;
+    }
+`;
+
+const PriceInputsWrapper = styled.div`
+    display: flex;
+    gap: 0.5rem;
     align-items: center;
-    padding: 0 1%;
+`;
+
+const PriceInput = styled.input`
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.9rem;
+    flex: 1;
+    text-align: center;
+    
+    &:focus {
+        outline: none;
+        border-color: ${colors.primary};
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    
+    &::placeholder {
+        color: #999;
+        font-size: 0.8rem;
+    }
+`;
+
+const PriceLabel = styled.span`
+    font-size: 0.9rem;
+    color: #666;
+    white-space: nowrap;
+    flex-shrink: 0;
+`;
+
+const ClearFiltersButton = styled.button`
+    background-color: ${colors.primary};
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    height: fit-content;
+    
+    &:hover {
+        background-color: #5a6268;
+    }
+    
+    &:disabled {
+        background-color: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
 `;
 
 const VehicleCount = styled.div`
-    padding: 0.5%;
-    color: #333;
+    color: #999;
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    z-index: 10;
+    text-transform: uppercase;
 `;
 
 // Create container for smooth transitions
@@ -49,6 +173,7 @@ const ContentContainer = styled.div`
     position: relative;
     width: 100%;
     min-height: 100vh;
+    padding-bottom: 80px; /* Add space for fixed vehicle count */
 `;
 
 const SkeletonLayer = styled.div`
@@ -78,16 +203,33 @@ const Card = styled.div`
     background-color: #fff;
     border: 1px solid #44444450;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+`;
+
+const ImageContainer = styled.div`
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
 `;
 
 const Image = styled.img.attrs(() => ({
     loading: "lazy"
 }))`
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     border-bottom: 3px solid orange;
     opacity: ${props => props.loaded ? 1 : 0};
     transition: opacity 0.2s ease-in;
+`;
+
+const CardContent = styled.div`
+    padding: 10px;
+    flex-shrink: 0;
+    height: auto;
 `;
 
 const Title = styled.h2`
@@ -301,6 +443,106 @@ export default function VehicleFeed() {
     const [showContent, setShowContent] = useState(false);
     const [imageLoadStates, setImageLoadStates] = useState({});
 
+    // Filter states
+    const [selectedYear, setSelectedYear] = useState('');
+    const [selectedMake, setSelectedMake] = useState('');
+    const [selectedModel, setSelectedModel] = useState('');
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
+
+    // Filter vehicles with images and valid prices only
+    const vehiclesWithImages = useMemo(() => {
+        return vehicles.filter(vehicle => 
+            vehicle.image_uri && 
+            vehicle.image_uri !== '' && 
+            vehicle.image_uri !== '/fallback.jpg' &&
+            vehicle.listing_price &&
+            vehicle.listing_price !== null &&
+            vehicle.listing_price !== undefined &&
+            vehicle.listing_price > 0
+        );
+    }, [vehicles]);
+
+    // Generate filter options dynamically based on current selections
+    const filterOptions = useMemo(() => {
+        // Start with all vehicles that have images
+        let availableVehicles = vehiclesWithImages;
+
+        // Calculate available options for each filter based on other filters
+        const availableYears = [...new Set(
+            availableVehicles.filter(v => 
+                (!selectedMake || v.make === selectedMake) &&
+                (!selectedModel || v.model === selectedModel) &&
+                (!minPrice || parseFloat(v.listing_price) >= parseFloat(minPrice)) &&
+                (!maxPrice || parseFloat(v.listing_price) <= parseFloat(maxPrice))
+            ).map(v => v.year)
+        )].sort((a, b) => b - a);
+
+        const availableMakes = [...new Set(
+            availableVehicles.filter(v => 
+                (!selectedYear || v.year.toString() === selectedYear) &&
+                (!selectedModel || v.model === selectedModel) &&
+                (!minPrice || parseFloat(v.listing_price) >= parseFloat(minPrice)) &&
+                (!maxPrice || parseFloat(v.listing_price) <= parseFloat(maxPrice))
+            ).map(v => v.make)
+        )].sort();
+
+        const availableModels = [...new Set(
+            availableVehicles.filter(v => 
+                (!selectedYear || v.year.toString() === selectedYear) &&
+                (!selectedMake || v.make === selectedMake) &&
+                (!minPrice || parseFloat(v.listing_price) >= parseFloat(minPrice)) &&
+                (!maxPrice || parseFloat(v.listing_price) <= parseFloat(maxPrice))
+            ).map(v => v.model)
+        )].sort();
+        
+        return { 
+            years: availableYears, 
+            makes: availableMakes, 
+            models: availableModels 
+        };
+    }, [vehiclesWithImages, selectedYear, selectedMake, selectedModel, minPrice, maxPrice]);
+
+    // Filter vehicles based on selected criteria
+    const filteredVehicles = useMemo(() => {
+        return vehiclesWithImages.filter(vehicle => {
+            const yearMatch = !selectedYear || vehicle.year.toString() === selectedYear;
+            const makeMatch = !selectedMake || vehicle.make === selectedMake;
+            const modelMatch = !selectedModel || vehicle.model === selectedModel;
+            
+            const price = parseFloat(vehicle.listing_price);
+            const priceMatch = (!minPrice || price >= parseFloat(minPrice)) &&
+                             (!maxPrice || price <= parseFloat(maxPrice));
+            
+            return yearMatch && makeMatch && modelMatch && priceMatch;
+        });
+    }, [vehiclesWithImages, selectedYear, selectedMake, selectedModel, minPrice, maxPrice]);
+
+    // Clear all filters
+    const clearFilters = () => {
+        setSelectedYear('');
+        setSelectedMake('');
+        setSelectedModel('');
+        setMinPrice('');
+        setMaxPrice('');
+    };
+
+    // Check if any filters are active
+    const hasActiveFilters = selectedYear || selectedMake || selectedModel || minPrice || maxPrice;
+
+    // Auto-clear invalid selections when filter options change
+    useEffect(() => {
+        if (selectedYear && !filterOptions.years.includes(parseInt(selectedYear))) {
+            setSelectedYear('');
+        }
+        if (selectedMake && !filterOptions.makes.includes(selectedMake)) {
+            setSelectedMake('');
+        }
+        if (selectedModel && !filterOptions.models.includes(selectedModel)) {
+            setSelectedModel('');
+        }
+    }, [filterOptions.years, filterOptions.makes, filterOptions.models]);
+
     useEffect(() => {
         setHasMounted(true);
 
@@ -319,17 +561,28 @@ export default function VehicleFeed() {
                 if (error) throw error;
 
                 if (data && data.length > 0) {
+                    // Filter out vehicles without images or valid prices before setting state
+                    const vehiclesWithValidImages = data.filter(vehicle => 
+                        vehicle.image_uri && 
+                        vehicle.image_uri !== '' && 
+                        vehicle.image_uri !== '/fallback.jpg' &&
+                        vehicle.listing_price &&
+                        vehicle.listing_price !== null &&
+                        vehicle.listing_price !== undefined &&
+                        vehicle.listing_price > 0
+                    );
+
                     // Set vehicles first (so DOM elements are ready)
-                    setVehicles(data);
+                    setVehicles(vehiclesWithValidImages);
                     
                     // Then preload all images
                     setLoadingStatus('Loading images...');
-                    console.log('Starting image preload for', data.length, 'vehicles');
+                    console.log('Starting image preload for', vehiclesWithValidImages.length, 'vehicles');
                     
-                    const imagePromises = data.map(async (vehicle, index) => {
+                    const imagePromises = vehiclesWithValidImages.map(async (vehicle, index) => {
                         try {
-                            await preloadImage(vehicle.image_uri || '/fallback.jpg');
-                            console.log(`Image ${index + 1}/${data.length} loaded`);
+                            await preloadImage(vehicle.image_uri);
+                            console.log(`Image ${index + 1}/${vehiclesWithValidImages.length} loaded`);
                             setImageLoadStates(prev => ({
                                 ...prev,
                                 [vehicle.id]: true
@@ -397,15 +650,84 @@ export default function VehicleFeed() {
     return (
         <Container>
             <VehicleFeedHeader>
-                {isLoading ? (
-                    <VehicleCount>{loadingStatus}</VehicleCount>
-                ) : (
-                    <VehicleCount>{vehicles.length} of {vehicles.length}</VehicleCount>
-                )}
+                <FilterContainer>
+                    <FilterWrapper>
+                        <FilterLabel>Year</FilterLabel>
+                        <FilterSelect 
+                            value={selectedYear} 
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                            disabled={isLoading}
+                        >
+                            <option value="">All Years</option>
+                            {filterOptions.years.map(year => (
+                                <option key={year} value={year}>{year}</option>
+                            ))}
+                        </FilterSelect>
+                    </FilterWrapper>
+                    
+                    <FilterWrapper>
+                        <FilterLabel>Make</FilterLabel>
+                        <FilterSelect 
+                            value={selectedMake} 
+                            onChange={(e) => setSelectedMake(e.target.value)}
+                            disabled={isLoading}
+                        >
+                            <option value="">All Makes</option>
+                            {filterOptions.makes.map(make => (
+                                <option key={make} value={make}>{make}</option>
+                            ))}
+                        </FilterSelect>
+                    </FilterWrapper>
+                    
+                    <FilterWrapper>
+                        <FilterLabel>Model</FilterLabel>
+                        <FilterSelect 
+                            value={selectedModel} 
+                            onChange={(e) => setSelectedModel(e.target.value)}
+                            disabled={isLoading}
+                        >
+                            <option value="">All Models</option>
+                            {filterOptions.models.map(model => (
+                                <option key={model} value={model}>{model}</option>
+                            ))}
+                        </FilterSelect>
+                    </FilterWrapper>
+                    
+                    <PriceRangeContainer>
+                        <FilterLabel>Price Range</FilterLabel>
+                        <PriceInputsWrapper>
+                            <PriceInput
+                                type="number"
+                                placeholder="Min"
+                                value={minPrice}
+                                onChange={(e) => setMinPrice(e.target.value)}
+                                disabled={isLoading}
+                            />
+                            <PriceLabel>to</PriceLabel>
+                            <PriceInput
+                                type="number"
+                                placeholder="Max"
+                                value={maxPrice}
+                                onChange={(e) => setMaxPrice(e.target.value)}
+                                disabled={isLoading}
+                            />
+                        </PriceInputsWrapper>
+                    </PriceRangeContainer>
+                    
+                    <ClearFiltersButton 
+                        onClick={clearFilters}
+                        disabled={!hasActiveFilters || isLoading}
+                    >
+                        Clear Filters
+                    </ClearFiltersButton>
+                </FilterContainer>
             </VehicleFeedHeader>
-            
+            {!isLoading && (
+                <VehicleCount>
+                    {filteredVehicles.length} {filteredVehicles.length === 1 ? 'vehicle' : 'vehicles'} available
+                </VehicleCount>
+            )}
             <ContentContainer>
-                {/* Skeleton Layer */}
                 <SkeletonLayer visible={!showContent}>
                     <Mosaic>
                         {skeletonCards}
@@ -415,29 +737,29 @@ export default function VehicleFeed() {
                 {/* Vehicle Content Layer */}
                 <VehicleLayer visible={showContent}>
                     <Mosaic>
-                        {vehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage, created_at }) => (
+                        {filteredVehicles.map(({ id, image_uri, make, model, year, listing_price, condition, mileage, created_at }) => (
                             <Link key={id} href={`/vehicle/${id}`}>
                                 <Card>
                                     <Price>${listing_price?.toLocaleString()}</Price>
-                                    <Image
-                                        src={image_uri || '/fallback.jpg'}
-                                        alt={`${make} ${model}`}
-                                        draggable="false"
-                                        loaded={imageLoadStates[id]}
-                                        onError={(e) => { 
-                                            e.currentTarget.src = '/fallback.jpg';
-                                            setImageLoadStates(prev => ({
-                                                ...prev,
-                                                [id]: true
-                                            }));
-                                        }}
-                                    />
-                                    <div style={{ padding: '10px' }}>
+                                    <ImageContainer>
+                                        <Image
+                                            src={image_uri}
+                                            alt={`${make} {model}`}
+                                            draggable="false"
+                                            loaded={imageLoadStates[id]}
+                                            onError={(e) => { 
+                                                // Since we filter out vehicles without images, this shouldn't happen
+                                                // But just in case, we'll hide the image
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                        />
+                                    </ImageContainer>
+                                    <CardContent>
                                         <Subtitle>{year} {make} {model}</Subtitle>
                                         <Detail><strong>Condition:</strong> {condition}</Detail>
                                         <Detail><strong>Mileage:</strong> {mileage} miles</Detail>
                                         <DateListed>Listed {formatRelativeTime(created_at)}</DateListed>
-                                    </div>
+                                    </CardContent>
                                 </Card>
                             </Link>
                         ))}

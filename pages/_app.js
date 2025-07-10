@@ -46,7 +46,7 @@ function Application({ Component, pageProps }) {
         <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet" />
       </Head>
       <PostHogProvider client={posthog}>
-        {/* <Navbar /> */}
+        <Navbar />
         <div className="background" />
         <AnimatePresence mode="wait">
           <motion.div

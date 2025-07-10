@@ -191,6 +191,7 @@ export default function Index() {
 
     useEffect(() => {
         setIsMounted(true);
+        router.replace('/listings'); // Redirect to listings page on mount DEV - Temporary bypass
     }, []);
 
     useEffect(() => {
