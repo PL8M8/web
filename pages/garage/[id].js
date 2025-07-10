@@ -1356,7 +1356,7 @@ const VehicleDetail = () => {
                         {renderField('Nickname', 'nickname')}
                         {renderField('VIN', 'vin')}
                         {renderField('Created At', 'created_at', false, false)}
-                        {renderField('Tradeable', 'is_tradeable', true)}
+                        {renderField('Rentable', 'is_rentable', true)}
                         {renderField('Sellable', 'is_sellable', true)}
                     </div>
                 </LeftWrapper>

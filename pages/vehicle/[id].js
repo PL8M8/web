@@ -425,8 +425,8 @@ const VehicleDetail = () => {
                     <AvailabilitySection>
                         <AvailabilityLabel>Availability</AvailabilityLabel>
                         <BadgeWrapper>
-                            <Badge isTrue={vehicle.is_tradeable}>
-                                {vehicle.is_tradeable ? 'Tradeable' : 'Non-tradeable'}
+                            <Badge isTrue={vehicle.is_rentable}>
+                                {vehicle.is_rentable ? 'Rentable' : 'Non-rentable'}
                             </Badge>
                             <Badge isTrue={vehicle.is_sellable}>
                                 {vehicle.is_sellable ? 'For Sale' : 'Not for Sale'}
