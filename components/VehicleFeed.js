@@ -18,15 +18,15 @@ const Mosaic = styled.div`
     grid-template-columns: repeat(1, 1fr);
     
     @media (min-width: 768px) {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
 
     @media (min-width: 1024px) {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
     
     @media (min-width: 1440px) {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(4, 1fr);
     }
 `;
 
@@ -43,6 +43,7 @@ const VehicleFeedHeader = styled.div`
 const FilterContainer = styled.div`
     display: flex;
     align-items: flex-end;
+    justify-content: space-evenly;
     gap: 1rem;
     width: 100%;
     
@@ -71,7 +72,7 @@ const FilterLabel = styled.label`
 `;
 
 const FilterSelect = styled.select`
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;
@@ -93,7 +94,6 @@ const FilterSelect = styled.select`
 const PriceRangeContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex: 1;
     min-width: 180px;
     
     @media (max-width: 768px) {
@@ -136,7 +136,7 @@ const PriceLabel = styled.span`
 `;
 
 const ClearFiltersButton = styled.button`
-    background-color: #6c757d;
+    background-color: ${colors.primary};
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -163,10 +163,7 @@ const VehicleCount = styled.div`
     font-weight: 500;
     font-size: 0.75rem;
     text-align: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    margin-bottom: 0.5rem;
     z-index: 10;
     text-transform: uppercase;
 `;
@@ -206,7 +203,7 @@ const Card = styled.div`
     background-color: #fff;
     border: 1px solid #44444450;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    height: 400px;
+    height: 450px;
     display: flex;
     flex-direction: column;
 `;
@@ -725,9 +722,12 @@ export default function VehicleFeed() {
                     </ClearFiltersButton>
                 </FilterContainer>
             </VehicleFeedHeader>
-            
+            {!isLoading && (
+                <VehicleCount>
+                    {filteredVehicles.length} {filteredVehicles.length === 1 ? 'vehicle' : 'vehicles'} available
+                </VehicleCount>
+            )}
             <ContentContainer>
-                {/* Skeleton Layer */}
                 <SkeletonLayer visible={!showContent}>
                     <Mosaic>
                         {skeletonCards}
@@ -766,13 +766,6 @@ export default function VehicleFeed() {
                     </Mosaic>
                 </VehicleLayer>
             </ContentContainer>
-
-            {/* Fixed Vehicle Count at Bottom */}
-            {!isLoading && (
-                <VehicleCount>
-                    {filteredVehicles.length} {filteredVehicles.length === 1 ? 'vehicle' : 'vehicles'} available
-                </VehicleCount>
-            )}
         </Container>
     );
 }

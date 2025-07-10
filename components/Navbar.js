@@ -235,12 +235,12 @@ const Navbar = ({ extraComponents }) => {
     };
 
     const navLinks = [
-        { name: 'Buy & Sell', path: '/' },
+        { name: 'Buy & Sell', path: '/listings' },
         { name: 'Sign In', path: '#' },
     ];
 
     const loggedInNavLinks = [ 
-        { name: 'Buy & Sell', path: '/' },
+        { name: 'Buy & Sell', path: '/listings' },
         { name: 'Garage', path: '/garage' },
         { name: 'Settings', path: '/settings' },
     ]
