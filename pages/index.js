@@ -191,7 +191,7 @@ export default function Index() {
 
     useEffect(() => {
         setIsMounted(true);
-        router.replace('/listings'); // Redirect to listings page on mount DEV - Temporary bypass
+        router.replace('/listings'); // TODO: DEV Redirect to listings page on mount DEV - Temporary bypass
     }, []);
 
     useEffect(() => {
@@ -199,7 +199,7 @@ export default function Index() {
             const { data: { session } } = await supabase.auth.getSession();
 
             if (session) {
-                router.replace('/garage');
+                // router.replace('/garage');TODO: DEV Remove to bypass automatic redirect to garage
             } 
         };
 
