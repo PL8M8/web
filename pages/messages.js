@@ -231,6 +231,20 @@ const ErrorState = styled.div`
     text-align: center;
 `;
 
+// New styled component to indicate message type
+const MessageTypeIndicator = styled.div`
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    
+    background-color: ${props => props.isOwner ? '#fff3cd' : '#d1ecf1'};
+    color: ${props => props.isOwner ? '#856404' : '#0c5460'};
+`;
+
 const Messages = () => {
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -254,8 +268,20 @@ const Messages = () => {
 
                 const userId = session.user.id;
 
-                // Fetch all forum reports by this user with vehicle details
-                const { data: messagesData, error: messagesError } = await supabase
+                // Step 1: Get all vehicle IDs that the user owns
+                const { data: userVehicles, error: userVehiclesError } = await supabase
+                    .from('users_vehicles')
+                    .select('vehicle_id')
+                    .eq('user_id', userId);
+
+                if (userVehiclesError) {
+                    throw new Error('Error fetching user vehicles: ' + userVehiclesError.message);
+                }
+
+                const ownedVehicleIds = userVehicles.map(uv => uv.vehicle_id);
+
+                // Step 2: Fetch reports where user is either the reporter OR the vehicle is owned by the user
+                let query = supabase
                     .from('reports')
                     .select(`
                         *,
@@ -267,15 +293,31 @@ const Messages = () => {
                             image_uri
                         )
                     `)
-                    .eq('reporter', userId)
                     .eq('type', 'forum')
                     .order('created_at', { ascending: false });
+
+                // Build the OR condition: reporter is user OR vehicle_id is in owned vehicles
+                if (ownedVehicleIds.length > 0) {
+                    query = query.or(`reporter.eq.${userId},vehicle_id.in.(${ownedVehicleIds.join(',')})`);
+                } else {
+                    // If user owns no vehicles, only show reports they created
+                    query = query.eq('reporter', userId);
+                }
+
+                const { data: messagesData, error: messagesError } = await query;
 
                 if (messagesError) {
                     throw new Error('Error fetching messages: ' + messagesError.message);
                 }
 
-                setMessages(messagesData || []);
+                // Add a flag to each message indicating if the user is the owner of the vehicle
+                const messagesWithOwnerInfo = (messagesData || []).map(message => ({
+                    ...message,
+                    isVehicleOwner: ownedVehicleIds.includes(message.vehicle_id),
+                    isReporter: message.reporter === userId
+                }));
+
+                setMessages(messagesWithOwnerInfo);
             } catch (err) {
                 console.error('Error:', err);
                 setError(err.message);
@@ -332,7 +374,7 @@ const Messages = () => {
         <Container>
             <Header>
                 <Title>My Messages</Title>
-                <Subtitle>Your inquiries and messages about vehicles</Subtitle>
+                <Subtitle>Your inquiries and messages about vehicles you own or reported</Subtitle>
             </Header>
 
             <MessageCount>
@@ -344,7 +386,7 @@ const Messages = () => {
                     <EmptyIcon>💬</EmptyIcon>
                     <EmptyTitle>No messages yet</EmptyTitle>
                     <EmptyText>
-                        When you send inquiries about vehicles, they'll appear here.
+                        When you send inquiries about vehicles or receive reports about your vehicles, they'll appear here.
                     </EmptyText>
                 </EmptyState>
             ) : (
@@ -364,6 +406,9 @@ const Messages = () => {
                                         </VehicleImagePlaceholder>
                                     )}
                                     <VehicleDetails>
+                                        <MessageTypeIndicator isOwner={message.isVehicleOwner && !message.isReporter}>
+                                            {message.isReporter ? 'Message Delivered' : 'Buyer Interest'}
+                                        </MessageTypeIndicator>
                                         <Link href={`/vehicle/${message.vehicles?.id}`} passHref>
                                             <VehicleTitle>
                                                 {message.vehicles?.year} {message.vehicles?.make} {message.vehicles?.model}
