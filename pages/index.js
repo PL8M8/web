@@ -24,6 +24,31 @@ const Main = styled.main`
     gap: 2rem;
 `;
 
+const NavbarContainer = styled.nav`
+    display: flex;
+    align-items: center;
+    padding-right: 20px;
+    padding-top: 4px;
+    flex-wrap: nowrap; 
+    width: 100%; 
+    height: 50px;
+    box-sizing: border-box;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000;
+`;
+
+const SignInButtonContainer = styled.div`
+    margin-left: auto;
+    padding-right: 20px;
+`
+
+const GoBackButtonContainer = styled.div`
+    margin-right: auto;
+    padding-left: 140px;
+`
+
 const LogoContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -183,15 +208,19 @@ const ErrorMessage = styled.div`
 
 export default function Index() {
     const router = useRouter();
+    const betaPassword = "pl8m8-2025-b3ta";
+    const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [isMounted, setIsMounted] = useState(false);
+    const [onPasswordPage, setOnPasswordPage] = useState(false);
+    const [incorrectPassword, setIncorrectPassword ] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
-        router.replace('/listings'); // TODO: DEV Redirect to listings page on mount DEV - Temporary bypass
+        // router.replace('/listings'); // TODO: DEV Redirect to listings page on mount DEV - Temporary bypass
     }, []);
 
     useEffect(() => {
@@ -286,48 +315,123 @@ export default function Index() {
         }
     };
 
+
+    const togglePasswordPage = () => {
+        setOnPasswordPage(!onPasswordPage)
+    }
+
+    const handlePasswordSubmit = () => {
+        if(password === betaPassword){
+            setIncorrectPassword(false);
+            router.replace('/listings');
+        } else {
+            setIncorrectPassword(true);
+        }
+    }
+
     return (
         <MainWrapper>
-            <Main>
-                <LogoContainer>
-                    <LogoImage src="/logo.png" alt="PL8M8 Logo" />
-                </LogoContainer>
-                <Tagline>Where car maintenence meets community. Real people, real deals, real transparency.</Tagline>
-                <InputSection>
-                    <TextInput 
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        validateEmail={true}
-                        showSuccess={true}
-                        required={true}
-                    />
-                    <Button 
-                        value={isSubmitting ? "Joining..." : "Join waitlist"}
-                        onClick={handleEmailSubmit}
-                        disabled={isSubmitting || !email}
-                    />
-                </InputSection>
-                
-                {submitStatus === 'success' && (
-                    <SuccessMessage>
-                        🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
-                    </SuccessMessage>
-                )}
-                
-                {submitStatus === 'error' && (
-                    <ErrorMessage>
-                        {errorMessage}
-                    </ErrorMessage>
-                )}
-                
-                {submitStatus !== 'success' && (
-                    <Disclaimer>
-                        By submitting my personal data I agree to receive marketing emails from PL8M8
-                    </Disclaimer>
-                )}
-            </Main>
+           { !onPasswordPage ? (
+                <Main>
+                    <NavbarContainer>
+                        <SignInButtonContainer>
+                            <Button
+                                value={"Sign In"}
+                                onClick={togglePasswordPage}
+
+                            />                    
+                        </SignInButtonContainer>
+                    </NavbarContainer>
+                    <LogoContainer>
+                        <LogoImage src="/logo.png" alt="PL8M8 Logo" />
+                    </LogoContainer>
+
+                    <Tagline>Where car maintenence meets community. Real people, real deals, real transparency.</Tagline>
+                    <InputSection>
+                        <TextInput 
+                            type="email"
+                            placeholder="Enter your email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            validateEmail={true}
+                            showSuccess={true}
+                            required={true}
+                        />
+                        <Button 
+                            value={isSubmitting ? "Joining..." : "Join waitlist"}
+                            onClick={handleEmailSubmit}
+                            disabled={isSubmitting || !email}
+                        />
+                    </InputSection>
+
+                    {submitStatus === 'success' && (
+                        <SuccessMessage>
+                            🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
+                        </SuccessMessage>
+                    )}
+
+                    {submitStatus === 'error' && (
+                        <ErrorMessage>
+                            {errorMessage}
+                        </ErrorMessage>
+                    )}
+
+                    {submitStatus !== 'success' && (
+                        <Disclaimer>
+                            By submitting my personal data I agree to receive marketing emails from PL8M8
+                        </Disclaimer>
+                    )}
+                </Main>
+            ) : (
+                <Main>
+                    <NavbarContainer>
+                        <GoBackButtonContainer>
+                            <Button
+                                value={"Go Back"}
+                                onClick={togglePasswordPage}
+                            />                    
+                        </GoBackButtonContainer>
+                    </NavbarContainer>
+                    <LogoContainer>
+                        <LogoImage src="/logo.png" alt="PL8M8 Logo" />
+                    </LogoContainer>
+
+                    <Tagline>Thanks for helping us test! Enter your password to get started </Tagline>
+                        <InputSection>
+                            <TextInput 
+                                type="password"
+                                placeholder="Enter password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                showSuccess={true}
+                                required={true}
+                            />
+                            <Button 
+                                value={isSubmitting ? "Entering..." : "Enter"}
+                                onClick={handlePasswordSubmit}
+                                disabled={isSubmitting || !email}
+                            />
+                        </InputSection>
+
+                        {submitStatus === 'success' && (
+                            <SuccessMessage>
+                                🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
+                            </SuccessMessage>
+                        )}
+
+                        {incorrectPassword && (
+                            <ErrorMessage>
+                                Incorrect Password
+                            </ErrorMessage>
+                        )}
+
+                        {/* {submitStatus !== 'success' && (
+                            <Disclaimer>
+                                By submitting my personal data I agree to receive marketing emails from PL8M8
+                            </Disclaimer>
+                        )} */}
+                </Main>
+            )}
             
             <Footer>
                 { false && ( <FooterContent>
