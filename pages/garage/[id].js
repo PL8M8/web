@@ -147,6 +147,25 @@ const LeftWrapper = styled.div`
         border: 1px solid #e0e0e0;
     }
     
+    @media (max-width: 1024px) {
+        .images-container {
+            gap: 6px;
+            overflow-y: auto; /* allows vertical scrolling on tablet/phone */
+            max-height: 80vh;  /* optional: to limit height */
+        }
+
+        .main-image {
+            height: 180px; /* shorter for smaller screens */
+            object-fit: contain; /* shows entire image without cropping */
+        }
+    }
+
+    @media (max-width: 600px) {
+        .main-image {
+            height: 150px;
+        }
+    }
+
     .no-image {
         width: 100%;
         height: 250px;
@@ -404,6 +423,11 @@ const ReportsContainer = styled.div`
         background: #888;
         border-radius: 3px;
     }
+
+    @media (max-width: 1024px) {
+        padding-right: 0;
+        padding-left: 0;
+    }
 `;
 
 const ReportItem = styled.div`
@@ -417,6 +441,11 @@ const ReportItem = styled.div`
     &:hover .report-controls {
         opacity: 1;
     }
+        
+    @media (max-width: 1024px) {
+        padding: 12px;
+        font-size: 14px;
+    }
 `;
 
 const ReportHeader = styled.div`
@@ -425,6 +454,13 @@ const ReportHeader = styled.div`
     align-items: flex-start;
     margin-bottom: 6px;
     padding-right: 60px;
+
+    @media (max-width: 1024px) {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-right: 0;
+        gap: 6px;
+    }
 `;
 
 const ReportMetadata = styled.div`
@@ -433,6 +469,12 @@ const ReportMetadata = styled.div`
     flex-wrap: wrap;
     margin-left: auto;
     padding-right: 6px;
+
+    @media (max-width: 1024px) {
+        margin-left: 0;
+        padding-right: 0;
+        justify-content: flex-start;
+    }
 `;
 
 const Badge = styled.span`
