@@ -377,6 +377,27 @@ const ReportForm = styled.div`
     margin: 8px 0;
 `;
 
+const ReportsHeader = styled.h2`
+    background-color: #fe8901;
+    text-align: center;
+    color: white;
+    width: 100%;
+    height: 140px;
+    padding: 10px;
+    border-radius: 12px 12px 0px 0px;      
+`
+
+const ReportsLogo = styled.div`
+  background-color: #f7b05eff; 
+  color: white;            
+  padding: 10px 20px;       
+  border: none;            
+  border-radius: 12px;      
+  cursor: pointer;         
+  display: inline-block;    
+  font-size: 16px;          
+`
+
 const AddButton = styled(Button)`
     margin-bottom: 8px;
     background-color: #007bff;
@@ -1373,9 +1394,13 @@ const VehicleDetail = () => {
                             
                             {isAddingReport && (
                                 <ReportForm>
-                                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9375rem' }}>Add New Report</h4>
-                                    
-                                    <FormLabel>Report Type *</FormLabel>
+                                    <ReportsHeader>
+                                        <ReportsLogo>
+                                            PL8M8
+                                        </ReportsLogo>
+                                        <div style={ {padding: "20px", fontWeight:"bold"}}> Add a Report </div>
+                                    </ReportsHeader>
+
                                     <SegmentedControl>
                                         {reportTypes.map(type => (
                                             <SegmentedOption
