@@ -475,7 +475,7 @@ export default function Index() {
                         <NavbarContainer>
                             <SignInButtonContainer>
                                 <Button onClick={togglePasswordPage}>
-                                    Sign In
+                                    BETA
                                 </Button>                    
                             </SignInButtonContainer>
                         </NavbarContainer>
