@@ -14,7 +14,7 @@
     "sb:stop": "npx supabase stop --no-backup",
     "sb:link": "npx supabase link",
     "sb:storage": "node scripts/setup-storage.js",
-    "sb:pull": "npx supabase db pull --schema auth,storage",
+    "sb:pull": "npx supabase db pull",
     "sb:push": "npx supabase db push",
     "sb:reset": "npx supabase db reset",
     "sb:types": "npx supabase gen types typescript --local > types/supabase.ts"
