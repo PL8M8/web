@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
 
@@ -21,6 +20,32 @@ const Main = styled.main`
     gap: 2rem;
 `;
 
+const NavbarContainer = styled.nav`
+    display: flex;
+    align-items: center;
+    padding-right: 20px;
+    padding-top: 4px;
+    flex-wrap: nowrap; 
+    width: 100%; 
+    height: 50px;
+    box-sizing: border-box;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: #FCEFCB;
+`;
+
+const SignInButtonContainer = styled.div`
+    margin-left: auto;
+    padding-right: 20px;
+`;
+
+const GoBackButtonContainer = styled.div`
+    margin-right: auto;
+    padding-left: 20px;
+`;
+
 const LogoContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -34,12 +59,6 @@ const LogoImage = styled.img`
     object-fit: contain;
 `;
 
-const FooterLogoImage = styled.img`
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-`;
-
 const Tagline = styled.div`
     font-size: 2rem;
     max-width: 700px;
@@ -48,12 +67,85 @@ const Tagline = styled.div`
     margin-top: 2rem;
 `;
 
-// Custom styled wrapper for Brevo form to match your design
+const Button = styled.button`
+    background-color: #4E1F00;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+        background-color: #3a1700;
+    }
+    
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+`;
+
+const InputSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 500px;
+    
+    @media (min-width: 768px) {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+`;
+
+const TextInput = styled.input`
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background-color: white;
+    color: #333;
+    
+    &:focus {
+        border-color: #4E1F00;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(78, 31, 0, 0.1);
+    }
+    
+    &::placeholder {
+        color: #999;
+    }
+`;
+
+const ErrorMessage = styled.div`
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 1rem;
+    max-width: 500px;
+    width: 100%;
+`;
+
+const Disclaimer = styled.div`
+    font-size: 0.75rem;
+    color: #4E1F00;
+    text-align: center;
+    max-width: 400px;
+    margin-top: 0.5rem;
+`;
+
 const BrevoFormWrapper = styled.div`
     width: 100%;
     max-width: 500px;
     
-    /* Override Brevo container styles to match your design */
     #sib-container {
         background-color: transparent !important;
         border: none !important;
@@ -62,12 +154,10 @@ const BrevoFormWrapper = styled.div`
         box-shadow: none !important;
     }
     
-    /* Hide the Brevo tagline since you have your own */
     .sib-form-block p {
         display: none !important;
     }
     
-    /* Style the input to match your TextInput component */
     .sib-input input {
         width: 100% !important;
         padding: 0.75rem 1rem !important;
@@ -89,7 +179,6 @@ const BrevoFormWrapper = styled.div`
         }
     }
     
-    /* Style the button to match your Button component */
     .sib-form-block__button {
         width: 100% !important;
         padding: 0.75rem 1rem !important;
@@ -112,7 +201,6 @@ const BrevoFormWrapper = styled.div`
         }
     }
     
-    /* Style the form layout to match your InputSection */
     .sib-form {
         display: flex !important;
         flex-direction: column !important;
@@ -133,7 +221,6 @@ const BrevoFormWrapper = styled.div`
         flex-shrink: 0 !important;
     }
     
-    /* Style the disclaimer text */
     .entry__specification {
         font-size: 0.75rem !important;
         color: #4E1F00 !important;
@@ -142,7 +229,6 @@ const BrevoFormWrapper = styled.div`
         margin-top: 0.5rem !important;
     }
     
-    /* Success and error message styling to match your components */
     .sib-form-message-panel {
         padding: 1rem !important;
         border-radius: 0.5rem !important;
@@ -153,21 +239,18 @@ const BrevoFormWrapper = styled.div`
         width: 100% !important;
     }
     
-    /* Success message styling */
     #success-message {
         background-color: #d4edda !important;
         color: #155724 !important;
         border: 1px solid #c3e6cb !important;
     }
     
-    /* Error message styling */
     #error-message {
         background-color: #f8d7da !important;
         color: #721c24 !important;
         border: 1px solid #f5c6cb !important;
     }
     
-    /* Hide Brevo icons in messages */
     .sib-icon {
         display: none !important;
     }
@@ -178,67 +261,6 @@ const Footer = styled.footer`
     border-top: 1px solid #eee;
     background-color: #4E1F00;
     color: white;
-`;
-
-const FooterContent = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 2rem;
-    margin-bottom: 2rem;
-    
-    @media (max-width: 768px) {
-        flex-direction: column;
-        gap: 2rem;
-    }
-`;
-
-const FooterLeft = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-`;
-
-const Tagline2 = styled.div`
-    font-size: 0.875rem;
-    color: #ccc;
-`;
-
-const SocialLinks = styled.div`
-    font-size: 0.875rem;
-    color: #ccc;
-`;
-
-const FooterRight = styled.div`
-    display: flex;
-    gap: 3rem;
-    
-    @media (max-width: 768px) {
-        gap: 2rem;
-    }
-`;
-
-const FooterSection = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-`;
-
-const FooterHeading = styled.h3`
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    color: white;
-`;
-
-const FooterLink = styled.div`
-    font-size: 0.875rem;
-    color: #ccc;
-    cursor: pointer;
-    
-    &:hover {
-        color: white;
-    }
 `;
 
 const Divider = styled.div`
@@ -282,7 +304,12 @@ const SuccessMessage = styled.div`
 
 export default function Index() {
     const router = useRouter();
+    const betaPassword = "pl8m8-beta-2025";
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
     const [isMounted, setIsMounted] = useState(false);
+    const [onPasswordPage, setOnPasswordPage] = useState(false);
+    const [incorrectPassword, setIncorrectPassword] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [coolMessage, setCoolMessage] = useState('');
 
@@ -308,7 +335,6 @@ export default function Index() {
 
             const form = document.getElementById('sib-form');
             if (form) {
-                // Add tracking data as hidden inputs to Brevo form
                 Object.entries(tracking).forEach(([key, value]) => {
                     if (value) {
                         const existingInput = form.querySelector(`input[name="${key}"]`);
@@ -322,18 +348,14 @@ export default function Index() {
                     }
                 });
 
-                // Wait for Brevo's scripts to load, then override the form
                 const checkForBrevoAndOverride = () => {
                     const form = document.getElementById('sib-form');
                     if (form && !form.hasAttribute('data-override-complete')) {
-                        // Mark as overridden to prevent multiple event listeners
                         form.setAttribute('data-override-complete', 'true');
                         
-                        // Remove any existing Brevo event listeners
                         const newForm = form.cloneNode(true);
                         form.parentNode.replaceChild(newForm, form);
                         
-                        // Add our custom submit handler
                         newForm.addEventListener('submit', function(e) {
                             e.preventDefault();
                             e.stopPropagation();
@@ -341,18 +363,15 @@ export default function Index() {
                             const formData = new FormData(newForm);
                             const email = formData.get('EMAIL');
                             
-                            // Check if email is valid
                             if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                                 return;
                             }
 
-                            // Submit to Brevo in background
                             fetch(newForm.action, {
                                 method: 'POST',
                                 body: formData,
-                                mode: 'no-cors' // Important for cross-origin requests
+                                mode: 'no-cors'
                             }).then(() => {
-                                // Show success message regardless of response (since we can't read it due to CORS)
                                 const coolMessages = [
                                     "🎉 Welcome to the PL8M8 family! You're now in the driver's seat for early access!",
                                     "🚗 Buckle up! You're officially on the VIP list for the future of car buying!",
@@ -371,7 +390,6 @@ export default function Index() {
                                 setIsSubmitted(true);
                             }).catch(error => {
                                 console.error('Error:', error);
-                                // Still show success since Brevo might have received it
                                 const randomMessage = "🎉 Welcome to the PL8M8 family! You're now in the driver's seat for early access!";
                                 setCoolMessage(randomMessage);
                                 setIsSubmitted(true);
@@ -380,15 +398,25 @@ export default function Index() {
                     }
                 };
 
-                // Try immediately and also set up intervals to catch when Brevo loads
                 checkForBrevoAndOverride();
                 const interval = setInterval(checkForBrevoAndOverride, 500);
-                
-                // Clean up interval after 10 seconds
                 setTimeout(() => clearInterval(interval), 10000);
             }
         }
     }, [isMounted, router.query]);
+
+    const togglePasswordPage = () => {
+        setOnPasswordPage(!onPasswordPage);
+    };
+
+    const handlePasswordSubmit = () => {
+        if (password === betaPassword) {
+            setIncorrectPassword(false);
+            router.replace('/listings');
+        } else {
+            setIncorrectPassword(true);
+        }
+    };
 
     if (!isMounted) {
         return null;
@@ -442,110 +470,132 @@ export default function Index() {
             `}</style>
             
             <Main>
-                <LogoContainer>
-                    <LogoImage src="/logo.png" alt="PL8M8 Logo" />
-                </LogoContainer>
-                <Tagline>Where car maintenance meets community. Real people, real deals, real transparency.</Tagline>
-                
-                {!isSubmitted ? (
-                    <BrevoFormWrapper>
-                        <div className="sib-form" style={{textAlign: 'center'}}>
-                            <div id="sib-form-container" className="sib-form-container">
-                                <div id="error-message" className="sib-form-message-panel" style={{display: 'none'}}>
-                                    <div className="sib-form-message-panel__text sib-form-message-panel__text--center">
-                                        <span className="sib-form-message-panel__inner-text">
-                                            Your submission could not be saved. Please try again.
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <div id="success-message" className="sib-form-message-panel" style={{display: 'none'}}>
-                                    <div className="sib-form-message-panel__text sib-form-message-panel__text--center">
-                                        <span className="sib-form-message-panel__inner-text">
-                                            🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <div id="sib-container" className="sib-container--large sib-container--vertical">
-                                    <form id="sib-form" method="POST" action="https://e83a7e5d.sibforms.com/serve/MUIFAJQR4k_wUWA9rHI1j7IlmdbZYtJJuGpD-8ZsYJlL7xfLi_xJYEaN50iYceddNIOm-9WxxYXOUlLaJoJTZxRTxANjOADFP7CPksqgXAbx201u7US3Aif1UAbERpJyK-PYuQ1dM6Et-fbzzEhQzdXQljUasRs3aC9M5ZrSgT9Mj96GTGC99psndvr7Mhq-WTh1jeR-NdOEaDk9" data-type="subscription">
+                {!onPasswordPage ? (
+                    <>
+                        <NavbarContainer>
+                            <SignInButtonContainer>
+                                <Button onClick={togglePasswordPage}>
+                                    Sign In
+                                </Button>                    
+                            </SignInButtonContainer>
+                        </NavbarContainer>
+                        <LogoContainer>
+                            <LogoImage src="/logo.png" alt="PL8M8 Logo" />
+                        </LogoContainer>
+                        <Tagline>Where car maintenance meets community. Real people, real deals, real transparency.</Tagline>
+                        
+                        {!isSubmitted ? (
+                            <BrevoFormWrapper>
+                                <div className="sib-form" style={{textAlign: 'center'}}>
+                                    <div id="sib-form-container" className="sib-form-container">
+                                        <div id="error-message" className="sib-form-message-panel" style={{display: 'none'}}>
+                                            <div className="sib-form-message-panel__text sib-form-message-panel__text--center">
+                                                <span className="sib-form-message-panel__inner-text">
+                                                    Your submission could not be saved. Please try again.
+                                                </span>
+                                            </div>
+                                        </div>
                                         
-                                        <div style={{padding: '8px 0'}}>
-                                            <div className="sib-input sib-form-block">
-                                                <div className="form__entry entry_block">
-                                                    <div className="form__label-row">
-                                                        <div className="entry__field">
-                                                            <input 
-                                                                className="input" 
-                                                                type="text" 
-                                                                id="EMAIL" 
-                                                                name="EMAIL" 
-                                                                autocomplete="off" 
-                                                                placeholder="Enter your email" 
-                                                                data-required="true" 
-                                                                required 
-                                                            />
+                                        <div id="success-message" className="sib-form-message-panel" style={{display: 'none'}}>
+                                            <div className="sib-form-message-panel__text sib-form-message-panel__text--center">
+                                                <span className="sib-form-message-panel__inner-text">
+                                                    🎉 Welcome to the waitlist! You'll be among the first to know when PL8M8 launches. Keep an eye on your inbox!
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="sib-container" className="sib-container--large sib-container--vertical">
+                                            <form id="sib-form" method="POST" action="https://e83a7e5d.sibforms.com/serve/MUIFAJQR4k_wUWA9rHI1j7IlmdbZYtJJuGpD-8ZsYJlL7xfLi_xJYEaN50iYceddNIOm-9WxxYXOUlLaJoJTZxRTxANjOADFP7CPksqgXAbx201u7US3Aif1UAbERpJyK-PYuQ1dM6Et-fbzzEhQzdXQljUasRs3aC9M5ZrSgT9Mj96GTGC99psndvr7Mhq-WTh1jeR-NdOEaDk9" data-type="subscription">
+                                                
+                                                <div style={{padding: '8px 0'}}>
+                                                    <div className="sib-input sib-form-block">
+                                                        <div className="form__entry entry_block">
+                                                            <div className="form__label-row">
+                                                                <div className="entry__field">
+                                                                    <input 
+                                                                        className="input" 
+                                                                        type="text" 
+                                                                        id="EMAIL" 
+                                                                        name="EMAIL" 
+                                                                        autoComplete="off" 
+                                                                        placeholder="Enter your email" 
+                                                                        data-required="true" 
+                                                                        required 
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <label className="entry__error entry__error--primary" style={{display: 'none'}}></label>
+                                                            <label className="entry__specification">
+                                                                By submitting my personal data I agree to receive marketing emails from PL8M8
+                                                            </label>
                                                         </div>
                                                     </div>
-                                                    <label className="entry__error entry__error--primary" style={{display: 'none'}}></label>
-                                                    <label className="entry__specification">
-                                                        By submitting my personal data I agree to receive marketing emails from PL8M8
-                                                    </label>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div style={{padding: '8px 0'}}>
-                                            <div className="sib-form-block" style={{textAlign: 'center'}}>
-                                                <button 
-                                                    className="sib-form-block__button sib-form-block__button-with-loader" 
-                                                    form="sib-form" 
-                                                    type="submit"
-                                                >
-                                                    JOIN WAITLIST
-                                                </button>
-                                            </div>
-                                        </div>
+                                                
+                                                <div style={{padding: '8px 0'}}>
+                                                    <div className="sib-form-block" style={{textAlign: 'center'}}>
+                                                        <button 
+                                                            className="sib-form-block__button sib-form-block__button-with-loader" 
+                                                            form="sib-form" 
+                                                            type="submit"
+                                                        >
+                                                            JOIN WAITLIST
+                                                        </button>
+                                                    </div>
+                                                </div>
 
-                                        <input type="text" name="email_address_check" value="" className="input--hidden" style={{display: 'none'}} />
-                                        <input type="hidden" name="locale" value="en" />
-                                        
-                                        {/* Tracking data will be added here dynamically */}
-                                    </form>
+                                                <input type="text" name="email_address_check" value="" className="input--hidden" style={{display: 'none'}} />
+                                                <input type="hidden" name="locale" value="en" />
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </BrevoFormWrapper>
+                            </BrevoFormWrapper>
+                        ) : (
+                            <SuccessMessage>
+                                {coolMessage}
+                            </SuccessMessage>
+                        )}
+                    </>
                 ) : (
-                    <SuccessMessage>
-                        {coolMessage}
-                    </SuccessMessage>
+                    <>
+                        <NavbarContainer>
+                            <GoBackButtonContainer>
+                                <Button onClick={togglePasswordPage}>
+                                    Go Back
+                                </Button>                    
+                            </GoBackButtonContainer>
+                        </NavbarContainer>
+                        <LogoContainer>
+                            <LogoImage src="/logo.png" alt="PL8M8 Logo" />
+                        </LogoContainer>
+                        <Tagline>Thanks for helping us test! Enter your password to get started</Tagline>
+                        <InputSection>
+                            <TextInput 
+                                type="password"
+                                placeholder="Enter password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <Button 
+                                onClick={handlePasswordSubmit}
+                                disabled={!password}
+                            >
+                                Enter
+                            </Button>
+                        </InputSection>
+
+                        {incorrectPassword && (
+                            <ErrorMessage>
+                                Incorrect Password
+                            </ErrorMessage>
+                        )}
+                    </>
                 )}
             </Main>
             
             <Footer>
-                {false && (
-                    <FooterContent>
-                        <FooterLeft>
-                            <FooterLogoImage src="/logo.png" alt="PL8M8 Logo" />
-                            <Tagline2>Know your car™</Tagline2>
-                        </FooterLeft>
-                        
-                        <FooterRight>
-                            <FooterSection>
-                                <FooterHeading>Company</FooterHeading>
-                                <FooterLink>Contact</FooterLink>
-                            </FooterSection>
-                            
-                            <FooterSection>
-                                <FooterHeading>Legal</FooterHeading>
-                                <FooterLink>Terms of Service</FooterLink>
-                                <FooterLink>Privacy Policy</FooterLink>
-                            </FooterSection>
-                        </FooterRight>
-                    </FooterContent>
-                )}
-                
                 <Divider />
                 <Copyright>© {new Date().getFullYear()} PL8M8 LLC. All rights reserved.</Copyright>
             </Footer>
