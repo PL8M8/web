@@ -6,7 +6,8 @@ import colors from "constants/colors";
 
 const Container = styled.div`
     height: 100vh;
-`
+`;
+
 const Mosaic = styled.div`
     display: grid;
     gap: clamp(1rem, 5vmin, 1rem);
@@ -243,7 +244,7 @@ const DateListed = styled.p`
     margin: 0;
     padding: 0;
     text-align: right;
-`
+`;
 
 const Subtitle = styled.h3`
     font-size: 1em;

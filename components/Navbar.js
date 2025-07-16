@@ -242,7 +242,6 @@ const Navbar = ({ extraComponents }) => {
     const loggedInNavLinks = [ 
         { name: 'Buy & Sell', path: '/listings' },
         { name: 'Garage', path: '/garage' },
-        { name: 'Messages', path: '/messages'},
         { name: 'Settings', path: '/settings' },
     ]
 
