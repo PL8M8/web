@@ -377,7 +377,7 @@ const ReportForm = styled.div`
     margin: 8px 0;
 `;
 
-const ReportsHeader = styled.h2`
+const AddReportsHeader = styled.h2`
     background-color: #fe8901;
     text-align: center;
     color: white;
@@ -385,6 +385,7 @@ const ReportsHeader = styled.h2`
     height: 140px;
     padding: 10px;
     border-radius: 12px 12px 0px 0px;      
+    margin: 0px;
 `
 
 const ReportsLogo = styled.div`
@@ -545,19 +546,18 @@ const SegmentedOption = styled.button`
     flex: 1;
     padding: 4px 8px;
     border: none;
-    background-color: ${props => props.selected ? '#007bff' : '#fff'};
-    color: ${props => props.selected ? '#fff' : '#333'};
+    border-bottom: ${props => props.selected ? "solid": "none"};
+    color: ${props => props.selected ? "orange": "gray"};
+    background-color: ${props => props.selected ? "white": "none"};
     cursor: pointer;
     font-size: 0.75rem;
     transition: all 0.2s ease;
+    height: 3rem;
     
     &:not(:last-child) {
         border-right: 1px solid #ccc;
     }
     
-    &:hover {
-        background-color: ${props => props.selected ? '#0056b3' : '#f8f9fa'};
-    }
 `;
 
 const FormLabel = styled.label`
@@ -715,10 +715,11 @@ const VehicleDetail = () => {
     ];
 
     const reportTypes = [
-        { value: 'problem', label: 'Problem'},
-        { value: 'forum', label: 'Forum'},
-        { value: 'warning', label: 'Warning'},
-        { value: 'document', label: 'Document'},
+        { value: 'problem', label: 'Problem', icon: '🔧'},
+        { value: 'forum', label: 'Forum', icon: '💬'},
+        { value: 'warning', label: 'Warning', icon: '⚠️'},
+        { value: 'document', label: 'Documentation', icon: '📄'},
+        { value: 'recommendation', label: "Recommendation", icon: "⭐" },
     ];
 
     const severityOptions = [
@@ -1393,13 +1394,14 @@ const VehicleDetail = () => {
                             />
                             
                             {isAddingReport && (
+                                // HERE 
                                 <ReportForm>
-                                    <ReportsHeader>
+                                    <AddReportsHeader>
                                         <ReportsLogo>
                                             PL8M8
                                         </ReportsLogo>
                                         <div style={ {padding: "20px", fontWeight:"bold"}}> Add a Report </div>
-                                    </ReportsHeader>
+                                    </AddReportsHeader>
 
                                     <SegmentedControl>
                                         {reportTypes.map(type => (
@@ -1408,6 +1410,7 @@ const VehicleDetail = () => {
                                                 selected={newReport.type === type.value}
                                                 onClick={() => setNewReport({...newReport, type: type.value})}
                                             >
+                                                {type.icon} &nbsp;
                                                 {type.label}
                                             </SegmentedOption>
                                         ))}
