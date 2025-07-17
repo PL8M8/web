@@ -717,11 +717,11 @@ const VehicleDetail = () => {
     ];
 
     const reportTypes = [
-        { value: 'problem', label: 'Problem', icon: '🔧', title: 'Problem Title', levelSelect: 'Severity Level', description: 'Detailed Description', uploadPrompt: 'Attach Photos/Documents'},
-        { value: 'forum', label: 'Forum', icon: '💬', title: 'Discussion Title', levelSelect: 'Priority Level', description: 'Your Message', uploadPrompt: 'Attach Files'},
-        { value: 'warning', label: 'Warning', icon: '⚠️', title: 'Warning Title', levelSelect: 'Severity Level', description: 'Warning Details', uploadPrompt: 'Supporting Documentation'},
-        { value: 'document', label: 'Documentation', icon: '📄', title: 'Documentation Title', levelSelect: 'Importance Level', description: 'Documentation Description', uploadPrompt: 'Upload Documentation'},
-        { value: 'recommendation', label: "Recommendation", icon: "⭐", title: 'Recommendation Title', levelSelect: 'Recommendation Strength', description: 'Your Recommendation', uploadPrompt: 'Supporting Photos/Documents'},
+        { value: 'problem', label: 'Problem', icon: '🔧', title: 'Problem Title', levelSelect: 'Severity Level', description: 'Detailed Description', uploadPrompt: 'Attach Photos/Documents', banner: 'Report mchanical issues, breakdowns, or maintenance problems with your vehicle.', submitText: 'Submit Problem', titlePlaceholder: 'Brief description of the car problem', descriptionPlaceholder: 'Describe the problem in detail - what happened, when it started, symptoms, etc.'},
+        { value: 'forum', label: 'Forum', icon: '💬', title: 'Discussion Title', levelSelect: 'Priority Level', description: 'Your Message', uploadPrompt: 'Attach Files', banner: 'Start discussions, ask questions, or share experiences with the community.', submitText: 'Post to Forum', titlePlaceholder: 'What would you like to discuss?', descriptionPlaceholder: 'Share your thoughts, ask questions, or start a discussion...'},
+        { value: 'warning', label: 'Warning', icon: '⚠️', title: 'Warning Title', levelSelect: 'Severity Level', description: 'Warning Details', uploadPrompt: 'Supporting Documentation', banner: 'Alert others about safety issues, recalls, or important vehicle-related warnings.', submitText: 'Publish Warning', titlePlaceholder: 'Clear warning or safety alert title', descriptionPlaceholder: 'Describe the warning, safety concern, or importatnt information that needs to be shared...'},
+        { value: 'document', label: 'Documentation', icon: '📄', title: 'Documentation Title', levelSelect: 'Importance Level', description: 'Documentation Description', uploadPrompt: 'Upload Documentation', banner: 'Share important documents, manuals, guides, or reference materials.', submitText: 'Share Documentation', titlePlaceholder: 'Name or title of the documentation', descriptionPlaceholder: 'Describe what this documentation contains and why it\'s useful to the community...'},
+        { value: 'recommendation', label: "Recommendation", icon: "⭐", title: 'Recommendation Title', levelSelect: 'Recommendation Strength', description: 'Your Recommendation', uploadPrompt: 'Supporting Photos/Documents', banner: 'Recommend mechanics, parts suppliers, tools, or services to the community.', submitText: 'Share Recommendation', titlePlaceholder: 'What are you recommending?', descriptionPlaceholder: 'Share your exeperience and why you recommend this to others...'},
     ];
 
     const severityOptions = [
@@ -1421,7 +1421,7 @@ const VehicleDetail = () => {
                                     {console.log("TODO DELETE This is new Report ", newReport)}
                                     <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.title }</FormLabel>
                                     <TextArea
-                                        placeholder="Enter title"
+                                        placeholder={ reportTypes.find( reportType => reportType.value === newReport.type )?.titlePlaceholder }
                                         value={newReport.title}
                                         onChange={(e) => setNewReport({...newReport, title: e.target.value})}
                                         required
@@ -1442,7 +1442,7 @@ const VehicleDetail = () => {
 
                                     <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.description }</FormLabel>
                                     <TextArea
-                                        placeholder="Enter description"
+                                        placeholder={ reportTypes.find( reportType => reportType.value === newReport.type )?.descriptionPlaceholder }
                                         value={newReport.description}
                                         onChange={(e) => setNewReport({...newReport, description: e.target.value})}
                                         required
@@ -1464,7 +1464,7 @@ const VehicleDetail = () => {
                                     <ButtonWrapper>
                                         <Button 
                                             onClick={handleAddReport}
-                                            value={loading ? "Adding..." : "Add Report"}
+                                            value={loading ? "Adding..." : reportTypes.find( reportType => reportType.value === newReport.type )?.submitText }
                                             disabled={loading}
                                         />
                                         <Button 
