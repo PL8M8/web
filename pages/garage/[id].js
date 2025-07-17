@@ -536,7 +536,6 @@ const Select = styled.select`
 
 const SegmentedControl = styled.div`
     display: flex;
-    border: 1px solid #ccc;
     border-radius: 4px;
     overflow: hidden;
     margin: 4px 0;
@@ -558,6 +557,20 @@ const SegmentedOption = styled.button`
         border-right: 1px solid #ccc;
     }
     
+`;
+
+const SeverityButton = styled.button`
+    flex: 1;
+    padding: 4px 8px;
+    margin: 1px;
+    font-weight: bold;
+    border: 2px solid ${props => props.color};
+    border-radius: 12px 12px 12px 12px;
+    color: ${props => props.color};
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    height: 3rem;
 `;
 
 const FormLabel = styled.label`
@@ -726,9 +739,9 @@ const VehicleDetail = () => {
 
     const severityOptions = [
         { value: 'low', label: 'Low', color: 'green'},
-        { value: 'medium', label: 'Medium', color: 'yellow'},
-        { value: 'high', label: 'High', color: 'orange' },
-        { value: 'urgent', label: 'Urgent', color: 'red'}
+        { value: 'medium', label: 'Medium', color: 'orange'},
+        { value: 'high', label: 'High', color: 'red' },
+        { value: 'urgent', label: 'Urgent', color: '#8b0000'}
     ];
 
     const statusOptions = [
@@ -1430,13 +1443,14 @@ const VehicleDetail = () => {
                                     <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.levelSelect }</FormLabel>
                                     <SegmentedControl>
                                         {severityOptions.map(severity => (
-                                            <SegmentedOption
+                                            <SeverityButton
                                                 key={severity.value}
                                                 selected={newReport.severity === severity.value}
                                                 onClick={() => setNewReport({...newReport, severity: severity.value})}
+                                                color={severityOptions.find( severityOption => severityOption.value === severity.value )?.color}
                                             >
                                                 {severity.label}
-                                            </SegmentedOption>
+                                            </SeverityButton>
                                         ))}
                                     </SegmentedControl>
 
