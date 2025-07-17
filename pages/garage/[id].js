@@ -682,7 +682,9 @@ const VehicleDetail = () => {
         description: '',
         type: 'problem',
         severity: 'low',
-        status: 'open'
+        status: 'open',
+        title: '',
+        upload: ''
     });
     const [loading, setLoading] = useState(false);
     const [editingFields, setEditingFields] = useState({});
@@ -715,17 +717,18 @@ const VehicleDetail = () => {
     ];
 
     const reportTypes = [
-        { value: 'problem', label: 'Problem', icon: '🔧'},
-        { value: 'forum', label: 'Forum', icon: '💬'},
-        { value: 'warning', label: 'Warning', icon: '⚠️'},
-        { value: 'document', label: 'Documentation', icon: '📄'},
-        { value: 'recommendation', label: "Recommendation", icon: "⭐" },
+        { value: 'problem', label: 'Problem', icon: '🔧', title: 'Problem Title', levelSelect: 'Severity Level', description: 'Detailed Description', uploadPrompt: 'Attach Photos/Documents'},
+        { value: 'forum', label: 'Forum', icon: '💬', title: 'Discussion Title', levelSelect: 'Priority Level', description: 'Your Message', uploadPrompt: 'Attach Files'},
+        { value: 'warning', label: 'Warning', icon: '⚠️', title: 'Warning Title', levelSelect: 'Severity Level', description: 'Warning Details', uploadPrompt: 'Supporting Documentation'},
+        { value: 'document', label: 'Documentation', icon: '📄', title: 'Documentation Title', levelSelect: 'Importance Level', description: 'Documentation Description', uploadPrompt: 'Upload Documentation'},
+        { value: 'recommendation', label: "Recommendation", icon: "⭐", title: 'Recommendation Title', levelSelect: 'Recommendation Strength', description: 'Your Recommendation', uploadPrompt: 'Supporting Photos/Documents'},
     ];
 
     const severityOptions = [
-        { value: 'low', label: 'Low' },
-        { value: 'medium', label: 'Medium' },
-        { value: 'high', label: 'High' }
+        { value: 'low', label: 'Low', color: 'green'},
+        { value: 'medium', label: 'Medium', color: 'yellow'},
+        { value: 'high', label: 'High', color: 'orange' },
+        { value: 'urgent', label: 'Urgent', color: 'red'}
     ];
 
     const statusOptions = [
@@ -1415,16 +1418,16 @@ const VehicleDetail = () => {
                                             </SegmentedOption>
                                         ))}
                                     </SegmentedControl>
-                                    
-                                    <FormLabel>Description *</FormLabel>
+                                    {console.log("TODO DELETE This is new Report ", newReport)}
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.title }</FormLabel>
                                     <TextArea
-                                        placeholder="Enter description"
-                                        value={newReport.description}
-                                        onChange={(e) => setNewReport({...newReport, description: e.target.value})}
+                                        placeholder="Enter title"
+                                        value={newReport.title}
+                                        onChange={(e) => setNewReport({...newReport, title: e.target.value})}
                                         required
                                     />
                                     
-                                    <FormLabel>Severity</FormLabel>
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.levelSelect }</FormLabel>
                                     <SegmentedControl>
                                         {severityOptions.map(severity => (
                                             <SegmentedOption
@@ -1436,8 +1439,18 @@ const VehicleDetail = () => {
                                             </SegmentedOption>
                                         ))}
                                     </SegmentedControl>
-                                    
-                                    <FormLabel>Status</FormLabel>
+
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.description }</FormLabel>
+                                    <TextArea
+                                        placeholder="Enter description"
+                                        value={newReport.description}
+                                        onChange={(e) => setNewReport({...newReport, description: e.target.value})}
+                                        required
+                                    />
+
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.uploadPrompt }</FormLabel>
+
+                                    {/* TODO : <FormLabel>Status</FormLabel>
                                     <Select
                                         value={newReport.status}
                                         onChange={(e) => setNewReport({...newReport, status: e.target.value})}
@@ -1446,7 +1459,7 @@ const VehicleDetail = () => {
                                         <option value="in progress">In Progress</option>
                                         <option value="resolved">Resolved</option>
                                         <option value="closed">Closed</option>
-                                    </Select>
+                                    </Select> */}
                                     
                                     <ButtonWrapper>
                                         <Button 
