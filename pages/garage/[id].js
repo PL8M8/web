@@ -377,6 +377,34 @@ const ReportForm = styled.div`
     margin: 8px 0;
 `;
 
+const AddReportsHeader = styled.h2`
+    background-color: #fe8901;
+    text-align: center;
+    color: white;
+    width: 100%;
+    height: 140px;
+    padding: 10px;
+    border-radius: 12px 12px 0px 0px;      
+    margin: 0px;
+`
+
+const ReportsLogo = styled.div`
+  background-color: #f7b05eff; 
+  color: white;            
+  padding: 10px 20px;       
+  border: none;            
+  border-radius: 12px;      
+  cursor: pointer;         
+  display: inline-block;    
+  font-size: 16px;          
+`
+const ReportBanner = styled.div`
+  background-color: #f8e3cbff; 
+  border-left: solid 4px orange;
+  height: 3rem;
+  padding: 14px;
+`
+
 const AddButton = styled(Button)`
     margin-bottom: 8px;
     background-color: #007bff;
@@ -501,6 +529,7 @@ const TextArea = styled.textarea`
     font-size: 0.8125rem;
     min-height: 60px;
     resize: vertical;
+    font-family: inherit;
 `;
 
 const Select = styled.select`
@@ -514,7 +543,6 @@ const Select = styled.select`
 
 const SegmentedControl = styled.div`
     display: flex;
-    border: 1px solid #ccc;
     border-radius: 4px;
     overflow: hidden;
     margin: 4px 0;
@@ -524,27 +552,39 @@ const SegmentedOption = styled.button`
     flex: 1;
     padding: 4px 8px;
     border: none;
-    background-color: ${props => props.selected ? '#007bff' : '#fff'};
-    color: ${props => props.selected ? '#fff' : '#333'};
+    border-bottom: ${props => props.selected ? "solid 4px": "none"};
+    color: ${props => props.selected ? "orange": "gray"};
+    background-color: ${props => props.selected ? "white": "none"};
     cursor: pointer;
     font-size: 0.75rem;
     transition: all 0.2s ease;
+    height: 3rem;
     
     &:not(:last-child) {
         border-right: 1px solid #ccc;
     }
-    
-    &:hover {
-        background-color: ${props => props.selected ? '#0056b3' : '#f8f9fa'};
-    }
+`;
+
+const SeverityButton = styled.button`
+    flex: 1;
+    padding: 4px 8px;
+    margin: 1px;
+    font-weight: bold;
+    border: 2px solid ${props => props.color};
+    border-radius: 12px 12px 12px 12px;
+    color: ${props => props.color};
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    height: 3rem;
 `;
 
 const FormLabel = styled.label`
     display: block;
     margin: 8px 0 4px 0;
-    font-weight: 500;
+    font-weight: 700;
     color: #333;
-    font-size: 0.8125rem;
+    font-size: 1rem;
 `;
 
 const ButtonWrapper = styled.div`
@@ -661,7 +701,9 @@ const VehicleDetail = () => {
         description: '',
         type: 'problem',
         severity: 'low',
-        status: 'open'
+        status: 'open',
+        title: '',
+        upload: ''
     });
     const [loading, setLoading] = useState(false);
     const [editingFields, setEditingFields] = useState({});
@@ -694,16 +736,18 @@ const VehicleDetail = () => {
     ];
 
     const reportTypes = [
-        { value: 'problem', label: 'Problem'},
-        { value: 'forum', label: 'Forum'},
-        { value: 'warning', label: 'Warning'},
-        { value: 'document', label: 'Document'},
+        { value: 'problem', label: 'Problem', icon: '🔧', title: 'Problem Title', levelSelect: 'Severity Level', description: 'Detailed Description', uploadPrompt: 'Attach Photos/Documents', banner: 'Report mechanical issues, breakdowns, or maintenance problems with your vehicle.', submitText: 'Submit Problem', titlePlaceholder: 'Brief description of the car problem', descriptionPlaceholder: 'Describe the problem in detail - what happened, when it started, symptoms, etc.'},
+        { value: 'forum', label: 'Forum', icon: '💬', title: 'Discussion Title', levelSelect: 'Priority Level', description: 'Your Message', uploadPrompt: 'Attach Files', banner: 'Start discussions, ask questions, or share experiences with the community.', submitText: 'Post to Forum', titlePlaceholder: 'What would you like to discuss?', descriptionPlaceholder: 'Share your thoughts, ask questions, or start a discussion...'},
+        { value: 'warning', label: 'Warning', icon: '⚠️', title: 'Warning Title', levelSelect: 'Severity Level', description: 'Warning Details', uploadPrompt: 'Supporting Documentation', banner: 'Alert others about safety issues, recalls, or important vehicle-related warnings.', submitText: 'Publish Warning', titlePlaceholder: 'Clear warning or safety alert title', descriptionPlaceholder: 'Describe the warning, safety concern, or importatnt information that needs to be shared...'},
+        { value: 'document', label: 'Documentation', icon: '📄', title: 'Documentation Title', levelSelect: 'Importance Level', description: 'Documentation Description', uploadPrompt: 'Upload Documentation', banner: 'Share important documents, manuals, guides, or reference materials.', submitText: 'Share Documentation', titlePlaceholder: 'Name or title of the documentation', descriptionPlaceholder: 'Describe what this documentation contains and why it\'s useful to the community...'},
+        { value: 'recommendation', label: "Recommendation", icon: "⭐", title: 'Recommendation Title', levelSelect: 'Recommendation Strength', description: 'Your Recommendation', uploadPrompt: 'Supporting Photos/Documents', banner: 'Recommend mechanics, parts suppliers, tools, or services to the community.', submitText: 'Share Recommendation', titlePlaceholder: 'What are you recommending?', descriptionPlaceholder: 'Share your exeperience and why you recommend this to others...'},
     ];
 
     const severityOptions = [
-        { value: 'low', label: 'Low' },
-        { value: 'medium', label: 'Medium' },
-        { value: 'high', label: 'High' }
+        { value: 'low', label: 'Low', color: 'green'},
+        { value: 'medium', label: 'Medium', color: 'orange'},
+        { value: 'high', label: 'High', color: 'red' },
+        { value: 'urgent', label: 'Urgent', color: '#8b0000'}
     ];
 
     const statusOptions = [
@@ -1373,9 +1417,13 @@ const VehicleDetail = () => {
                             
                             {isAddingReport && (
                                 <ReportForm>
-                                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9375rem' }}>Add New Report</h4>
-                                    
-                                    <FormLabel>Report Type *</FormLabel>
+                                    <AddReportsHeader>
+                                        <ReportsLogo>
+                                            PL8M8
+                                        </ReportsLogo>
+                                        <div style={ {padding: "20px", fontWeight:"bold"}}> Add a Report </div>
+                                    </AddReportsHeader>
+
                                     <SegmentedControl>
                                         {reportTypes.map(type => (
                                             <SegmentedOption
@@ -1383,47 +1431,50 @@ const VehicleDetail = () => {
                                                 selected={newReport.type === type.value}
                                                 onClick={() => setNewReport({...newReport, type: type.value})}
                                             >
+                                                {type.icon} &nbsp;
                                                 {type.label}
                                             </SegmentedOption>
                                         ))}
                                     </SegmentedControl>
                                     
-                                    <FormLabel>Description *</FormLabel>
+                                    <ReportBanner>{ reportTypes.find( reportType => reportType.value === newReport.type )?.banner }</ReportBanner>
+
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.title }</FormLabel>
                                     <TextArea
-                                        placeholder="Enter description"
+                                        placeholder={ reportTypes.find( reportType => reportType.value === newReport.type )?.titlePlaceholder }
+                                        value={newReport.title}
+                                        onChange={(e) => setNewReport({...newReport, title: e.target.value})}
+                                        required
+                                    />
+                                    
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.levelSelect }</FormLabel>
+                                    <SegmentedControl>
+                                        {severityOptions.map(severity => (
+                                            <SeverityButton
+                                                key={severity.value}
+                                                selected={newReport.severity === severity.value}
+                                                onClick={() => setNewReport({...newReport, severity: severity.value})}
+                                                color={severityOptions.find( severityOption => severityOption.value === severity.value )?.color}
+                                            >
+                                                {severity.label}
+                                            </SeverityButton>
+                                        ))}
+                                    </SegmentedControl>
+
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.description }</FormLabel>
+                                    <TextArea
+                                        placeholder={ reportTypes.find( reportType => reportType.value === newReport.type )?.descriptionPlaceholder }
                                         value={newReport.description}
                                         onChange={(e) => setNewReport({...newReport, description: e.target.value})}
                                         required
                                     />
-                                    
-                                    <FormLabel>Severity</FormLabel>
-                                    <SegmentedControl>
-                                        {severityOptions.map(severity => (
-                                            <SegmentedOption
-                                                key={severity.value}
-                                                selected={newReport.severity === severity.value}
-                                                onClick={() => setNewReport({...newReport, severity: severity.value})}
-                                            >
-                                                {severity.label}
-                                            </SegmentedOption>
-                                        ))}
-                                    </SegmentedControl>
-                                    
-                                    <FormLabel>Status</FormLabel>
-                                    <Select
-                                        value={newReport.status}
-                                        onChange={(e) => setNewReport({...newReport, status: e.target.value})}
-                                    >
-                                        <option value="open">Open</option>
-                                        <option value="in progress">In Progress</option>
-                                        <option value="resolved">Resolved</option>
-                                        <option value="closed">Closed</option>
-                                    </Select>
+
+                                    <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.uploadPrompt }</FormLabel>
                                     
                                     <ButtonWrapper>
                                         <Button 
                                             onClick={handleAddReport}
-                                            value={loading ? "Adding..." : "Add Report"}
+                                            value={loading ? "Adding..." : reportTypes.find( reportType => reportType.value === newReport.type )?.submitText }
                                             disabled={loading}
                                         />
                                         <Button 
