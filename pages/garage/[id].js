@@ -552,7 +552,7 @@ const SegmentedOption = styled.button`
     flex: 1;
     padding: 4px 8px;
     border: none;
-    border-bottom: ${props => props.selected ? "solid": "none"};
+    border-bottom: ${props => props.selected ? "solid 4px": "none"};
     color: ${props => props.selected ? "orange": "gray"};
     background-color: ${props => props.selected ? "white": "none"};
     cursor: pointer;
