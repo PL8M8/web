@@ -315,6 +315,9 @@ export default function Index() {
 
     useEffect(() => {
         setIsMounted(true);
+        if (localStorage.getItem('bypassPassword')){
+            router.replace('/listings');
+        }
     }, []);
 
     useEffect(() => {
@@ -411,6 +414,7 @@ export default function Index() {
 
     const handlePasswordSubmit = () => {
         if (password === betaPassword) {
+            localStorage.setItem('bypassPassword', true)
             setIncorrectPassword(false);
             router.replace('/listings');
         } else {
