@@ -398,6 +398,12 @@ const ReportsLogo = styled.div`
   display: inline-block;    
   font-size: 16px;          
 `
+const ReportBanner = styled.div`
+  background-color: #f8e3cbff; 
+  border-left: solid 4px orange;
+  height: 3rem;
+  padding: 14px;
+`
 
 const AddButton = styled(Button)`
     margin-bottom: 8px;
@@ -523,6 +529,7 @@ const TextArea = styled.textarea`
     font-size: 0.8125rem;
     min-height: 60px;
     resize: vertical;
+    font-family: inherit;
 `;
 
 const Select = styled.select`
@@ -556,7 +563,6 @@ const SegmentedOption = styled.button`
     &:not(:last-child) {
         border-right: 1px solid #ccc;
     }
-    
 `;
 
 const SeverityButton = styled.button`
@@ -576,9 +582,9 @@ const SeverityButton = styled.button`
 const FormLabel = styled.label`
     display: block;
     margin: 8px 0 4px 0;
-    font-weight: 500;
+    font-weight: 700;
     color: #333;
-    font-size: 0.8125rem;
+    font-size: 1rem;
 `;
 
 const ButtonWrapper = styled.div`
@@ -730,7 +736,7 @@ const VehicleDetail = () => {
     ];
 
     const reportTypes = [
-        { value: 'problem', label: 'Problem', icon: '🔧', title: 'Problem Title', levelSelect: 'Severity Level', description: 'Detailed Description', uploadPrompt: 'Attach Photos/Documents', banner: 'Report mchanical issues, breakdowns, or maintenance problems with your vehicle.', submitText: 'Submit Problem', titlePlaceholder: 'Brief description of the car problem', descriptionPlaceholder: 'Describe the problem in detail - what happened, when it started, symptoms, etc.'},
+        { value: 'problem', label: 'Problem', icon: '🔧', title: 'Problem Title', levelSelect: 'Severity Level', description: 'Detailed Description', uploadPrompt: 'Attach Photos/Documents', banner: 'Report mechanical issues, breakdowns, or maintenance problems with your vehicle.', submitText: 'Submit Problem', titlePlaceholder: 'Brief description of the car problem', descriptionPlaceholder: 'Describe the problem in detail - what happened, when it started, symptoms, etc.'},
         { value: 'forum', label: 'Forum', icon: '💬', title: 'Discussion Title', levelSelect: 'Priority Level', description: 'Your Message', uploadPrompt: 'Attach Files', banner: 'Start discussions, ask questions, or share experiences with the community.', submitText: 'Post to Forum', titlePlaceholder: 'What would you like to discuss?', descriptionPlaceholder: 'Share your thoughts, ask questions, or start a discussion...'},
         { value: 'warning', label: 'Warning', icon: '⚠️', title: 'Warning Title', levelSelect: 'Severity Level', description: 'Warning Details', uploadPrompt: 'Supporting Documentation', banner: 'Alert others about safety issues, recalls, or important vehicle-related warnings.', submitText: 'Publish Warning', titlePlaceholder: 'Clear warning or safety alert title', descriptionPlaceholder: 'Describe the warning, safety concern, or importatnt information that needs to be shared...'},
         { value: 'document', label: 'Documentation', icon: '📄', title: 'Documentation Title', levelSelect: 'Importance Level', description: 'Documentation Description', uploadPrompt: 'Upload Documentation', banner: 'Share important documents, manuals, guides, or reference materials.', submitText: 'Share Documentation', titlePlaceholder: 'Name or title of the documentation', descriptionPlaceholder: 'Describe what this documentation contains and why it\'s useful to the community...'},
@@ -1410,7 +1416,6 @@ const VehicleDetail = () => {
                             />
                             
                             {isAddingReport && (
-                                // HERE 
                                 <ReportForm>
                                     <AddReportsHeader>
                                         <ReportsLogo>
@@ -1431,7 +1436,9 @@ const VehicleDetail = () => {
                                             </SegmentedOption>
                                         ))}
                                     </SegmentedControl>
-                                    {console.log("TODO DELETE This is new Report ", newReport)}
+                                    
+                                    <ReportBanner>{ reportTypes.find( reportType => reportType.value === newReport.type )?.banner }</ReportBanner>
+
                                     <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.title }</FormLabel>
                                     <TextArea
                                         placeholder={ reportTypes.find( reportType => reportType.value === newReport.type )?.titlePlaceholder }
@@ -1463,17 +1470,6 @@ const VehicleDetail = () => {
                                     />
 
                                     <FormLabel>{ reportTypes.find( reportType => reportType.value === newReport.type )?.uploadPrompt }</FormLabel>
-
-                                    {/* TODO : <FormLabel>Status</FormLabel>
-                                    <Select
-                                        value={newReport.status}
-                                        onChange={(e) => setNewReport({...newReport, status: e.target.value})}
-                                    >
-                                        <option value="open">Open</option>
-                                        <option value="in progress">In Progress</option>
-                                        <option value="resolved">Resolved</option>
-                                        <option value="closed">Closed</option>
-                                    </Select> */}
                                     
                                     <ButtonWrapper>
                                         <Button 
