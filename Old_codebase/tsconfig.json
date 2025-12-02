@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "incremental": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": "./", // Base directory for resolving non-relative module names
+    "paths": {
+      "@components/*": [
+        "components/*"
+      ], // Alias for components directory
+      "@styles/*": [
+        "styles/*"
+      ], // Alias for styles directory
+      "@utils/*": [
+        "utils/*"
+      ], // Optional: Alias for a utils directory
+      "@hooks/*": [
+        "hooks/*"
+      ], // Optional: Alias for a hooks directory
+      "@constants/*": [
+        "constants/*"
+      ]
+    },
+    "target": "ES2017"
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "components/Gallery.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "pl8m8-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "export": "next export",
+    "sb:login": "npx supabase login",
+    "sb:start": "npx supabase start",
+    "sb:stop": "npx supabase stop --no-backup",
+    "sb:link": "npx supabase link",
+    "sb:storage": "node scripts/setup-storage.js",
+    "sb:pull": "npx supabase db pull",
+    "sb:push": "npx supabase db push",
+    "sb:reset": "npx supabase db reset",
+    "sb:types": "npx supabase gen types typescript --local > types/supabase.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "axios": "^1.7.7",
+    "browser-image-compression": "^2.0.2",
+    "cheerio": "^1.0.0",
+    "formik": "^2.4.6",
+    "framer-motion": "^12.5.0",
+    "next": "^15.0.0",
+    "posthog-js": "^1.184.2",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-masonry-css": "^1.0.16",
+    "styled-components": "^6.1.14",
+    "uuidv4": "^6.2.13",
+    "yup": "^1.6.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.0.0",
+    "typescript": "^5.6.3",
+    "cypress": "^13.4.0",
+    "puppeteer": "^23.6.1"
+  }
+}
