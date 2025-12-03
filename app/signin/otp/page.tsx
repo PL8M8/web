@@ -9,6 +9,7 @@ function VerifyOTPForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
 
+  
   const verifyOTP = useProfileStore((state) => state.verifyOTP);
   const loading = useProfileStore((state) => state.loading);
   const error = useProfileStore((state) => state.error);
