@@ -1,31 +1,27 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/utils/supabase/client";
+import { useProfileStore } from "@/modules/profile";
 
 export default function OTP() {
   const router = useRouter();
+  const sendOTP = useProfileStore((state) => state.sendOTP);
+  const loading = useProfileStore((state) => state.loading);
+  const error = useProfileStore((state) => state.error);
+
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const handleSendOTP = async () => {
-    setLoading(true);
     setMessage("");
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    });
-
-    if (error) {
-      setMessage(error.message);
-    } else {
+    try {
+      await sendOTP(email);
       setMessage("OTP sent! Check your email.");
       router.push("/signin/otp?email=" + encodeURIComponent(email));
+    } catch (err: any) {
+      setMessage(err.message || "Error sending OTP");
     }
-
-    setLoading(false);
   };
 
   return (
@@ -48,7 +44,7 @@ export default function OTP() {
         </button>
       </section>
 
-      {message && <p>{message}</p>}
+      {(message || error) && <p>{message || error}</p>}
     </div>
   );
 }

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import SignOutButton from "@/modules/auth/signOutBtn.component";
-import AuthGuard from "@/modules/auth/authGuard.component";
+import SignOutButton from "@/modules/profile/components/signOutBtn.component";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header>
           <SignOutButton />
         </header>
-
-        <AuthGuard>
           {children}
-        </AuthGuard>
       </body>
     </html>
   );

@@ -1,8 +1,0 @@
-@startuml
-start
-:Developer commits/pushes code to "dev" branch on GitHub;
-:Zapier webhook triggered;
-:Send notification to #web Slack Channel;
-:Team reviews commit notification;
-stop
-@enduml

@@ -1,42 +1,29 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/utils/supabase/client";
+import { useProfileStore } from "@/modules/profile";
 
 export default function Page() {
   const router = useRouter();
+  const { user } = useProfileStore();
   const [loading, setLoading] = useState(true);
-  const [welcome, setWelcome] = useState(false);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        // show welcome message briefly
-        setWelcome(true);
+    const init = async () => {
+      if (user) {
         setLoading(false);
-
-        // wait 1.5 seconds before redirect
-        setTimeout(() => {
-          router.replace("/listings");
-        }, 1500);
-      } else {
-        setLoading(false);
+        router.replace(`/${user.id}`);
+        return;
       }
+
+      setLoading(false);
     };
 
-    checkUser();
-  }, [router]);
+    init();
+  }, [user, router]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (welcome) {
-    return <div>Welcome back!</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
