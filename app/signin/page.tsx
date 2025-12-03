@@ -15,6 +15,7 @@ export default function OTP() {
 
   const handleSendOTP = async () => {
     setMessage("");
+    
     try {
       await sendOTP(email);
       setMessage("OTP sent! Check your email.");
