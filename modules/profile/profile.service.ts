@@ -1,42 +1,16 @@
+import { getPublicBucketUrls } from "@/helpers/getPublicBucketUrls.helper";
 import { supabase } from "@/utils/supabase/client";
-
-export interface Vehicle {
-    vin: string;
-    year: number;
-    make: string;
-    model: string;
-    color?: string;
-    condition?: string;
-    mileage?: number;
-    listing_price?: number;
-    image_uri?: string;
-    description?: string;
-}
-
-export interface ProfilePayload {
-    id?: string;
-    username?: string;
-    vehicle?: Vehicle;
-}
 
 const TABLE = "profiles";
 
-// Auth
 export async function sendOTP(email: string) {
-    const { data, error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: true },
-    });
+    const { data, error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true }, });
     if (error) throw new Error(error.message);
     return data;
 }
 
 export async function verifyOTP(email: string, token: string) {
-    const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token,
-        type: "magiclink",
-    });
+    const { data, error } = await supabase.auth.verifyOtp({ email, token, type: "magiclink",});
     if (error) throw new Error(error.message);
     return data.user;
 }
@@ -47,17 +21,12 @@ export async function closeSession() {
     return true;
 }
 
-// Get current authenticated user
 export async function getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser();
-    // Don't throw error if no session - return null for anonymous users
-    if (error && !error.message?.includes("session")) {
-        throw new Error(error.message);
-    }
+    if (error && !error.message?.includes("session")) { throw new Error(error.message); }
     return user;
 }
 
-// Profile - by username
 export async function getProfileByUsername(username: string) {
     const { data, error } = await supabase
         .from(TABLE)
@@ -66,15 +35,18 @@ export async function getProfileByUsername(username: string) {
         .single();
     
     if (error) {
-        if (error.code === 'PGRST116') {
-            return null;
-        }
+        if (error.code === 'PGRST116') { return null;}
         throw new Error(error.message);
     }
-    return data;
+
+    const profileWithImages = {
+        ...data,
+        vehicle_images: getPublicBucketUrls("vehicle-images", data.vehicle_images)
+    }
+
+    return profileWithImages;
 }
 
-// Profile - by user ID (for creating default profile)
 export async function getProfileByUserId(userId: string) {
     const { data, error } = await supabase
         .from(TABLE)
@@ -88,10 +60,15 @@ export async function getProfileByUserId(userId: string) {
         }
         throw new Error(error.message);
     }
-    return data;
+    
+    const profileWithImages = {
+        ...data,
+        vehicle_images: getPublicBucketUrls("vehicle-images", data.vehicle_images)
+    }
+
+    return profileWithImages;
 }
 
-// Create default profile (only needs user ID since username has default)
 export async function createDefaultProfile(userId: string) {
     const { data, error } = await supabase
         .from(TABLE)
@@ -112,25 +89,38 @@ export async function createDefaultProfile(userId: string) {
     return data;
 }
 
-// Update profile by user ID
-export async function updateProfileTable(userId: string, payload: ProfilePayload) {
-    const updateData: any = {};
-    
-    if (payload.username !== undefined) {
-        updateData.username = payload.username;
-    }
-    
-    if (payload.vehicle !== undefined) {
-        updateData.vehicle = payload.vehicle;
-    }
-
+export async function updateProfileTable(userId: string, payload: any) {
     const { data, error } = await supabase
         .from(TABLE)
-        .update(updateData)
+        .update(payload)
         .eq("id", userId)
         .select()
         .single();
     
     if (error) throw new Error(error.message);
     return data;
+}
+
+export async function uploadVehicleImages(files: File[]): Promise<string[]> {
+    if (!files.length) return [];
+    
+    const uploadedFiles: string[] = [];
+    
+    try {
+        for (const file of files) {
+            const fileName = `temp/${Date.now()}-${file.name}`;
+            const { error } = await supabase.storage
+                .from("vehicle-images")
+                .upload(fileName, file, {
+                    upsert: false
+                });
+
+            if (error) throw error;
+            uploadedFiles.push(fileName);
+        }
+        return uploadedFiles;
+    } catch (error) {
+        console.error('Upload error:', error);
+        throw error;
+    }
 }

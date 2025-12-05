@@ -1,29 +1,32 @@
 import { create } from "zustand";
 import type { User } from "@supabase/supabase-js";
-import type { ProfilePayload, Vehicle } from "./profile.service";
 import * as ProfileService from "./profile.service";
 
-interface ProfileState {
-    user: User | null;
-    profile: ProfilePayload | null;
-    loading: boolean;
-    error: string | null;
-
-    loadCurrentUser: () => Promise<void>;
-    sendOTP: (email: string) => Promise<void>;
-    verifyOTP: (email: string, token: string) => Promise<void>;
-    logout: () => Promise<void>;
-
-    loadProfileByUsername: (username: string) => Promise<void>;
-    ensureProfileExists: (userId: string) => Promise<ProfilePayload>;
-    updateProfileTable: (userId: string, payload: ProfilePayload) => Promise<ProfilePayload>;
-}
-
-export const useProfileStore = create<ProfileState>((set, get) => ({
+export const useProfileStore = create<any>((set, get) => ({
     user: null,
     profile: null,
     loading: false,
     error: null,
+    initialized: false,
+
+    // ---------------- Initialization ----------------
+    initialize: async () => {
+        if (get().initialized) return;
+        
+        try {
+            const user = await ProfileService.getCurrentUser();
+            
+            if (user) {
+                const profile = await ProfileService.getProfileByUserId(user.id);
+                set({ user, profile, initialized: true });
+            } else {
+                set({ user: null, profile: null, initialized: true });
+            }
+        } catch (err: any) {
+            console.error("Failed to initialize:", err);
+            set({ user: null, profile: null, initialized: true });
+        }
+    },
 
     // ---------------- Auth ----------------
     loadCurrentUser: async () => {
@@ -31,7 +34,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
             const user = await ProfileService.getCurrentUser();
             set({ user });
         } catch (err: any) {
-            // Silently handle no session - this is fine for public access
             if (err.message?.includes("session") || err.message?.includes("Auth")) {
                 set({ user: null });
             } else {
@@ -40,6 +42,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
             }
         }
     },
+
     sendOTP: async (email: string) => {
         set({ loading: true, error: null });
         try {
@@ -57,7 +60,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
             const user = await ProfileService.verifyOTP(email, token);
             set({ user });
             
-            // Ensure profile exists for this user
             if (user) {
                 const profile = await get().ensureProfileExists(user.id);
                 set({ profile });
@@ -103,7 +105,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         try {
             let profile = await ProfileService.getProfileByUserId(userId);
             
-            // If no profile exists, create a default one
             if (!profile) {
                 profile = await ProfileService.createDefaultProfile(userId);
             }
@@ -114,12 +115,26 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         }
     },
 
-    updateProfileTable: async (userId: string, payload: ProfilePayload) => {
+    updateProfileTable: async (userId: string, payload: any) => {
         set({ loading: true, error: null });
         try {
             const data = await ProfileService.updateProfileTable(userId, payload);
             set({ profile: data });
             return data;
+        } catch (err: any) {
+            set({ error: err.message });
+            throw err;
+        } finally {
+            set({ loading: false });
+        }
+    },
+
+    // ---------------- Vehicle Images ----------------
+    uploadVehicleImages: async (files: File[]) => {
+        set({ loading: true, error: null });
+        try {
+            const uploadedFiles = await ProfileService.uploadVehicleImages(files);
+            return uploadedFiles;
         } catch (err: any) {
             set({ error: err.message });
             throw err;
