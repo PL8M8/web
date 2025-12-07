@@ -25,7 +25,6 @@ export const VehicleImageUpload = () => {
 
         try {
             for (const file of files) {
-                // ✅ Use user.id directly from store
                 const fileName = `${user.id}/${Date.now()}-${file.name}`
 
                 const { error } = await supabase.storage
